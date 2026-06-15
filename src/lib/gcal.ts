@@ -372,36 +372,37 @@ export async function fetchEventsRange(
   calendars: GcalCalendar[],
 ): Promise<{ ok: true; events: GcalEvent[] } | GcalFail> {
   if (!hasValidToken()) return { ok: false, reason: 'auth' }
-  const params = new URLSearchParams({
-    timeMin: timeMinISO,
-    timeMax: timeMaxISO,
-    singleEvents: 'true',
-    orderBy: 'startTime',
-    maxResults: '100',
-  })
+  const base = { timeMin: timeMinISO, timeMax: timeMaxISO, singleEvents: 'true', orderBy: 'startTime', maxResults: '2500' }
   const all: GcalEvent[] = []
   let fail: GcalFail | null = null
   await Promise.all(calendars.map(async c => {
-    const r = await gget(`${API}/calendars/${encodeURIComponent(c.id)}/events?${params}`)
-    if (!('res' in r)) {
-      if (r.reason !== 'error') fail = r
-      return
-    }
-    const d = (await r.res.json()) as { items?: RawEvent[] }
-    for (const ev of d.items ?? []) {
-      const start = ev.start.dateTime ?? ev.start.date ?? ''
-      all.push({
-        id: ev.id,
-        summary: ev.summary ?? '(제목 없음)',
-        start,
-        end: ev.end.dateTime ?? ev.end.date ?? '',
-        date: start.slice(0, 10),
-        allDay: !ev.start.dateTime,
-        color: c.color,
-        calendarId: c.id,
-        calendar: c.summary,
-      })
-    }
+    let pageToken: string | undefined
+    let guard = 0
+    do {
+      const params = new URLSearchParams(base)
+      if (pageToken) params.set('pageToken', pageToken)
+      const r = await gget(`${API}/calendars/${encodeURIComponent(c.id)}/events?${params}`)
+      if (!('res' in r)) {
+        if (r.reason !== 'error') fail = r
+        return
+      }
+      const d = (await r.res.json()) as { items?: RawEvent[]; nextPageToken?: string }
+      for (const ev of d.items ?? []) {
+        const start = ev.start.dateTime ?? ev.start.date ?? ''
+        all.push({
+          id: ev.id,
+          summary: ev.summary ?? '(제목 없음)',
+          start,
+          end: ev.end.dateTime ?? ev.end.date ?? '',
+          date: start.slice(0, 10),
+          allDay: !ev.start.dateTime,
+          color: c.color,
+          calendarId: c.id,
+          calendar: c.summary,
+        })
+      }
+      pageToken = d.nextPageToken
+    } while (pageToken && ++guard < 10)
   }))
   if (fail && all.length === 0) return fail
   const seen = new Set<string>()

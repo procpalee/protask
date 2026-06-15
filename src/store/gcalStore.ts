@@ -93,6 +93,7 @@ export const useGcal = create<GcalStore>((set, get) => ({
 
   disconnect: () => {
     gcalDisconnect()
+    get().setSelected(null) // 다른 계정 재연결 시 옛 캘린더 필터가 새 캘린더를 가리지 않도록
     set({ status: 'disconnected', events: [], loadedKeys: [], calendars: [] })
   },
 
@@ -102,7 +103,8 @@ export const useGcal = create<GcalStore>((set, get) => ({
     const key = `${fromDate}..${toDate}`
     if (s.loadedKeys.includes(key)) return
     set({ loadedKeys: [...s.loadedKeys, key] })
-    const r = await fetchEventsRange(`${fromDate}T00:00:00+09:00`, `${toDate}T00:00:00+09:00`, s.calendars)
+    // 로컬 자정 → UTC instant (브라우저 타임존 기준 경계, KST 하드코딩 제거)
+    const r = await fetchEventsRange(new Date(`${fromDate}T00:00:00`).toISOString(), new Date(`${toDate}T00:00:00`).toISOString(), s.calendars)
     if (!r.ok) {
       set({
         status: r.reason === 'auth' ? 'disconnected' : r.reason,

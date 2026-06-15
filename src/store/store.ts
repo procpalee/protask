@@ -473,7 +473,7 @@ export function useNavOrder(ids: string[], kind: 'task' | 'project' = 'task'): v
 /** 페이지가 탭 전환기를 등록 — ←/→ 로 탭 이동(Shortcuts가 사용). 언마운트 시 정리 */
 export function useViewTabs(keys: string[], active: string, set: (k: string) => void): void {
   const setRef = useRef(set)
-  setRef.current = set
+  useEffect(() => { setRef.current = set }) // 렌더 중 ref 변경 금지 → 매 렌더 후 최신 콜백 보관
   const setTabNav = useStore(s => s.setTabNav)
   const keysKey = keys.join('|')
   useEffect(() => {

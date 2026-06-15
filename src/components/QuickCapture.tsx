@@ -16,7 +16,7 @@ export default function QuickCapture() {
         e.preventDefault()
         setOpen(o => !o)
       }
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') { setOpen(false); setText('') }
     }
     const onOpen = () => setOpen(true)
     window.addEventListener('keydown', onKey)
@@ -29,7 +29,6 @@ export default function QuickCapture() {
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 30)
-    else setText('')
   }, [open])
 
   if (!open) return null
@@ -46,7 +45,7 @@ export default function QuickCapture() {
     <div
       className="fixed inset-0 z-[60] flex items-start justify-center bg-black/30 p-4 pt-[18vh] backdrop-blur-[1px]"
       onMouseDown={e => {
-        if (e.target === e.currentTarget) setOpen(false)
+        if (e.target === e.currentTarget) { setOpen(false); setText('') }
       }}
     >
       <div className="w-full max-w-[560px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900">

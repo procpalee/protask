@@ -18,5 +18,11 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // rest-sibling omit 패턴(`const { updated_at: _u, ...payload } = row`)과 `_` 접두 변수 허용
+      '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Fast Refresh(HMR) 전용 힌트 — 런타임 버그 아님이라 경고로
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
   },
 ])

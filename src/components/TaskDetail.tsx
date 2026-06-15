@@ -15,14 +15,9 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
   const updateTask = useStore(s => s.updateTask)
   const deleteTask = useStore(s => s.deleteTask)
 
+  // App에서 key={taskId}로 마운트되므로 prop에서 곧바로 초기화(태스크 전환 시 자동 리셋)
   const [title, setTitle] = useState(task?.title ?? '')
   const [notes, setNotes] = useState(task?.notes ?? '')
-
-  useEffect(() => {
-    setTitle(task?.title ?? '')
-    setNotes(task?.notes ?? '')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskId])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

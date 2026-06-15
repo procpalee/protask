@@ -28,6 +28,7 @@ export default function TodayPage() {
   const overdue = useStore(useShallow(selOverdue))
   const sections = useStore(s => s.sections)
   const updateTask = useStore(s => s.updateTask)
+  const rebalance = useStore(s => s.rebalance)
   const addSection = useStore(s => s.addSection)
   const addTask = useStore(s => s.addTask)
   const allTasks = useStore(s => s.tasks)
@@ -154,9 +155,15 @@ export default function TodayPage() {
     const nextId = ids[insertAt]
     const prevPos = prevId ? todayTasks.find(t => t.id === prevId)?.today_position ?? undefined : undefined
     const nextPos = nextId ? todayTasks.find(t => t.id === nextId)?.today_position ?? undefined : undefined
-    let pos = between(prevPos ?? undefined, nextPos ?? undefined)
-    if (Number.isNaN(pos)) pos = (insertAt + 1) * 1024
-
+    const pos = between(prevPos ?? undefined, nextPos ?? undefined)
+    if (Number.isNaN(pos)) {
+      // 인접 위치 간격이 너무 좁음 → 새 순서로 섹션 전체 재배치(깨끗한 간격, 충돌 방지)
+      const order = [...ids]
+      order.splice(insertAt, 0, taskId)
+      updateTask(taskId, { scheduled_date: todayStr(), today_section: sec === NONE ? null : sec })
+      rebalance(order, 'today_position')
+      return
+    }
     updateTask(taskId, {
       scheduled_date: todayStr(),
       today_section: sec === NONE ? null : sec,

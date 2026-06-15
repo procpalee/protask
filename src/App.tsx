@@ -85,7 +85,7 @@ export default function App() {
       <QuickCapture />
       <Shortcuts />
       <Flash />
-      {detailTaskId && <TaskDetail taskId={detailTaskId} onClose={() => openDetail(null)} />}
+      {detailTaskId && <TaskDetail key={detailTaskId} taskId={detailTaskId} onClose={() => openDetail(null)} />}
     </BrowserRouter>
   )
 }

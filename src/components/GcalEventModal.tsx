@@ -66,13 +66,19 @@ export default function GcalEventModal({
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const timing = (): EventTiming => ({
-    allDay: f.allDay,
-    startDate: f.startDate,
-    startTime: f.allDay ? undefined : f.startTime,
-    endDate: f.endDate < f.startDate ? f.startDate : f.endDate,
-    endTime: f.allDay ? undefined : f.endTime,
-  })
+  const timing = (): EventTiming => {
+    const endDate = f.endDate < f.startDate ? f.startDate : f.endDate
+    // 같은 날 시간 일정에서 종료<시작이면 종료를 시작으로 보정 (Google 400 방지)
+    let endTime = f.endTime
+    if (!f.allDay && endDate === f.startDate && endTime < f.startTime) endTime = f.startTime
+    return {
+      allDay: f.allDay,
+      startDate: f.startDate,
+      startTime: f.allDay ? undefined : f.startTime,
+      endDate,
+      endTime: f.allDay ? undefined : endTime,
+    }
+  }
 
   const save = async () => {
     setBusy(true)
