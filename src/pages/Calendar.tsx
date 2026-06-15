@@ -10,7 +10,7 @@ import { useStore, selInbox, selSomeday } from '../store/store'
 import { useGcal } from '../store/gcalStore'
 import { wsColor, type Task } from '../types'
 import { todayStr, toStr } from '../lib/dates'
-import type { GcalEvent } from '../lib/gcal'
+import { eventDays, type GcalEvent } from '../lib/gcal'
 import ProjectChip from '../components/ProjectChip'
 import GcalEventModal from '../components/GcalEventModal'
 
@@ -87,8 +87,10 @@ export default function CalendarPage() {
     if (gcal.status !== 'connected') return map
     for (const e of gcal.events) {
       if (gcal.selected !== null && !gcal.selected.includes(e.calendarId)) continue
-      if (!map.has(e.date)) map.set(e.date, [])
-      map.get(e.date)!.push(e)
+      for (const day of eventDays(e)) { // 다일 일정은 걸치는 모든 날에 표시
+        if (!map.has(day)) map.set(day, [])
+        map.get(day)!.push(e)
+      }
     }
     return map
   }, [gcal.events, gcal.status, gcal.selected])

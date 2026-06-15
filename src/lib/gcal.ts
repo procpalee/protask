@@ -265,6 +265,28 @@ function shiftIso(iso: string, days: number): string {
   return new Date(Date.parse(iso) + days * 86400000).toISOString()
 }
 
+/**
+ * 일정이 걸치는 모든 날짜(YYYY-MM-DD) 목록.
+ * 종일 다일 일정은 Google이 end.date를 **배타**(다음날)로 주므로 마지막 표시일 = end-1일.
+ * 시간 일정은 start~end 날짜를 포함(자정 넘기면 양일).
+ */
+export function eventDays(ev: GcalEvent): string[] {
+  const startDay = ev.date || ev.start.slice(0, 10)
+  if (!startDay) return []
+  let lastDay: string
+  if (ev.allDay) {
+    const endEx = (ev.end || '').slice(0, 10)
+    lastDay = endEx && endEx > startDay ? addDaysStr(endEx, -1) : startDay
+  } else {
+    lastDay = (ev.end || ev.start).slice(0, 10) || startDay
+    if (lastDay < startDay) lastDay = startDay
+  }
+  const days: string[] = []
+  let d = startDay
+  for (let i = 0; i < 366 && d <= lastDay; i++) { days.push(d); d = addDaysStr(d, 1) }
+  return days
+}
+
 /** 일정을 newDate로 이동(기간·시각 유지). 종일=날짜, 시간일정=일수 평행이동 */
 export async function rescheduleEvent(ev: GcalEvent, newDate: string): Promise<{ ok: true } | GcalFail> {
   if (ev.date === newDate) return { ok: true }

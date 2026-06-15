@@ -2,8 +2,17 @@ import { create } from 'zustand'
 import {
   connect as gcalConnect, disconnect as gcalDisconnect, fetchCalendars, fetchEventsRange,
   rescheduleEvent, createEvent as gcalCreate, updateEvent as gcalUpdate, deleteEvent as gcalDelete,
-  gcalEnabled, hasValidToken, type GcalCalendar, type GcalEvent, type EventTiming,
+  eventDays, gcalEnabled, hasValidToken, type GcalCalendar, type GcalEvent, type EventTiming,
 } from '../lib/gcal'
+
+/** YYYY-MM-DD에 n일 (정오 기준 tz 경계 회피) — 종일 end 배타 변환용 */
+function addDay(d: string, n: number) {
+  const dt = new Date(`${d}T12:00:00`)
+  dt.setDate(dt.getDate() + n)
+  const m = String(dt.getMonth() + 1).padStart(2, '0')
+  const day = String(dt.getDate()).padStart(2, '0')
+  return `${dt.getFullYear()}-${m}-${day}`
+}
 
 export type GcalStatus = 'disabled' | 'loading' | 'connected' | 'disconnected' | 'api_disabled' | 'error'
 
@@ -122,14 +131,19 @@ export const useGcal = create<GcalStore>((set, get) => ({
     const delta = Math.round((Date.parse(`${newDate}T12:00:00`) - Date.parse(`${ev.date}T12:00:00`)) / 86400000)
     // 낙관적: 날짜 + (시간일정이면) start/end도 평행 이동해 표시 일관성 유지
     set({
-      events: prev.map(e => e.id === ev.id
-        ? {
-            ...e,
-            date: newDate,
-            start: e.allDay ? e.start : new Date(Date.parse(e.start) + delta * 86400000).toISOString(),
-            end: e.allDay ? e.end : new Date(Date.parse(e.end) + delta * 86400000).toISOString(),
-          }
-        : e),
+      events: prev.map(e => {
+        if (e.id !== ev.id) return e
+        if (e.allDay) {
+          const span = Math.max(1, Math.round((Date.parse(e.end) - Date.parse(e.start)) / 86400000))
+          return { ...e, date: newDate, start: newDate, end: addDay(newDate, span) } // 종일 기간 유지
+        }
+        return {
+          ...e,
+          date: newDate,
+          start: new Date(Date.parse(e.start) + delta * 86400000).toISOString(),
+          end: new Date(Date.parse(e.end) + delta * 86400000).toISOString(),
+        }
+      }),
     })
     const r = await rescheduleEvent(ev, newDate)
     if (!r.ok) {
@@ -165,7 +179,7 @@ export const useGcal = create<GcalStore>((set, get) => ({
       patched.date = t.startDate
       if (t.allDay) {
         patched.start = t.startDate
-        patched.end = t.endDate || t.startDate
+        patched.end = addDay(t.endDate || t.startDate, 1) // 종일 end는 배타(+1)
       } else {
         patched.start = `${t.startDate}T${t.startTime || '09:00'}:00`
         patched.end = `${t.endDate || t.startDate}T${t.endTime || t.startTime || '09:00'}:00`
@@ -204,7 +218,7 @@ export const useGcal = create<GcalStore>((set, get) => ({
   eventsOn: date => {
     const { events, selected } = get()
     return events
-      .filter(e => e.date === date && (selected === null || selected.includes(e.calendarId)))
+      .filter(e => (selected === null || selected.includes(e.calendarId)) && eventDays(e).includes(date))
       .sort((a, b) => Number(a.allDay ? 0 : 1) - Number(b.allDay ? 0 : 1) || a.start.localeCompare(b.start))
   },
 }))
