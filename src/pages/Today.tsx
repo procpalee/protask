@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  DndContext, DragOverlay, PointerSensor, TouchSensor, closestCorners,
-  useDroppable, useSensor, useSensors, type DragEndEvent, type DragStartEvent,
-} from '@dnd-kit/core'
+import { useDroppable, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
@@ -10,7 +7,7 @@ import {
   Plus, Pencil, Trash2, ChevronUp, ChevronDown, Circle, CheckCircle2, Star,
 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
-import { useStore, selToday, selOverdue, useNavOrder } from '../store/store'
+import { useStore, selToday, selOverdue, useNavOrder, usePageDnd } from '../store/store'
 import { useGcal } from '../store/gcalStore'
 import { wsColor, type Task } from '../types'
 import { between } from '../lib/position'
@@ -34,7 +31,6 @@ export default function TodayPage() {
   const workspaces = useStore(s => s.workspaces)
   const projects = useStore(s => s.projects)
   const openDetail = useStore(s => s.openDetail)
-  const [activeId, setActiveId] = useState<string | null>(null)
   const [text, setText] = useState('')
   const [view, setView] = useState<'list' | 'board'>(() => (localStorage.getItem('pd-todayview') as 'list' | 'board') || 'list')
   const setViewP = (v: 'list' | 'board') => { setView(v); localStorage.setItem('pd-todayview', v) }
@@ -48,11 +44,6 @@ export default function TodayPage() {
     addTask({ title: v, scheduled_date: todayStr() })
     setText('')
   }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
-  )
 
   const sorted = useMemo(() => [...sections].sort((a, b) => a.position - b.position), [sections])
   const secIds = useMemo(() => new Set(sorted.map(s => s.id)), [sorted])
@@ -99,10 +90,7 @@ export default function TodayPage() {
     [overdue, todoOrder, todayTasks],
   ))
 
-  const onDragStart = (e: DragStartEvent) => setActiveId(String(e.active.id))
-
   const onDragEnd = (e: DragEndEvent) => {
-    setActiveId(null)
     const { active, over } = e
     if (!over) return
     const taskId = String(active.id)
@@ -143,8 +131,8 @@ export default function TodayPage() {
       today_position: pos,
     })
   }
+  usePageDnd(onDragEnd)
 
-  const activeTask = activeId ? allTasks.find(t => t.id === activeId) : null
   const doneToday = useMemo(() => todayTasks.filter(t => t.status === 'done'), [todayTasks])
   const doneCount = doneToday.length
   const todoCount = todayTasks.length - doneCount
@@ -229,7 +217,7 @@ export default function TodayPage() {
       )}
 
       {/* 3) To-dos / Done — 리스트(기본) 또는 보드 */}
-      <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragEnd={onDragEnd}>
+      <>
         {view === 'board' ? (
           <div className="flex flex-col gap-3 md:flex-row md:snap-x md:snap-mandatory md:overflow-x-auto md:pb-2">
             {boardKeys.map((k, i) => (
@@ -322,14 +310,7 @@ export default function TodayPage() {
             )}
           </>
         )}
-        <DragOverlay>
-          {activeTask ? (
-            <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[13px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
-              {activeTask.title}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+      </>
 
       {todayTasks.length === 0 && overdue.length === 0 && (
         <div className="mt-3 rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[13px] text-zinc-400 dark:border-zinc-700">

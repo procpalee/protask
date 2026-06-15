@@ -1,12 +1,9 @@
 import { useMemo, useState } from 'react'
-import {
-  DndContext, DragOverlay, PointerSensor, TouchSensor,
-  useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent, type DragStartEvent,
-} from '@dnd-kit/core'
+import { useDraggable, useDroppable, type DragEndEvent } from '@dnd-kit/core'
 import { Moon, Sun, CalendarDays, Clock3, ListTodo } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { addDays } from 'date-fns'
-import { useStore, selSomeday, useNavOrder } from '../store/store'
+import { useStore, selSomeday, useNavOrder, usePageDnd } from '../store/store'
 import { todayStr, toStr } from '../lib/dates'
 import { wsColor, type Task } from '../types'
 import TaskRow from '../components/TaskRow'
@@ -21,12 +18,8 @@ export default function SomedayPage() {
   const updateTask = useStore(s => s.updateTask)
   const openDetail = useStore(s => s.openDetail)
   const [text, setText] = useState('')
-  const [activeId, setActiveId] = useState<string | null>(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
-  )
+  const dragId = useStore(s => s.dragId)
+  const dragActive = !!dragId && !dragId.startsWith('P:') && !dragId.startsWith('gcal:')
 
   const submit = () => {
     const v = text.trim()
@@ -64,7 +57,6 @@ export default function SomedayPage() {
   const sortedSections = useMemo(() => [...sections].sort((a, b) => a.position - b.position), [sections])
 
   const onDragEnd = (e: DragEndEvent) => {
-    setActiveId(null)
     const { active, over } = e
     if (!over) return
     const taskId = String(active.id)
@@ -76,12 +68,10 @@ export default function SomedayPage() {
     else if (overId.startsWith('dropsec:'))
       updateTask(taskId, { scheduled_date: todayStr(), today_section: overId.slice(8) })
   }
-
-  const activeTask = activeId ? someday.find(t => t.id === activeId) : null
+  usePageDnd(onDragEnd)
 
   return (
-    <DndContext sensors={sensors} onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))} onDragEnd={onDragEnd}>
-      <div className="mx-auto max-w-[760px] px-5 py-5">
+    <div className="mx-auto max-w-[760px] px-5 py-5">
         <div className="mb-4 flex items-baseline gap-2">
           <Moon size={16} className="self-center text-violet-400" />
           <h1 className="text-[18px] font-bold tracking-tight">Someday</h1>
@@ -89,7 +79,7 @@ export default function SomedayPage() {
         </div>
 
         {/* 드래그 중 나타나는 드롭 존 (날짜 배정 = Someday 해제) */}
-        {activeId && (
+        {dragActive && (
           <div className="sticky top-2 z-30 mb-3 flex flex-wrap gap-1.5 rounded-xl border border-blue-200 bg-white/95 p-2 shadow-lg backdrop-blur dark:border-blue-900 dark:bg-zinc-900/95">
             <DropZone id="drop:today" icon={<Sun size={13} />} label="오늘 (Today)" accent />
             <DropZone id="drop:tomorrow" icon={<CalendarDays size={13} />} label="내일" />
@@ -145,16 +135,7 @@ export default function SomedayPage() {
             보류 중인 태스크가 없습니다
           </div>
         )}
-      </div>
-
-      <DragOverlay>
-        {activeTask ? (
-          <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[13px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
-            {activeTask.title}
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    </div>
   )
 }
 

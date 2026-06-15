@@ -1,6 +1,11 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
 import { Inbox, Sun, CalendarDays, LayoutGrid, Settings as SettingsIcon } from 'lucide-react'
+import {
+  DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors,
+  pointerWithin, closestCorners, type DragEndEvent, type CollisionDetection,
+} from '@dnd-kit/core'
+import { useGcal } from './store/gcalStore'
 import Sidebar, { useTheme } from './components/Sidebar'
 import QuickCapture from './components/QuickCapture'
 import Shortcuts from './components/Shortcuts'
@@ -58,6 +63,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <AppDnd>
       <div className="flex h-full">
         <Sidebar dark={dark} onToggleTheme={toggle} />
         <main className="min-w-0 flex-1 overflow-y-auto pb-14 md:pb-0">
@@ -81,6 +87,7 @@ export default function App() {
           )}
         </main>
       </div>
+      </AppDnd>
       <MobileNav />
       <QuickCapture />
       <Shortcuts />
@@ -88,6 +95,75 @@ export default function App() {
       {detailTaskId && <TaskDetail taskId={detailTaskId} onClose={() => openDetail(null)} />}
     </BrowserRouter>
   )
+}
+
+/** 앱 레벨 단일 DnD 컨텍스트 — 사이드바(프로젝트 정렬·태스크 배정)와 페이지 DnD를 한 컨텍스트로 */
+function AppDnd({ children }: { children: React.ReactNode }) {
+  const setDragId = useStore(s => s.setDragId)
+  const projects = useStore(s => s.projects)
+  const tasks = useStore(s => s.tasks)
+  const updateTask = useStore(s => s.updateTask)
+  const reorderProjects = useStore(s => s.reorderProjects)
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  )
+  const collision: CollisionDetection = args => {
+    const p = pointerWithin(args)
+    return p.length ? p : closestCorners(args)
+  }
+  const onEnd = (e: DragEndEvent) => {
+    setDragId(null)
+    const { active, over } = e
+    const aid = String(active.id)
+    const oid = over ? String(over.id) : ''
+    // 1) 사이드바: 프로젝트 순서 변경
+    if (aid.startsWith('P:')) {
+      if (oid.startsWith('P:') && oid !== aid) {
+        const a = projects.find(p => p.id === aid.slice(2))
+        const o = projects.find(p => p.id === oid.slice(2))
+        if (a && o && a.workspace_id === o.workspace_id) {
+          const ids = projects.filter(p => p.workspace_id === a.workspace_id).sort((x, y) => x.position - y.position).map(p => p.id)
+          const from = ids.indexOf(a.id), to = ids.indexOf(o.id)
+          if (from !== -1 && to !== -1) { ids.splice(from, 1); ids.splice(to, 0, a.id); reorderProjects(ids) }
+        }
+      }
+      return
+    }
+    // 2) 사이드바: 태스크 → 프로젝트 배정
+    if (oid.startsWith('P:')) {
+      const proj = projects.find(p => p.id === oid.slice(2))
+      if (proj && tasks.some(t => t.id === aid)) updateTask(aid, { project_id: proj.id, workspace_id: proj.workspace_id })
+      return
+    }
+    // 3) 그 외 → 현재 페이지가 등록한 처리기로 위임
+    useStore.getState().pageDragEnd?.(e)
+  }
+  return (
+    <DndContext sensors={sensors} collisionDetection={collision} onDragStart={e => setDragId(String(e.active.id))} onDragCancel={() => setDragId(null)} onDragEnd={onEnd}>
+      {children}
+      <AppDragOverlay />
+    </DndContext>
+  )
+}
+
+function AppDragOverlay() {
+  const dragId = useStore(s => s.dragId)
+  const tasks = useStore(s => s.tasks)
+  const projects = useStore(s => s.projects)
+  const events = useGcal(s => s.events)
+  let content: React.ReactNode = null
+  if (dragId?.startsWith('gcal:')) {
+    const ev = events.find(x => x.id === dragId.slice(5))
+    if (ev) content = <div className="rounded-r-sm bg-white px-2 py-1 text-[11.5px] font-medium text-zinc-600 shadow-lg dark:bg-zinc-800 dark:text-zinc-300" style={{ borderLeft: `3px solid ${ev.color ?? '#3b82f6'}` }}>{ev.summary}</div>
+  } else if (dragId?.startsWith('P:')) {
+    const p = projects.find(x => x.id === dragId.slice(2))
+    if (p) content = <div className="rounded-md border border-blue-300 bg-white px-3 py-1.5 text-[12.5px] font-medium shadow-lg dark:border-blue-700 dark:bg-zinc-800">{p.title}</div>
+  } else if (dragId) {
+    const t = tasks.find(x => x.id === dragId)
+    if (t) content = <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[13px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">{t.title}</div>
+  }
+  return <DragOverlay>{content}</DragOverlay>
 }
 
 /** 하단 일시 알림 (pd:flash 이벤트) */

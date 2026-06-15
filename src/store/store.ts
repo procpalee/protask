@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { create } from 'zustand'
+import type { DragEndEvent } from '@dnd-kit/core'
 import { customAlphabet } from 'nanoid'
 import { supabase } from '../lib/supabase'
 import { enqueue, pendingCount } from '../lib/sync'
@@ -40,6 +41,12 @@ interface Store {
   /** 탭 화면에서 Esc로 사이드바에 포커스 — true면 ↑/↓가 사이드바(뷰) 이동 */
   sidebarFocus: boolean
   setSidebarFocus: (v: boolean) => void
+  /** 전역 DnD(앱 레벨 컨텍스트): 현재 드래그 중인 id — 오버레이·드롭존 표시용 */
+  dragId: string | null
+  setDragId: (id: string | null) => void
+  /** 현재 페이지가 등록한 드롭 처리기 (사이드바 외 드롭은 여기로 위임) */
+  pageDragEnd: ((e: DragEndEvent) => void) | null
+  setPageDragEnd: (fn: ((e: DragEndEvent) => void) | null) => void
 
   fetchAll: () => Promise<void>
 
@@ -119,6 +126,10 @@ export const useStore = create<Store>((set, get) => ({
   setTabNav: t => set({ tabNav: t }),
   sidebarFocus: false,
   setSidebarFocus: v => set({ sidebarFocus: v }),
+  dragId: null,
+  setDragId: id => set({ dragId: id }),
+  pageDragEnd: null,
+  setPageDragEnd: fn => set({ pageDragEnd: fn }),
   moveHover: dir => {
     const { navOrder, hoverTaskId } = get()
     if (!navOrder.length) return
@@ -454,6 +465,17 @@ export function projectStats(s: Store, projectId: string): { done: number; total
   const list = s.tasks.filter(t => t.project_id === projectId && !t.someday) /* 백로그(Someday)는 진행률 제외 */
   const done = list.filter(t => t.status === 'done').length
   return { done, total: list.length, pct: list.length ? Math.round((done / list.length) * 100) : 0 }
+}
+
+/** 페이지가 드롭 처리기를 앱 레벨 DnD 컨텍스트에 등록 — 언마운트 시 정리 */
+export function usePageDnd(onDragEnd: (e: DragEndEvent) => void): void {
+  const setPageDragEnd = useStore(s => s.setPageDragEnd)
+  const ref = useRef(onDragEnd)
+  ref.current = onDragEnd
+  useEffect(() => {
+    setPageDragEnd((e: DragEndEvent) => ref.current(e))
+    return () => useStore.getState().setPageDragEnd(null)
+  }, [setPageDragEnd])
 }
 
 /** 페이지가 키보드 내비 순서를 등록 — 언마운트 시 정리. kind=task|project */

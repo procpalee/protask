@@ -1,12 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  DndContext, DragOverlay, PointerSensor, TouchSensor,
-  useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent, type DragStartEvent,
-} from '@dnd-kit/core'
+import { useDraggable, useDroppable, type DragEndEvent } from '@dnd-kit/core'
 import { addDays, addMonths, addWeeks, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, startOfMonth, startOfWeek } from 'date-fns'
 import { ChevronDown, ChevronLeft, ChevronRight, Flag, Inbox, Moon, PanelRightClose, PanelRightOpen, Plus } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
-import { useStore, selInbox, selSomeday } from '../store/store'
+import { useStore, selInbox, selSomeday, usePageDnd } from '../store/store'
 import { useGcal } from '../store/gcalStore'
 import { wsColor, type Task } from '../types'
 import { todayStr, toStr } from '../lib/dates'
@@ -28,7 +25,6 @@ export default function CalendarPage() {
   const someday = useStore(useShallow(selSomeday))
   const [panelOpen, setPanelOpen] = useState(true)
   const [somedayOpen, setSomedayOpen] = useState(false)
-  const [activeId, setActiveId] = useState<string | null>(null)
   const [panelW, setPanelW] = useState(() => { const v = Number(localStorage.getItem('pd-calpanel')); return v >= 220 && v <= 600 ? v : 300 })
   useEffect(() => { localStorage.setItem('pd-calpanel', String(panelW)) }, [panelW])
   // 구글 일정 생성/편집 모달
@@ -43,11 +39,6 @@ export default function CalendarPage() {
     if (fProj && t.project_id !== fProj) return false
     return true
   }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
-  )
 
   const days = useMemo(
     () =>
@@ -123,7 +114,6 @@ export default function CalendarPage() {
   const projOptions = useMemo(() => (fWs ? projects.filter(p => p.workspace_id === fWs) : projects), [projects, fWs])
 
   const onDragEnd = (e: DragEndEvent) => {
-    setActiveId(null)
     const { active, over } = e
     if (!over) return
     const overId = String(over.id)
@@ -148,9 +138,8 @@ export default function CalendarPage() {
       updateTask(task.id, { someday: true }) // store 규칙이 날짜 해제
     }
   }
+  usePageDnd(onDragEnd)
 
-  const activeTask = activeId && !activeId.startsWith('gcal:') ? tasks.find(t => t.id === activeId) : null
-  const activeEvent = activeId?.startsWith('gcal:') ? gcal.events.find(x => x.id === activeId.slice(5)) : null
   const today = todayStr()
   const canCreateEvent = gcal.status === 'connected' && gcal.writableCalendars().length > 0
 
@@ -210,8 +199,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <DndContext sensors={sensors} onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))} onDragEnd={onDragEnd}>
-        <div className="flex min-h-0 flex-1 gap-3">
+      <div className="flex min-h-0 flex-1 gap-3">
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="grid grid-cols-7 border-b border-zinc-200 pb-1 dark:border-zinc-800">
               {WEEKDAY.map((d, i) => (
@@ -256,24 +244,6 @@ export default function CalendarPage() {
             </>
           )}
         </div>
-
-        <DragOverlay>
-          {activeTask ? (
-            <div className="rounded border border-blue-300 bg-white px-2 py-1 text-[11.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
-              {activeTask.title}
-            </div>
-          ) : activeEvent ? (
-            <div
-              className={`px-2 py-1 text-[11.5px] font-medium shadow-lg ${
-                activeEvent.allDay ? 'rounded-sm text-white' : 'rounded-r-sm bg-white text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
-              }`}
-              style={activeEvent.allDay ? { background: activeEvent.color ?? '#3b82f6' } : { borderLeft: `3px solid ${activeEvent.color ?? '#3b82f6'}` }}
-            >
-              {activeEvent.summary}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
 
       {modalEvent && <GcalEventModal mode="edit" event={modalEvent} onClose={() => setModalEvent(null)} />}
       {createDate && <GcalEventModal mode="create" initialDate={createDate} onClose={() => setCreateDate(null)} />}
