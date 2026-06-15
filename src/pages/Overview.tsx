@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Eye, NotebookPen, PanelRightClose, PanelRightOpen, Pencil } from 'lucide-react'
+import { ArrowLeft, Eye, Maximize2, Minimize2, NotebookPen, PanelRightClose, PanelRightOpen, Pencil } from 'lucide-react'
 import { Excalidraw } from '@excalidraw/excalidraw'
 import '@excalidraw/excalidraw/index.css'
 import ReactMarkdown from 'react-markdown'
@@ -22,6 +22,7 @@ export default function OverviewPage() {
   const [notes, setNotes] = useState('')
   const [notesOpen, setNotesOpen] = useState(true)
   const [editing, setEditing] = useState(false)
+  const [notesFull, setNotesFull] = useState(false)
   const [ready, setReady] = useState(false)
   const dark = document.documentElement.classList.contains('dark')
 
@@ -100,13 +101,15 @@ export default function OverviewPage() {
         </Link>
         <h1 className="text-[16px] font-bold tracking-tight">{ws.name} — 개요</h1>
         <span className="text-[11.5px] text-zinc-400">변경은 2초 후 자동 저장</span>
-        <button className="btn btn-ghost ml-auto !px-1.5" onClick={() => setNotesOpen(o => !o)} title={notesOpen ? '노트 접기' : '노트 펼치기'}>
-          {notesOpen ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
-        </button>
+        {!notesFull && (
+          <button className="btn btn-ghost ml-auto !px-1.5" onClick={() => setNotesOpen(o => !o)} title={notesOpen ? '노트 접기' : '노트 펼치기'}>
+            {notesOpen ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
+          </button>
+        )}
       </div>
 
       <div className="flex min-h-0 flex-1 gap-3 px-5 pb-5">
-        <div className="min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className={`min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800 ${notesFull ? 'hidden' : ''}`}>
           {ready && (
             <Excalidraw
               theme={dark ? 'dark' : 'light'}
@@ -135,7 +138,7 @@ export default function OverviewPage() {
         </div>
 
         {notesOpen && (
-          <div className="flex w-[300px] shrink-0 flex-col rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+          <div className={`flex shrink-0 flex-col rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 ${notesFull ? 'flex-1' : 'w-[300px]'}`}>
             <div className="flex items-center gap-1.5 border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
               <NotebookPen size={13} className="text-zinc-400" />
               <span className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400">프로젝트 노트</span>
@@ -146,11 +149,18 @@ export default function OverviewPage() {
               >
                 {editing ? <Eye size={13} /> : <Pencil size={13} />}
               </button>
+              <button
+                className="btn btn-ghost !px-1.5 !py-1"
+                onClick={() => setNotesFull(f => !f)}
+                title={notesFull ? '사이드바로' : '전체화면'}
+              >
+                {notesFull ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+              </button>
             </div>
             {editing ? (
               <textarea
                 autoFocus
-                className="flex-1 resize-none bg-transparent p-3 text-[12.5px] leading-relaxed outline-none placeholder:text-zinc-400"
+                className={`flex-1 resize-none bg-transparent leading-relaxed outline-none placeholder:text-zinc-400 ${notesFull ? 'mx-auto w-full max-w-3xl px-6 py-6 text-[14.5px]' : 'p-3 text-[12.5px]'}`}
                 placeholder="프로젝트 관련 내용을 자유롭게 작성…&#10;&#10;(마크다운 텍스트로 저장됩니다)"
                 value={notes}
                 onChange={e => {
@@ -160,14 +170,14 @@ export default function OverviewPage() {
                 }}
               />
             ) : (
-              <div className="flex-1 overflow-y-auto p-3">
+              <div className={`flex-1 overflow-y-auto ${notesFull ? 'px-6 py-6' : 'p-3'}`}>
                 {notes.trim() ? (
-                  <div className="md-preview">
+                  <div className={`md-preview ${notesFull ? 'lg mx-auto max-w-3xl' : ''}`}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{notes}</ReactMarkdown>
                   </div>
                 ) : (
                   <p className="text-[12.5px] text-zinc-400">
-                    아직 노트가 없습니다. 우측 상단 편집 버튼으로 작성하세요.
+                    아직 노트가 없습니다. 상단 편집 버튼으로 작성하세요.
                   </p>
                 )}
               </div>

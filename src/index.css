@@ -70,3 +70,14 @@ body {
 .md-preview th, .md-preview td { @apply border border-zinc-200 px-1.5 py-1 text-left dark:border-zinc-700; }
 .md-preview th { @apply bg-zinc-50 font-semibold dark:bg-zinc-800; }
 .md-preview input[type="checkbox"] { @apply mr-1 align-middle; }
+
+/* 전체화면용 확대 변형 */
+.md-preview.lg { @apply text-[14.5px]; }
+.md-preview.lg h1 { @apply mt-7 mb-3 text-[24px]; }
+.md-preview.lg h2 { @apply mt-6 mb-2.5 text-[19px]; }
+.md-preview.lg h3 { @apply mt-5 mb-2 text-[16px]; }
+.md-preview.lg p, .md-preview.lg li { @apply my-1; }
+.md-preview.lg ul, .md-preview.lg ol { @apply my-2.5 pl-6; }
+.md-preview.lg code { @apply text-[13px]; }
+.md-preview.lg table { @apply text-[13px]; }
+.md-preview.lg th, .md-preview.lg td { @apply px-2.5 py-1.5; }
