@@ -1,21 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <linearGradient id="atlasBg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3b82f6"/>
-      <stop offset="1" stop-color="#4338ca"/>
-    </linearGradient>
-    <clipPath id="atlasGlobe"><circle cx="256" cy="256" r="150"/></clipPath>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#atlasBg)"/>
-  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="256" cy="256" r="150" stroke-width="17"/>
-    <g clip-path="url(#atlasGlobe)" stroke-width="13" opacity="0.96">
-      <line x1="106" y1="256" x2="406" y2="256"/>
-      <path d="M256 106 C 150 160 150 352 256 406"/>
-      <path d="M256 106 C 362 160 362 352 256 406"/>
-      <line x1="256" y1="106" x2="256" y2="406"/>
-      <path d="M120 200 C 200 176 312 176 392 200"/>
-      <path d="M120 312 C 200 336 312 336 392 312"/>
-    </g>
+  <rect width="512" height="512" rx="112" fill="#0f172a"/>
+  <g>
+    <rect x="94" y="94" width="150" height="150" rx="30" fill="#ffffff"/>
+    <rect x="268" y="94" width="150" height="150" rx="30" fill="#ffffff"/>
+    <rect x="94" y="268" width="150" height="150" rx="30" fill="#ffffff"/>
+    <rect x="268" y="268" width="150" height="150" rx="30" fill="#6366f1"/>
   </g>
 </svg>

@@ -132,7 +132,7 @@ export async function connect(): Promise<boolean> {
   const code = await new Promise<string | null>(resolve => {
     const client = window.google!.accounts.oauth2.initCodeClient({
       client_id: GCAL_CLIENT_ID,
-      // calendar(read/write): 조회 + Atlas에서 옮긴 일정 쓰기(reschedule)
+      // calendar(read/write): 조회 + Protask에서 옮긴 일정 쓰기(reschedule)
       scope: 'https://www.googleapis.com/auth/calendar',
       ux_mode: 'popup',
       callback: resp => resolve(resp.code ?? null),

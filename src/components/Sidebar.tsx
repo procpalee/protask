@@ -60,7 +60,7 @@ export default function Sidebar({ dark, onToggleTheme }: { dark: boolean; onTogg
     <aside className="hidden h-full w-[228px] shrink-0 flex-col border-r border-zinc-200 bg-zinc-100/60 md:flex dark:border-zinc-800 dark:bg-zinc-900/60">
       <div className="flex items-center gap-2 px-4 pt-4 pb-3">
         <img src="/icons/icon-192.png" alt="" className="h-5 w-5 rounded" />
-        <span className="text-[13px] font-semibold tracking-tight">Atlas</span>
+        <span className="text-[13px] font-semibold tracking-tight">Protask</span>
         <span className={`ml-auto h-2 w-2 rounded-full ${dot}`} title={dotTitle} />
       </div>
 

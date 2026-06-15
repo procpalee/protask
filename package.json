@@ -1,14 +1,14 @@
 {
-  "name": "atlas",
+  "name": "protask",
   "private": false,
   "version": "0.1.0",
   "license": "MIT",
-  "description": "Atlas — a self-hosted workspace, project & GTD task manager with multi-view (table/board/calendar), Excalidraw overview, and PWA support.",
+  "description": "Protask — a self-hosted, unified workspace, project & GTD task manager across personal and work, with multi-view (table/board/calendar), Excalidraw overview, and PWA support.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/procpalee/atlas.git"
+    "url": "https://github.com/procpalee/protask.git"
   },
-  "homepage": "https://github.com/procpalee/atlas",
+  "homepage": "https://github.com/procpalee/protask",
   "type": "module",
   "scripts": {
     "dev": "vite",

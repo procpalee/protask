@@ -11,13 +11,13 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'],
       manifest: {
-        name: 'Atlas',
-        short_name: 'Atlas',
-        description: '워크스페이스·프로젝트·GTD 할일 관리',
+        name: 'Protask',
+        short_name: 'Protask',
+        description: '개인과 업무, 태스크와 프로젝트를 통합하는 워크스페이스·GTD 할일 관리',
         start_url: '.',
         display: 'standalone',
         background_color: '#fafafa',
-        theme_color: '#2563eb',
+        theme_color: '#6366f1',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },

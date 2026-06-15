@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="public/icons/icon-192.png" width="76" height="76" alt="Atlas logo" />
+<img src="public/icons/icon-192.png" width="76" height="76" alt="Protask logo" />
 
-# Atlas
+# Protask
 
 **A self-hosted workspace, project & GTD task manager — with multi-views, a Kanban board, calendars, and an Excalidraw overview canvas.**
 
@@ -15,12 +15,12 @@ A local-first, installable (PWA) alternative to Akiflow / Todoist that runs on _
 ![Supabase](https://img.shields.io/badge/Supabase-3ecf8e)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff)
 
-<img src="docs/screenshots/workspace-table.png" width="860" alt="Atlas workspace — table view grouped by Phase and Project" />
+<img src="docs/screenshots/workspace-table.png" width="860" alt="Protask workspace — table view grouped by Phase and Project" />
 
 </div>
 
 > [!IMPORTANT]
-> **Atlas is a single-instance app.** It has **no login and no row-level security** — one Supabase instance = one user (or a small, trusted group sharing the same data). It is **not** multi-tenant. Run your own instance; don't point untrusted users at a shared one. (Multi-user auth/RLS is on the [roadmap](#roadmap).)
+> **Protask is a single-instance app.** It has **no login and no row-level security** — one Supabase instance = one user (or a small, trusted group sharing the same data). It is **not** multi-tenant. Run your own instance; don't point untrusted users at a shared one. (Multi-user auth/RLS is on the [roadmap](#roadmap).)
 
 ## ✨ Features
 
@@ -48,8 +48,8 @@ A local-first, installable (PWA) alternative to Akiflow / Todoist that runs on _
 ## 🚀 Quick start (self-host)
 
 ```bash
-git clone https://github.com/procpalee/atlas.git
-cd atlas
+git clone https://github.com/procpalee/protask.git
+cd protask
 npm install
 cp .env.example .env      # set your Supabase URL + anon key
 npm run dev               # http://localhost:5173
@@ -68,9 +68,9 @@ Put the project's **URL** and **anon key** (Supabase → Settings → API) into 
 
 ## ☁️ Deploy (Vercel)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/procpalee/atlas)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/procpalee/protask)
 
-Import the repo into Vercel and add the environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (plus `VITE_GOOGLE_CLIENT_ID` for Google Calendar). Atlas is a Vite SPA — Vercel auto-detects the build, and pushes to `main` auto-deploy.
+Import the repo into Vercel and add the environment variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (plus `VITE_GOOGLE_CLIENT_ID` for Google Calendar). Protask is a Vite SPA — Vercel auto-detects the build, and pushes to `main` auto-deploy.
 
 ## 📅 Google Calendar (optional)
 
