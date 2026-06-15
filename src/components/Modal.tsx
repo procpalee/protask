@@ -32,7 +32,7 @@ export default function Modal({
         style={{ maxWidth: width }}
       >
         <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
-          <h2 className="text-[13.5px] font-semibold">{title}</h2>
+          <h2 className="text-[14.5px] font-semibold">{title}</h2>
           <button onClick={onClose} className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800">
             <X size={15} />
           </button>

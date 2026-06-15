@@ -131,8 +131,8 @@ function Column({ col, tasks, onOpen, onAdd }: { col: KanbanCol; tasks: Task[]; 
     >
       <div className="flex items-center gap-2 px-3 pt-2.5 pb-1.5">
         <span className={`h-2 w-2 rounded-full ${KANBAN_DOT[col]}`} />
-        <span className="text-[12.5px] font-bold">{KANBAN_LABEL[col]}</span>
-        <span className="text-[11.5px] font-semibold text-zinc-400">{tasks.length}</span>
+        <span className="text-[13.5px] font-bold">{KANBAN_LABEL[col]}</span>
+        <span className="text-[12.5px] font-semibold text-zinc-400">{tasks.length}</span>
         <button className="ml-auto rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800" onClick={() => setAdding(true)} title="태스크 추가">
           <Plus size={14} />
         </button>
@@ -143,7 +143,7 @@ function Column({ col, tasks, onOpen, onAdd }: { col: KanbanCol; tasks: Task[]; 
           {adding && (
             <input
               autoFocus
-              className="input !text-[12.5px]"
+              className="input !text-[13.5px]"
               placeholder="태스크 입력 후 Enter"
               value={text}
               onChange={e => setText(e.target.value)}
@@ -197,12 +197,12 @@ function CardBody({ task, overlay, selected }: { task: Task; overlay?: boolean; 
           onPointerDown={e => e.stopPropagation()}
         />
         <div className="min-w-0 flex-1">
-          <div className={`text-[12.5px] leading-snug ${done ? 'line-through' : ''}`}>{task.title}</div>
+          <div className={`text-[13.5px] leading-snug ${done ? 'line-through' : ''}`}>{task.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5 empty:hidden">
-            {ckTotal > 0 && <span className="text-[11px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
+            {ckTotal > 0 && <span className="text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
             {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
             {task.scheduled_date && (
-              <span className="text-[11px] font-medium text-zinc-400">{task.scheduled_date.slice(5).replace('-', '/')}</span>
+              <span className="text-[12px] font-medium text-zinc-400">{task.scheduled_date.slice(5).replace('-', '/')}</span>
             )}
           </div>
         </div>

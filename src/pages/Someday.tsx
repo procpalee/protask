@@ -84,8 +84,8 @@ export default function SomedayPage() {
       <div className="mx-auto max-w-[760px] px-5 py-5">
         <div className="mb-4 flex items-baseline gap-2">
           <Moon size={16} className="self-center text-violet-400" />
-          <h1 className="text-[18px] font-bold tracking-tight">Someday</h1>
-          <span className="text-[12.5px] font-medium text-zinc-400">{someday.length}건</span>
+          <h1 className="text-[19px] font-bold tracking-tight">Someday</h1>
+          <span className="text-[13.5px] font-medium text-zinc-400">{someday.length}건</span>
         </div>
 
         {/* 드래그 중 나타나는 드롭 존 (날짜 배정 = Someday 해제) */}
@@ -98,7 +98,7 @@ export default function SomedayPage() {
               <DropZone key={s.id} id={`dropsec:${s.id}`} icon={<Clock3 size={13} />} label={`오늘 · ${s.name}`} />
             ))}
             {sortedSections.length === 0 && (
-              <span className="flex items-center gap-1 px-1 text-[11px] text-zinc-400"><ListTodo size={12} /> Today에서 섹션을 만들면 여기에도 나타납니다</span>
+              <span className="flex items-center gap-1 px-1 text-[12px] text-zinc-400"><ListTodo size={12} /> Today에서 섹션을 만들면 여기에도 나타납니다</span>
             )}
           </div>
         )}
@@ -107,7 +107,7 @@ export default function SomedayPage() {
           <Moon size={15} className="shrink-0 text-zinc-400" />
           <input
             data-capture
-            className="h-9 flex-1 bg-transparent text-[13.5px] outline-none placeholder:text-zinc-400"
+            className="h-9 flex-1 bg-transparent text-[14.5px] outline-none placeholder:text-zinc-400"
             placeholder="언젠가 할 일을 입력 — Enter"
             value={text}
             onChange={e => setText(e.target.value)}
@@ -141,7 +141,7 @@ export default function SomedayPage() {
         ))}
 
         {someday.length === 0 && (
-          <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[13px] text-zinc-400 dark:border-zinc-700">
+          <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[14px] text-zinc-400 dark:border-zinc-700">
             보류 중인 태스크가 없습니다
           </div>
         )}
@@ -149,7 +149,7 @@ export default function SomedayPage() {
 
       <DragOverlay>
         {activeTask ? (
-          <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[13px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
+          <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[14px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
             {activeTask.title}
           </div>
         ) : null}
@@ -172,7 +172,7 @@ function DropZone({ id, icon, label, accent }: { id: string; icon: React.ReactNo
   return (
     <div
       ref={setNodeRef}
-      className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] font-semibold transition-colors ${
+      className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] font-semibold transition-colors ${
         isOver
           ? 'border-blue-500 bg-blue-500 text-white'
           : accent
@@ -190,8 +190,8 @@ function GroupHead({ label, count }: { label: string; count: number }) {
   return (
     <div className="mb-0.5 flex items-baseline gap-1.5 px-1.5">
       <Folder size={12} className="shrink-0 self-center text-zinc-400" />
-      <span className="text-[12px] font-bold">{label}</span>
-      <span className="text-[11px] font-semibold text-zinc-400">{count}</span>
+      <span className="text-[13px] font-bold">{label}</span>
+      <span className="text-[12px] font-semibold text-zinc-400">{count}</span>
     </div>
   )
 }
@@ -201,8 +201,8 @@ function SubHead({ label, count, muted, color }: { label: string; count: number;
   return (
     <div className="mt-0.5 mb-0.5 flex items-baseline gap-1.5 pl-4">
       {color && <span className="h-2 w-2 shrink-0 self-center rounded-[3px]" style={{ background: color }} />}
-      <span className={`text-[11.5px] font-semibold ${muted ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-300'}`}>{label}</span>
-      <span className="text-[10.5px] font-semibold text-zinc-400">{count}</span>
+      <span className={`text-[12.5px] font-semibold ${muted ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-300'}`}>{label}</span>
+      <span className="text-[11.5px] font-semibold text-zinc-400">{count}</span>
     </div>
   )
 }

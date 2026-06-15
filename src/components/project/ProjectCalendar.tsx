@@ -67,7 +67,7 @@ export default function ProjectCalendar({ tasks }: { tasks: Task[] }) {
   return (
     <div className="flex h-full flex-col px-5 pb-5">
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-[15px] font-bold tracking-tight">{format(anchor, 'yyyy년 M월')}</h2>
+        <h2 className="text-[16px] font-bold tracking-tight">{format(anchor, 'yyyy년 M월')}</h2>
         <div className="ml-auto flex items-center gap-1">
           <button className="btn !px-2" onClick={() => setAnchor(m => addMonths(m, -1))} title="이전 달"><ChevronLeft size={14} /></button>
           <button className="btn" onClick={() => setAnchor(new Date())}>오늘</button>
@@ -80,7 +80,7 @@ export default function ProjectCalendar({ tasks }: { tasks: Task[] }) {
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="grid grid-cols-7 border-b border-zinc-200 pb-1 dark:border-zinc-800">
               {WEEKDAY.map((d, i) => (
-                <div key={d} className={`px-2 text-[11.5px] font-bold ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-zinc-400'}`}>{d}</div>
+                <div key={d} className={`px-2 text-[12.5px] font-bold ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-zinc-400'}`}>{d}</div>
               ))}
             </div>
             <div className="grid flex-1 auto-rows-fr grid-cols-7 overflow-y-auto">
@@ -95,7 +95,7 @@ export default function ProjectCalendar({ tasks }: { tasks: Task[] }) {
         </div>
 
         <DragOverlay>
-          {activeTask ? <div className="rounded border border-blue-300 bg-white px-2 py-1 text-[11.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">{activeTask.title}</div> : null}
+          {activeTask ? <div className="rounded border border-blue-300 bg-white px-2 py-1 text-[12.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">{activeTask.title}</div> : null}
         </DragOverlay>
       </DndContext>
     </div>
@@ -115,13 +115,13 @@ function DayCell({ date, dateStr, inMonth, isToday, tasks, onOpen }: {
         !inMonth ? 'bg-zinc-50/60 dark:bg-zinc-900/40' : day === 0 || day === 6 ? 'bg-zinc-50/40 dark:bg-zinc-900/20' : ''
       } ${isOver ? 'bg-blue-50/70 ring-1 ring-blue-400 ring-inset dark:bg-blue-950/30' : ''}`}
     >
-      <div className={`mb-0.5 px-1 text-[11.5px] font-semibold ${
+      <div className={`mb-0.5 px-1 text-[12.5px] font-semibold ${
         isToday ? 'inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blue-600 px-1 text-white'
           : !inMonth ? 'text-zinc-300 dark:text-zinc-600' : day === 0 ? 'text-red-400' : day === 6 ? 'text-blue-400' : 'text-zinc-500'
       }`}>{date.getDate()}</div>
       <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto">
         {tasks.slice(0, MAX).map(t => <CalChip key={t.id} task={t} onOpen={onOpen} />)}
-        {tasks.length > MAX && <div className="px-1 text-[11.5px] font-medium text-zinc-400">+{tasks.length - MAX}개 더</div>}
+        {tasks.length > MAX && <div className="px-1 text-[12.5px] font-medium text-zinc-400">+{tasks.length - MAX}개 더</div>}
       </div>
     </div>
   )
@@ -136,7 +136,7 @@ function CalChip({ task, onOpen }: { task: Task; onOpen: (id: string) => void })
       {...attributes}
       {...listeners}
       onClick={() => onOpen(task.id)}
-      className={`flex cursor-pointer items-center gap-1 truncate rounded border border-zinc-200 bg-white px-1 py-0.5 text-[12px] hover:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
+      className={`flex cursor-pointer items-center gap-1 truncate rounded border border-zinc-200 bg-white px-1 py-0.5 text-[13px] hover:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
         isDragging ? 'opacity-40' : ''
       } ${done ? 'opacity-50' : ''}`}
       title={task.title}
@@ -163,8 +163,8 @@ function SidePanel({ todo, backlog, backlogOpen, onToggleBacklog, onOpen }: {
           title="백로그 열기"
         >
           <Moon size={14} className="text-violet-400" />
-          <span className="text-[12.5px] font-bold">백로그</span>
-          <span className="text-[11px] font-semibold text-zinc-400">{backlog.length}</span>
+          <span className="text-[13.5px] font-bold">백로그</span>
+          <span className="text-[12px] font-semibold text-zinc-400">{backlog.length}</span>
           <ChevronRight size={14} className="ml-auto text-zinc-400" />
         </button>
       )}
@@ -185,17 +185,17 @@ function PanelSection({ dropId, icon, title, tasks, emptyText, onOpen, onCollaps
     >
       <div className="flex items-center gap-1.5 border-b border-zinc-200 px-3 py-2 dark:border-zinc-800">
         {icon}
-        <span className="text-[12.5px] font-bold">{title}</span>
-        <span className="text-[11px] font-semibold text-zinc-400">{tasks.length}</span>
+        <span className="text-[13.5px] font-bold">{title}</span>
+        <span className="text-[12px] font-semibold text-zinc-400">{tasks.length}</span>
         {onCollapse ? (
           <button onClick={onCollapse} className="ml-auto rounded p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" title="접기"><ChevronDown size={14} /></button>
         ) : (
-          <span className="ml-auto text-[10.5px] text-zinc-400">{isOver ? '여기에 놓기' : '드래그'}</span>
+          <span className="ml-auto text-[11.5px] text-zinc-400">{isOver ? '여기에 놓기' : '드래그'}</span>
         )}
       </div>
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
         {tasks.map(t => <PanelRow key={t.id} task={t} onOpen={onOpen} />)}
-        {tasks.length === 0 && <p className="px-1 py-3 text-center text-[12px] text-zinc-400">{emptyText}</p>}
+        {tasks.length === 0 && <p className="px-1 py-3 text-center text-[13px] text-zinc-400">{emptyText}</p>}
       </div>
     </div>
   )
@@ -209,7 +209,7 @@ function PanelRow({ task, onOpen }: { task: Task; onOpen: (id: string) => void }
       {...attributes}
       {...listeners}
       onClick={() => onOpen(task.id)}
-      className={`flex cursor-grab items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-[12.5px] hover:border-blue-400 active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
+      className={`flex cursor-grab items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-[13.5px] hover:border-blue-400 active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
         isDragging ? 'opacity-40' : ''
       }`}
       title={task.title}

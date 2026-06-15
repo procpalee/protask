@@ -53,7 +53,7 @@ export default function QuickCapture() {
           <Zap size={16} className="shrink-0 text-blue-500" />
           <input
             ref={inputRef}
-            className="flex-1 bg-transparent text-[14.5px] outline-none placeholder:text-zinc-400"
+            className="flex-1 bg-transparent text-[15.5px] outline-none placeholder:text-zinc-400"
             placeholder="빠른 캡처 — Enter로 Inbox에 추가  (예: 부가세 신고 내일)"
             value={text}
             onChange={e => setText(e.target.value)}
@@ -62,7 +62,7 @@ export default function QuickCapture() {
             }}
           />
         </div>
-        <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50 px-4 py-2 text-[11.5px] text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div className="flex items-center justify-between border-t border-zinc-100 bg-zinc-50 px-4 py-2 text-[12.5px] text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900/60">
           <span>
             {parsed.date
               ? <>실행일 <b className="text-blue-600 dark:text-blue-400">{fmtDate(parsed.date)}</b> · "{parsed.title}"</>

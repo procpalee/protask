@@ -99,8 +99,8 @@ export default function OverviewPage() {
         <Link to={`/w/${ws.id}`} className="btn btn-ghost !px-1.5" title="보드로">
           <ArrowLeft size={15} />
         </Link>
-        <h1 className="text-[16px] font-bold tracking-tight">{ws.name} — 개요</h1>
-        <span className="text-[11.5px] text-zinc-400">변경은 2초 후 자동 저장</span>
+        <h1 className="text-[17px] font-bold tracking-tight">{ws.name} — 개요</h1>
+        <span className="text-[12.5px] text-zinc-400">변경은 2초 후 자동 저장</span>
         {!notesFull && (
           <button className="btn btn-ghost ml-auto !px-1.5" onClick={() => setNotesOpen(o => !o)} title={notesOpen ? '노트 접기' : '노트 펼치기'}>
             {notesOpen ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
@@ -141,7 +141,7 @@ export default function OverviewPage() {
           <div className={`flex shrink-0 flex-col rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 ${notesFull ? 'flex-1' : 'w-[300px]'}`}>
             <div className="flex items-center gap-1.5 border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
               <NotebookPen size={13} className="text-zinc-400" />
-              <span className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400">프로젝트 노트</span>
+              <span className="text-[13px] font-bold text-zinc-500 dark:text-zinc-400">프로젝트 노트</span>
               <button
                 className="btn btn-ghost ml-auto !px-1.5 !py-1"
                 onClick={() => setEditing(e => !e)}
@@ -160,7 +160,7 @@ export default function OverviewPage() {
             {editing ? (
               <textarea
                 autoFocus
-                className={`flex-1 resize-none bg-transparent leading-relaxed outline-none placeholder:text-zinc-400 ${notesFull ? 'mx-auto w-full max-w-3xl px-6 py-6 text-[14.5px]' : 'p-3 text-[12.5px]'}`}
+                className={`flex-1 resize-none bg-transparent leading-relaxed outline-none placeholder:text-zinc-400 ${notesFull ? 'mx-auto w-full max-w-3xl px-6 py-6 text-[15.5px]' : 'p-3 text-[13.5px]'}`}
                 placeholder="프로젝트 관련 내용을 자유롭게 작성…&#10;&#10;(마크다운 텍스트로 저장됩니다)"
                 value={notes}
                 onChange={e => {
@@ -176,7 +176,7 @@ export default function OverviewPage() {
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{notes}</ReactMarkdown>
                   </div>
                 ) : (
-                  <p className="text-[12.5px] text-zinc-400">
+                  <p className="text-[13.5px] text-zinc-400">
                     아직 노트가 없습니다. 상단 편집 버튼으로 작성하세요.
                   </p>
                 )}

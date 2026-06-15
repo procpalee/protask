@@ -58,7 +58,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
     >
       <div className="max-h-[80vh] w-full max-w-[600px] overflow-y-auto rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900">
         <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-zinc-100 bg-white px-4 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">
-          <span className="text-[12px] font-semibold text-zinc-400">태스크</span>
+          <span className="text-[13px] font-semibold text-zinc-400">태스크</span>
           <div className="ml-auto flex items-center gap-1">
             <button
               className={`rounded p-1.5 ${task.important ? 'text-amber-500' : 'text-zinc-400 hover:bg-zinc-100 hover:text-amber-500 dark:hover:bg-zinc-800'}`}
@@ -87,7 +87,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
 
         <div className="space-y-4 px-5 py-4">
           <input
-            className="w-full bg-transparent text-[16px] font-semibold outline-none placeholder:text-zinc-400"
+            className="w-full bg-transparent text-[17px] font-semibold outline-none placeholder:text-zinc-400"
             value={title}
             onChange={e => setTitle(e.target.value)}
             onBlur={saveTitle}
@@ -97,7 +97,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <label className="block">
-              <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">프로젝트</span>
+              <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">프로젝트</span>
               <select
                 className="input"
                 value={task.project_id ?? ''}
@@ -119,7 +119,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">상태</span>
+              <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">상태</span>
               <select
                 className="input"
                 value={kanbanColOf(task)}
@@ -127,11 +127,11 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
               >
                 {KANBAN_ORDER.map(c => <option key={c} value={c}>{KANBAN_LABEL[c]}</option>)}
               </select>
-              <span className="mt-1 block px-0.5 text-[11px] text-zinc-400">진행중 = 실행일 오늘 · 백로그 = Someday</span>
+              <span className="mt-1 block px-0.5 text-[12px] text-zinc-400">진행중 = 실행일 오늘 · 백로그 = Someday</span>
             </label>
 
             <label className="block">
-              <span className="mb-1 flex items-center gap-1 text-[11.5px] font-semibold text-zinc-400"><Repeat size={11} /> 반복</span>
+              <span className="mb-1 flex items-center gap-1 text-[12.5px] font-semibold text-zinc-400"><Repeat size={11} /> 반복</span>
               <select className="input" value={recValue} onChange={e => setRec(e.target.value)}>
                 <option value="">없음</option>
                 <option value="daily:1">매일</option>
@@ -143,7 +143,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">실행일 (Schedule)</span>
+              <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">실행일 (Schedule)</span>
               <input
                 type="date"
                 className="input"
@@ -151,17 +151,17 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
                 onChange={e => updateTask(task.id, { scheduled_date: e.target.value || null })}
               />
               <div className="mt-1 flex flex-wrap gap-1">
-                <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[11px]" onClick={() => updateTask(task.id, { scheduled_date: todayStr() })}>오늘</button>
-                <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[11px]" onClick={() => updateTask(task.id, { scheduled_date: toStr(addDays(new Date(), 1)) })}>내일</button>
-                <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[11px]" onClick={() => updateTask(task.id, { scheduled_date: toStr(addDays(new Date(), 7)) })}>+1주</button>
+                <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[12px]" onClick={() => updateTask(task.id, { scheduled_date: todayStr() })}>오늘</button>
+                <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[12px]" onClick={() => updateTask(task.id, { scheduled_date: toStr(addDays(new Date(), 1)) })}>내일</button>
+                <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[12px]" onClick={() => updateTask(task.id, { scheduled_date: toStr(addDays(new Date(), 7)) })}>+1주</button>
                 {task.scheduled_date && (
-                  <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[11px] text-red-500" onClick={() => updateTask(task.id, { scheduled_date: null })}>지움</button>
+                  <button className="btn btn-ghost !px-1.5 !py-0.5 !text-[12px] text-red-500" onClick={() => updateTask(task.id, { scheduled_date: null })}>지움</button>
                 )}
               </div>
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">마감일 (Deadline)</span>
+              <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">마감일 (Deadline)</span>
               <input
                 type="date"
                 className="input"
@@ -172,7 +172,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
 
             {task.scheduled_date && (
               <label className="block">
-                <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">시간대 섹션</span>
+                <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">시간대 섹션</span>
                 <select
                   className="input"
                   value={task.today_section ?? ''}
@@ -186,12 +186,12 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
           </div>
 
           <div>
-            <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">서브태스크</span>
+            <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">서브태스크</span>
             <Checklist items={task.checklist} onChange={next => updateTask(task.id, { checklist: next })} />
           </div>
 
           <label className="block">
-            <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">메모</span>
+            <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">메모</span>
             <textarea
               className="input min-h-[80px] resize-y"
               value={notes}

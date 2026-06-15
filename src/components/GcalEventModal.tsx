@@ -111,7 +111,7 @@ export default function GcalEventModal({
     >
       <div className="w-full max-w-[420px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900">
         <div className="flex items-center gap-2 border-b border-zinc-100 px-4 py-2.5 dark:border-zinc-800">
-          <span className="text-[12px] font-semibold text-zinc-400">{mode === 'create' ? '새 일정' : '일정 편집'}</span>
+          <span className="text-[13px] font-semibold text-zinc-400">{mode === 'create' ? '새 일정' : '일정 편집'}</span>
           <div className="ml-auto flex items-center gap-1">
             {mode === 'edit' && (
               <button className="rounded p-1.5 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950" title="삭제" onClick={() => void remove()} disabled={busy}>
@@ -127,43 +127,43 @@ export default function GcalEventModal({
         <div className="space-y-3 px-5 py-4">
           <input
             autoFocus
-            className="w-full bg-transparent text-[15px] font-semibold outline-none placeholder:text-zinc-400"
+            className="w-full bg-transparent text-[16px] font-semibold outline-none placeholder:text-zinc-400"
             value={f.title}
             onChange={e => set({ title: e.target.value })}
             onKeyDown={e => { if (e.key === 'Enter' && !busy) void save() }}
             placeholder="일정 제목"
           />
 
-          <label className="flex items-center gap-2 text-[13px]">
+          <label className="flex items-center gap-2 text-[14px]">
             <input type="checkbox" className="h-3.5 w-3.5 accent-blue-600" checked={f.allDay} onChange={e => set({ allDay: e.target.checked })} />
             종일
           </label>
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="w-10 text-[12px] text-zinc-400">시작</span>
-              <input type="date" className="input !py-1 !text-[12px]" value={f.startDate} onChange={e => set({ startDate: e.target.value, endDate: f.endDate < e.target.value ? e.target.value : f.endDate })} />
-              {!f.allDay && <input type="time" className="input !w-auto !py-1 !text-[12px]" value={f.startTime} onChange={e => set({ startTime: e.target.value })} />}
+              <span className="w-10 text-[13px] text-zinc-400">시작</span>
+              <input type="date" className="input !py-1 !text-[13px]" value={f.startDate} onChange={e => set({ startDate: e.target.value, endDate: f.endDate < e.target.value ? e.target.value : f.endDate })} />
+              {!f.allDay && <input type="time" className="input !w-auto !py-1 !text-[13px]" value={f.startTime} onChange={e => set({ startTime: e.target.value })} />}
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-10 text-[12px] text-zinc-400">종료</span>
-              <input type="date" className="input !py-1 !text-[12px]" value={f.endDate} min={f.startDate} onChange={e => set({ endDate: e.target.value })} />
-              {!f.allDay && <input type="time" className="input !w-auto !py-1 !text-[12px]" value={f.endTime} onChange={e => set({ endTime: e.target.value })} />}
+              <span className="w-10 text-[13px] text-zinc-400">종료</span>
+              <input type="date" className="input !py-1 !text-[13px]" value={f.endDate} min={f.startDate} onChange={e => set({ endDate: e.target.value })} />
+              {!f.allDay && <input type="time" className="input !w-auto !py-1 !text-[13px]" value={f.endTime} onChange={e => set({ endTime: e.target.value })} />}
             </div>
           </div>
 
           {mode === 'create' ? (
             <div className="flex items-center gap-2">
-              <span className="w-10 text-[12px] text-zinc-400">캘린더</span>
-              <select className="input !py-1 !text-[12px]" value={f.calId} onChange={e => set({ calId: e.target.value })}>
+              <span className="w-10 text-[13px] text-zinc-400">캘린더</span>
+              <select className="input !py-1 !text-[13px]" value={f.calId} onChange={e => set({ calId: e.target.value })}>
                 {writable.map(c => <option key={c.id} value={c.id}>{c.summary}</option>)}
               </select>
             </div>
           ) : (
-            ev && <p className="text-[12px] text-zinc-400">캘린더: {ev.calendar ?? ev.calendarId}</p>
+            ev && <p className="text-[13px] text-zinc-400">캘린더: {ev.calendar ?? ev.calendarId}</p>
           )}
 
-          {noWritable && <p className="text-[12px] text-amber-600 dark:text-amber-400">쓰기 가능한 캘린더가 없습니다. 설정에서 재연결(쓰기 권한)하세요.</p>}
+          {noWritable && <p className="text-[13px] text-amber-600 dark:text-amber-400">쓰기 가능한 캘린더가 없습니다. 설정에서 재연결(쓰기 권한)하세요.</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <button className="btn" onClick={onClose} disabled={busy}>취소</button>

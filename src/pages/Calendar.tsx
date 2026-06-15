@@ -162,15 +162,15 @@ export default function CalendarPage() {
   return (
     <div className="flex h-full flex-col px-5 py-5">
       <div className="mb-3 flex items-center gap-2">
-        <h1 className="text-[18px] font-bold tracking-tight">{title}</h1>
+        <h1 className="text-[19px] font-bold tracking-tight">{title}</h1>
         <div className="ml-2 flex items-center rounded-md border border-zinc-200 p-0.5 dark:border-zinc-700">
           <button
-            className={`rounded px-2 py-0.5 text-[12px] font-semibold ${view === 'week' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+            className={`rounded px-2 py-0.5 text-[13px] font-semibold ${view === 'week' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
             onClick={() => setView('week')}
             title="주간 (W)"
           >주</button>
           <button
-            className={`rounded px-2 py-0.5 text-[12px] font-semibold ${view === 'month' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+            className={`rounded px-2 py-0.5 text-[13px] font-semibold ${view === 'month' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
             onClick={() => setView('month')}
             title="월간 (M)"
           >월</button>
@@ -178,7 +178,7 @@ export default function CalendarPage() {
 
         {/* 워크스페이스·프로젝트 필터 */}
         <select
-          className="input !h-7 !w-auto !py-0 !text-[12px]"
+          className="input !h-7 !w-auto !py-0 !text-[13px]"
           value={fWs}
           onChange={e => { setFWs(e.target.value); setFProj('') }}
           title="워크스페이스 필터"
@@ -188,7 +188,7 @@ export default function CalendarPage() {
           {workspaces.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
         </select>
         <select
-          className="input !h-7 !w-auto !py-0 !text-[12px]"
+          className="input !h-7 !w-auto !py-0 !text-[13px]"
           value={fProj}
           onChange={e => setFProj(e.target.value)}
           title="프로젝트 필터"
@@ -197,7 +197,7 @@ export default function CalendarPage() {
           {projOptions.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
         </select>
         {(fWs || fProj) && (
-          <button className="btn !px-1.5 !py-0.5 !text-[11px]" onClick={() => { setFWs(''); setFProj('') }} title="필터 초기화">초기화</button>
+          <button className="btn !px-1.5 !py-0.5 !text-[12px]" onClick={() => { setFWs(''); setFProj('') }} title="필터 초기화">초기화</button>
         )}
 
         <div className="ml-auto flex items-center gap-1">
@@ -215,7 +215,7 @@ export default function CalendarPage() {
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="grid grid-cols-7 border-b border-zinc-200 pb-1 dark:border-zinc-800">
               {WEEKDAY.map((d, i) => (
-                <div key={d} className={`px-2 text-[11.5px] font-bold ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-zinc-400'}`}>{d}</div>
+                <div key={d} className={`px-2 text-[12.5px] font-bold ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-zinc-400'}`}>{d}</div>
               ))}
             </div>
             <div className="grid flex-1 auto-rows-fr grid-cols-7 overflow-y-auto">
@@ -259,12 +259,12 @@ export default function CalendarPage() {
 
         <DragOverlay>
           {activeTask ? (
-            <div className="rounded border border-blue-300 bg-white px-2 py-1 text-[11.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
+            <div className="rounded border border-blue-300 bg-white px-2 py-1 text-[12.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
               {activeTask.title}
             </div>
           ) : activeEvent ? (
             <div
-              className={`px-2 py-1 text-[11.5px] font-medium shadow-lg ${
+              className={`px-2 py-1 text-[12.5px] font-medium shadow-lg ${
                 activeEvent.allDay ? 'rounded-sm text-white' : 'rounded-r-sm bg-white text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
               }`}
               style={activeEvent.allDay ? { background: activeEvent.color ?? '#3b82f6' } : { borderLeft: `3px solid ${activeEvent.color ?? '#3b82f6'}` }}
@@ -307,7 +307,7 @@ function DayCell({
       } ${isOver ? 'bg-blue-50/70 ring-1 ring-blue-400 ring-inset dark:bg-blue-950/30' : ''}`}
     >
       <div className="mb-0.5 flex items-center gap-1 px-1">
-        <span className={`text-[11.5px] font-semibold ${
+        <span className={`text-[12.5px] font-semibold ${
           isToday
             ? 'inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blue-600 px-1 text-white'
             : !inMonth ? 'text-zinc-300 dark:text-zinc-600' : day === 0 ? 'text-red-400' : day === 6 ? 'text-blue-400' : 'text-zinc-500'
@@ -327,11 +327,11 @@ function DayCell({
       <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto">
         {events.map(ev => <EventChip key={'ev' + ev.id} ev={ev} onOpen={onEventOpen} />)}
         {tasks.slice(0, maxTasks).map(t => <CalChip key={t.id} task={t} color={colorOf(t)} onOpen={onOpen} />)}
-        {tasks.length > maxTasks && <div className="px-1 text-[11.5px] font-medium text-zinc-400">+{tasks.length - maxTasks}개 더</div>}
+        {tasks.length > maxTasks && <div className="px-1 text-[12.5px] font-medium text-zinc-400">+{tasks.length - maxTasks}개 더</div>}
         {deadlines.map(t => (
           <button
             key={'dl' + t.id}
-            className="flex w-full items-center gap-1 truncate rounded border border-red-200 bg-red-50/70 px-1 py-0.5 text-left text-[11.5px] font-medium text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
+            className="flex w-full items-center gap-1 truncate rounded border border-red-200 bg-red-50/70 px-1 py-0.5 text-left text-[12.5px] font-medium text-red-600 dark:border-red-900 dark:bg-red-950/40 dark:text-red-400"
             title={`마감: ${t.title}`}
             onClick={() => onOpen(t.id)}
           >
@@ -353,7 +353,7 @@ function CalChip({ task, color, onOpen }: { task: Task; color: string; onOpen: (
       {...attributes}
       {...listeners}
       onClick={() => onOpen(task.id)}
-      className={`flex cursor-pointer items-center gap-1 truncate rounded border border-zinc-200 bg-white px-1 py-0.5 text-[12px] hover:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
+      className={`flex cursor-pointer items-center gap-1 truncate rounded border border-zinc-200 bg-white px-1 py-0.5 text-[13px] hover:border-blue-400 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
         isDragging ? 'opacity-40' : ''
       } ${done ? 'opacity-50' : ''}`}
       title={task.title}
@@ -375,13 +375,13 @@ function EventChip({ ev, onOpen }: { ev: GcalEvent; onOpen: (ev: GcalEvent) => v
       {...attributes}
       {...listeners}
       onClick={() => onOpen(ev)}
-      className={`flex cursor-pointer items-center gap-1 truncate px-1 py-0.5 text-[11.5px] font-medium ${
+      className={`flex cursor-pointer items-center gap-1 truncate px-1 py-0.5 text-[12.5px] font-medium ${
         ev.allDay ? 'rounded-sm text-white' : 'rounded-r-sm text-zinc-500 dark:text-zinc-400'
       } ${isDragging ? 'opacity-40' : ''}`}
       style={ev.allDay ? { background: color } : { borderLeft: `3px solid ${color}`, background: 'rgb(0 0 0 / 0.03)' }}
       title={`${ev.summary}${ev.allDay ? ' (종일)' : ` ${ev.start.slice(11, 16)}`} · ${ev.calendar ?? ''} — 클릭 편집 / 드래그 이동`}
     >
-      {!ev.allDay && <span className="shrink-0 text-[10px] text-zinc-400">{ev.start.slice(11, 16)}</span>}
+      {!ev.allDay && <span className="shrink-0 text-[11px] text-zinc-400">{ev.start.slice(11, 16)}</span>}
       <span className="truncate">{ev.summary}</span>
     </div>
   )
@@ -431,8 +431,8 @@ function SidePanel({ width, inbox, someday, somedayOpen, onToggleSomeday, onOpen
           title="Someday 열기"
         >
           <Moon size={14} className="text-violet-400" />
-          <span className="text-[12.5px] font-bold">Someday</span>
-          <span className="text-[11px] font-semibold text-zinc-400">{someday.length}</span>
+          <span className="text-[13.5px] font-bold">Someday</span>
+          <span className="text-[12px] font-semibold text-zinc-400">{someday.length}</span>
           <ChevronRight size={14} className="ml-auto text-zinc-400" />
         </button>
       )}
@@ -453,19 +453,19 @@ function PanelSection({ dropId, icon, title, tasks, emptyText, onOpen, onCollaps
     >
       <div className="flex items-center gap-1.5 border-b border-zinc-200 px-3 py-2 dark:border-zinc-800">
         {icon}
-        <span className="text-[12.5px] font-bold">{title}</span>
-        <span className="text-[11px] font-semibold text-zinc-400">{tasks.length}</span>
+        <span className="text-[13.5px] font-bold">{title}</span>
+        <span className="text-[12px] font-semibold text-zinc-400">{tasks.length}</span>
         {onCollapse ? (
           <button onClick={onCollapse} className="ml-auto rounded p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" title="접기">
             <ChevronDown size={14} />
           </button>
         ) : (
-          <span className="ml-auto text-[10.5px] text-zinc-400">{isOver ? '여기에 놓기' : '드래그'}</span>
+          <span className="ml-auto text-[11.5px] text-zinc-400">{isOver ? '여기에 놓기' : '드래그'}</span>
         )}
       </div>
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
         {tasks.map(t => <InboxDragRow key={t.id} task={t} onOpen={onOpen} />)}
-        {tasks.length === 0 && <p className="px-1 py-3 text-center text-[12px] text-zinc-400">{emptyText}</p>}
+        {tasks.length === 0 && <p className="px-1 py-3 text-center text-[13px] text-zinc-400">{emptyText}</p>}
       </div>
     </div>
   )
@@ -479,7 +479,7 @@ function InboxDragRow({ task, onOpen }: { task: Task; onOpen: (id: string) => vo
       {...attributes}
       {...listeners}
       onClick={() => onOpen(task.id)}
-      className={`flex cursor-grab items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-[12.5px] hover:border-blue-400 active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
+      className={`flex cursor-grab items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-[13.5px] hover:border-blue-400 active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-600 ${
         isDragging ? 'opacity-40' : ''
       }`}
       title={task.title}

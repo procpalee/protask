@@ -14,7 +14,7 @@ export default function WorkspaceListPage() {
   return (
     <div className="mx-auto max-w-[680px] px-5 py-5">
       <div className="mb-4 flex items-center gap-3">
-        <h1 className="text-[18px] font-bold tracking-tight">워크스페이스</h1>
+        <h1 className="text-[19px] font-bold tracking-tight">워크스페이스</h1>
         <button
           className="btn ml-auto"
           onClick={() => {
@@ -44,8 +44,8 @@ export default function WorkspaceListPage() {
             >
               <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(w.id, workspaces) }} />
               <div className="min-w-0 flex-1">
-                <div className="text-[13.5px] font-semibold">{w.name}</div>
-                <div className="text-[11.5px] text-zinc-400">프로젝트 {wsProjects.length} · 태스크 {st.done}/{st.total} ({pct}%)</div>
+                <div className="text-[14.5px] font-semibold">{w.name}</div>
+                <div className="text-[12.5px] text-zinc-400">프로젝트 {wsProjects.length} · 태스크 {st.done}/{st.total} ({pct}%)</div>
               </div>
               <ChevronRight size={15} className="shrink-0 text-zinc-300" />
             </Link>

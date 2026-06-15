@@ -11,7 +11,7 @@ html, body, #root { height: 100%; }
 
 body {
   @apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
-  font-size: 13.5px;
+  font-size: 14.5px;
   letter-spacing: -0.01em;
 }
 
@@ -24,14 +24,14 @@ body {
 
 /* 입력 공통 */
 .input {
-  @apply w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-[13.5px] outline-none
+  @apply w-full rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-[14.5px] outline-none
          placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
          dark:border-zinc-700 dark:bg-zinc-900 dark:placeholder:text-zinc-500;
 }
 
 .btn {
   @apply inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-2.5 py-1.5
-         text-[12.5px] font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900
+         text-[13.5px] font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900
          dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100;
 }
 .btn-primary {
@@ -51,33 +51,33 @@ body {
 }
 
 /* 개요 노트 마크다운 미리보기 (좁은 패널용 컴팩트 스타일) */
-.md-preview { @apply text-[12.5px] leading-relaxed text-zinc-700 dark:text-zinc-300; }
+.md-preview { @apply text-[13.5px] leading-relaxed text-zinc-700 dark:text-zinc-300; }
 .md-preview > :first-child { margin-top: 0; }
-.md-preview h1 { @apply mt-4 mb-1.5 text-[15px] font-bold text-zinc-900 dark:text-zinc-100; }
-.md-preview h2 { @apply mt-3.5 mb-1.5 text-[13.5px] font-bold text-zinc-900 dark:text-zinc-100; }
-.md-preview h3 { @apply mt-3 mb-1 text-[12.5px] font-bold text-zinc-800 dark:text-zinc-200; }
+.md-preview h1 { @apply mt-4 mb-1.5 text-[16px] font-bold text-zinc-900 dark:text-zinc-100; }
+.md-preview h2 { @apply mt-3.5 mb-1.5 text-[14.5px] font-bold text-zinc-900 dark:text-zinc-100; }
+.md-preview h3 { @apply mt-3 mb-1 text-[13.5px] font-bold text-zinc-800 dark:text-zinc-200; }
 .md-preview p { @apply my-1.5; }
 .md-preview ul { @apply my-1.5 list-disc pl-4; }
 .md-preview ol { @apply my-1.5 list-decimal pl-4; }
 .md-preview li { @apply my-0.5; }
 .md-preview a { @apply text-blue-600 underline dark:text-blue-400; }
-.md-preview code { @apply rounded bg-zinc-100 px-1 py-0.5 text-[11.5px] dark:bg-zinc-800; }
+.md-preview code { @apply rounded bg-zinc-100 px-1 py-0.5 text-[12.5px] dark:bg-zinc-800; }
 .md-preview pre { @apply my-2 overflow-x-auto rounded-md bg-zinc-100 p-2.5 dark:bg-zinc-800; }
 .md-preview pre code { @apply bg-transparent p-0; }
 .md-preview blockquote { @apply my-2 border-l-2 border-zinc-300 pl-2.5 text-zinc-500 dark:border-zinc-600 dark:text-zinc-400; }
 .md-preview hr { @apply my-3 border-zinc-200 dark:border-zinc-800; }
-.md-preview table { @apply my-2 block w-full overflow-x-auto border-collapse text-[11.5px]; }
+.md-preview table { @apply my-2 block w-full overflow-x-auto border-collapse text-[12.5px]; }
 .md-preview th, .md-preview td { @apply border border-zinc-200 px-1.5 py-1 text-left dark:border-zinc-700; }
 .md-preview th { @apply bg-zinc-50 font-semibold dark:bg-zinc-800; }
 .md-preview input[type="checkbox"] { @apply mr-1 align-middle; }
 
 /* 전체화면용 확대 변형 */
-.md-preview.lg { @apply text-[14.5px]; }
-.md-preview.lg h1 { @apply mt-7 mb-3 text-[24px]; }
-.md-preview.lg h2 { @apply mt-6 mb-2.5 text-[19px]; }
-.md-preview.lg h3 { @apply mt-5 mb-2 text-[16px]; }
+.md-preview.lg { @apply text-[15.5px]; }
+.md-preview.lg h1 { @apply mt-7 mb-3 text-[25px]; }
+.md-preview.lg h2 { @apply mt-6 mb-2.5 text-[20px]; }
+.md-preview.lg h3 { @apply mt-5 mb-2 text-[17px]; }
 .md-preview.lg p, .md-preview.lg li { @apply my-1; }
 .md-preview.lg ul, .md-preview.lg ol { @apply my-2.5 pl-6; }
-.md-preview.lg code { @apply text-[13px]; }
-.md-preview.lg table { @apply text-[13px]; }
+.md-preview.lg code { @apply text-[14px]; }
+.md-preview.lg table { @apply text-[14px]; }
 .md-preview.lg th, .md-preview.lg td { @apply px-2.5 py-1.5; }

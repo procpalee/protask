@@ -55,17 +55,17 @@ export default function ScheduledPage() {
   return (
     <div className="mx-auto max-w-[760px] px-5 py-5">
       <div className="mb-4 flex items-baseline gap-3">
-        <h1 className="text-[18px] font-bold tracking-tight">Scheduled</h1>
-        <span className="text-[12.5px] font-medium text-zinc-400">{scheduled.length}건 예정</span>
+        <h1 className="text-[19px] font-bold tracking-tight">Scheduled</h1>
+        <span className="text-[13.5px] font-medium text-zinc-400">{scheduled.length}건 예정</span>
       </div>
 
       {overdue.length > 0 && (
         <section className="mb-5">
           <div className="mb-1 flex items-center gap-1.5 px-1">
             <AlarmClockOff size={13} className="text-red-500" />
-            <span className="text-[12px] font-bold text-red-600 dark:text-red-400">지연</span>
+            <span className="text-[13px] font-bold text-red-600 dark:text-red-400">지연</span>
             <button
-              className="ml-auto rounded px-1.5 py-0.5 text-[11.5px] font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
+              className="ml-auto rounded px-1.5 py-0.5 text-[12.5px] font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
               onClick={() => overdue.forEach(t => updateTask(t.id, { scheduled_date: todayStr() }))}
             >
               모두 오늘로 이동
@@ -80,17 +80,17 @@ export default function ScheduledPage() {
         return (
           <section key={date} className="mb-5">
             <div className="mb-1 flex items-baseline gap-2 px-1">
-              <span className="text-[12.5px] font-bold">{fmtDate(date)}</span>
-              <span className="text-[11.5px] font-medium text-zinc-400">{d === 1 ? '내일' : `${d}일 후`}</span>
+              <span className="text-[13.5px] font-bold">{fmtDate(date)}</span>
+              <span className="text-[12.5px] font-medium text-zinc-400">{d === 1 ? '내일' : `${d}일 후`}</span>
             </div>
             {events.map(ev => (
               <div key={ev.id} className="flex min-h-[30px] items-center gap-2.5 rounded-md px-2 py-1">
                 <CalendarDays size={13} className="shrink-0 text-zinc-300 dark:text-zinc-600" />
                 <span className="h-2 w-2 shrink-0 rounded-[3px]" style={{ background: ev.color ?? '#3b82f6' }} />
-                <span className="w-[84px] shrink-0 text-[11.5px] font-semibold text-zinc-400">
+                <span className="w-[84px] shrink-0 text-[12.5px] font-semibold text-zinc-400">
                   {ev.allDay ? '종일' : `${ev.start.slice(11, 16)}–${ev.end.slice(11, 16)}`}
                 </span>
-                <span className="truncate text-[12.5px] text-zinc-500 dark:text-zinc-400">{ev.summary}</span>
+                <span className="truncate text-[13.5px] text-zinc-500 dark:text-zinc-400">{ev.summary}</span>
               </div>
             ))}
             {tasks.map(t => <TaskRow key={t.id} task={t} onOpen={openDetail} />)}
@@ -99,7 +99,7 @@ export default function ScheduledPage() {
       })}
 
       {groups.length === 0 && overdue.length === 0 && (
-        <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[13px] text-zinc-400 dark:border-zinc-700">
+        <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[14px] text-zinc-400 dark:border-zinc-700">
           예정된 태스크가 없습니다
         </div>
       )}

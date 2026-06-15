@@ -6,17 +6,17 @@ export default function Login() {
     <div className="flex h-full w-full flex-col items-center justify-center gap-6 px-6">
       <img src="/icons/icon-192.png" alt="Protask" className="h-16 w-16 rounded-2xl shadow-sm" />
       <div className="text-center">
-        <h1 className="text-[20px] font-bold tracking-tight">Protask</h1>
-        <p className="mt-1 text-[13px] text-zinc-500 dark:text-zinc-400">개인과 업무, 태스크와 프로젝트를 한 곳에서</p>
+        <h1 className="text-[21px] font-bold tracking-tight">Protask</h1>
+        <p className="mt-1 text-[14px] text-zinc-500 dark:text-zinc-400">개인과 업무, 태스크와 프로젝트를 한 곳에서</p>
       </div>
       <button
         onClick={() => void signIn()}
-        className="flex items-center gap-2.5 rounded-lg border border-zinc-300 bg-white px-5 py-2.5 text-[14px] font-medium shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+        className="flex items-center gap-2.5 rounded-lg border border-zinc-300 bg-white px-5 py-2.5 text-[15px] font-medium shadow-sm transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
       >
         <GoogleIcon />
         Google로 로그인
       </button>
-      <p className="text-[11.5px] text-zinc-400">허용된 계정만 접근할 수 있습니다</p>
+      <p className="text-[12.5px] text-zinc-400">허용된 계정만 접근할 수 있습니다</p>
     </div>
   )
 }

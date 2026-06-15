@@ -146,8 +146,8 @@ function PhaseSection({
   return (
     <section className="mb-6">
       <div className="group mb-2 flex items-center gap-2">
-        <h2 className="text-[13.5px] font-bold">{name}</h2>
-        <span className="text-[11.5px] font-medium text-zinc-400">{projects.length}</span>
+        <h2 className="text-[14.5px] font-bold">{name}</h2>
+        <span className="text-[12.5px] font-medium text-zinc-400">{projects.length}</span>
         {canEdit && (
           <span className="invisible flex items-center gap-0.5 group-hover:visible">
             <button className="rounded p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" onClick={onMoveUp} title="위로"><ChevronUp size={13} /></button>
@@ -161,7 +161,7 @@ function PhaseSection({
         <div ref={setNodeRef} className={`grid grid-cols-1 gap-2.5 rounded-lg sm:grid-cols-2 lg:grid-cols-3 ${isOver ? 'outline-2 outline-dashed outline-blue-400/60' : ''}`}>
           {projects.map(p => <SortableCard key={p.id} project={p} onOpen={() => onOpenProject(p)} onEdit={() => onEditProject(p)} />)}
           <button
-            className="flex min-h-[72px] items-center justify-center gap-1 rounded-lg border border-dashed border-zinc-300 text-[12.5px] font-medium text-zinc-400 hover:border-blue-400 hover:text-blue-600 dark:border-zinc-700 dark:hover:border-blue-600 dark:hover:text-blue-400"
+            className="flex min-h-[72px] items-center justify-center gap-1 rounded-lg border border-dashed border-zinc-300 text-[13.5px] font-medium text-zinc-400 hover:border-blue-400 hover:text-blue-600 dark:border-zinc-700 dark:hover:border-blue-600 dark:hover:text-blue-400"
             onClick={onAddProject}
           >
             <Plus size={14} /> 프로젝트
@@ -199,7 +199,7 @@ function CardBody({ project, overlay, selected, onEdit }: { project: Project; ov
       } ${selected ? 'border-blue-400 ring-2 ring-blue-500/50 dark:border-blue-600' : 'border-zinc-200 dark:border-zinc-800'}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-[13px] leading-snug font-semibold">{project.title}</h3>
+        <h3 className="text-[14px] leading-snug font-semibold">{project.title}</h3>
         {onEdit && (
           <button
             className="invisible shrink-0 rounded p-0.5 text-zinc-400 group-hover:visible hover:text-zinc-700 dark:hover:text-zinc-200"
@@ -211,12 +211,12 @@ function CardBody({ project, overlay, selected, onEdit }: { project: Project; ov
           </button>
         )}
       </div>
-      {project.descr && <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-zinc-400">{project.descr}</p>}
+      {project.descr && <p className="mt-1 line-clamp-2 text-[13px] leading-relaxed text-zinc-400">{project.descr}</p>}
       <div className="mt-3 flex items-center gap-2">
         <div className="h-1 flex-1 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
           <div className="h-full rounded-full bg-emerald-500" style={{ width: `${st.pct}%` }} />
         </div>
-        <span className="text-[11.5px] font-medium text-zinc-400">{st.done}/{st.total}</span>
+        <span className="text-[12.5px] font-medium text-zinc-400">{st.done}/{st.total}</span>
       </div>
     </div>
   )
@@ -241,18 +241,18 @@ function ProjectModal({ wsId, project, defaultPhaseId, onClose }: { wsId: string
     <Modal title={project ? '프로젝트 설정' : '새 프로젝트'} onClose={onClose}>
       <div className="space-y-3">
         <label className="block">
-          <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">이름</span>
+          <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">이름</span>
           <input autoFocus className="input" value={title} onChange={e => setTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && save()} />
         </label>
         <label className="block">
-          <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">Phase</span>
+          <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">Phase</span>
           <select className="input" value={phaseId} onChange={e => setPhaseId(e.target.value)}>
             <option value="">미분류</option>
             {phases.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </label>
         <label className="block">
-          <span className="mb-1 block text-[11.5px] font-semibold text-zinc-400">설명</span>
+          <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">설명</span>
           <textarea className="input min-h-[60px]" value={descr} onChange={e => setDescr(e.target.value)} />
         </label>
         <div className="flex items-center justify-between pt-1">

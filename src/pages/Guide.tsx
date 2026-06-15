@@ -5,8 +5,8 @@ import { SHORTCUTS } from '../components/Shortcuts'
 export default function GuidePage() {
   return (
     <div className="mx-auto max-w-[760px] px-5 py-6">
-      <h1 className="mb-1 text-[20px] font-bold tracking-tight">사용 설명서</h1>
-      <p className="mb-6 text-[13px] text-zinc-500 dark:text-zinc-400">
+      <h1 className="mb-1 text-[21px] font-bold tracking-tight">사용 설명서</h1>
+      <p className="mb-6 text-[14px] text-zinc-500 dark:text-zinc-400">
         이 앱은 <b>프로젝트 관리</b>(워크스페이스▸Phase▸프로젝트▸태스크)와 <b>GTD 할일관리</b>(Inbox·Today·Scheduled·Someday)를
         하나로 합친 도구입니다. 핵심은 “모든 할 일은 <b>태스크</b> 하나로 관리되고, 프로젝트는 그 태스크에 붙는 맥락”이라는 점입니다.
       </p>
@@ -48,7 +48,7 @@ export default function GuidePage() {
             Someday 패널은 기본 숨김이며 필요할 때 펼칠 수 있습니다.
           </Row>
         </div>
-        <p className="mt-3 rounded-md bg-zinc-100 px-3 py-2 text-[12.5px] dark:bg-zinc-800/60">
+        <p className="mt-3 rounded-md bg-zinc-100 px-3 py-2 text-[13.5px] dark:bg-zinc-800/60">
           <b>실행일 vs 마감일</b> — 날짜는 두 종류입니다. <b>실행일(Schedule)</b>은 “언제 할까”(Today/Scheduled를 결정),
           <b>마감일(Deadline)</b>은 “언제까지”(D-day 배지로 표시). 둘은 독립적입니다.
         </p>
@@ -57,7 +57,7 @@ export default function GuidePage() {
       <Section title="칸반 ↔ GTD는 자동으로 연결됩니다">
         <p className="mb-2">프로젝트의 칸반 4컬럼은 별도 상태가 아니라 <b>태스크의 날짜·Someday에서 자동으로 파생</b>됩니다.
           그래서 한쪽에서 바꾸면 다른 쪽도 즉시 일치합니다. (태스크의 실제 상태값은 <b>시작전 / 완료</b> 둘뿐)</p>
-        <table className="w-full border-collapse text-[12.5px]">
+        <table className="w-full border-collapse text-[13.5px]">
           <thead>
             <tr className="border-b border-zinc-200 text-left text-zinc-400 dark:border-zinc-700">
               <th className="py-1.5 pr-3 font-semibold">칸반 컬럼</th>
@@ -78,7 +78,7 @@ export default function GuidePage() {
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-[12.5px] text-zinc-500 dark:text-zinc-400">
+        <p className="mt-2 text-[13.5px] text-zinc-500 dark:text-zinc-400">
           예: 칸반에서 태스크를 “진행중”으로 끌면 실행일이 오늘로 잡혀 Today에 나타나고, Inbox에서 Someday로 보내면 그 프로젝트 칸반의 백로그에 들어갑니다.
         </p>
       </Section>
@@ -109,22 +109,22 @@ export default function GuidePage() {
       <Section title="단축키">
         <div className="space-y-0.5">
           {SHORTCUTS.map(s => (
-            <div key={s.keys + s.desc} className="flex items-center justify-between gap-3 rounded px-1 py-0.5 text-[12.5px]">
+            <div key={s.keys + s.desc} className="flex items-center justify-between gap-3 rounded px-1 py-0.5 text-[13.5px]">
               <span className="text-zinc-600 dark:text-zinc-300">{s.desc}</span>
-              <span className="shrink-0 font-mono text-[11.5px] text-zinc-500 dark:text-zinc-400">{s.keys}</span>
+              <span className="shrink-0 font-mono text-[12.5px] text-zinc-500 dark:text-zinc-400">{s.keys}</span>
             </div>
           ))}
         </div>
-        <p className="mt-2 text-[11.5px] text-zinc-400">어디서든 <Kbd>?</Kbd>로 이 목록을 띄울 수 있습니다.</p>
+        <p className="mt-2 text-[12.5px] text-zinc-400">어디서든 <Kbd>?</Kbd>로 이 목록을 띄울 수 있습니다.</p>
       </Section>
 
       <Section title="구글캘린더 연동">
-        <p className="text-[12.5px]">설정 화면에서 “연결”을 누르면 Today·Scheduled·Calendar에 오늘/예정 일정이 함께 표시됩니다.
+        <p className="text-[13.5px]">설정 화면에서 “연결”을 누르면 Today·Scheduled·Calendar에 오늘/예정 일정이 함께 표시됩니다.
           표시할 캘린더는 설정에서 체크박스로 고를 수 있습니다.</p>
       </Section>
 
       <Section title="백업">
-        <p className="text-[12.5px]">설정 → 백업에서 전체 데이터를 JSON으로 내보낼 수 있습니다. 주기적으로 받아두는 것을 권장합니다.</p>
+        <p className="text-[13.5px]">설정 → 백업에서 전체 데이터를 JSON으로 내보낼 수 있습니다. 주기적으로 받아두는 것을 권장합니다.</p>
       </Section>
     </div>
   )
@@ -133,8 +133,8 @@ export default function GuidePage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-6">
-      <h2 className="mb-2 border-b border-zinc-200 pb-1 text-[14px] font-bold dark:border-zinc-800">{title}</h2>
-      <div className="text-[13px] leading-relaxed text-zinc-700 dark:text-zinc-300">{children}</div>
+      <h2 className="mb-2 border-b border-zinc-200 pb-1 text-[15px] font-bold dark:border-zinc-800">{title}</h2>
+      <div className="text-[14px] leading-relaxed text-zinc-700 dark:text-zinc-300">{children}</div>
     </section>
   )
 }
@@ -144,13 +144,13 @@ function Row({ icon, name, children }: { icon: React.ReactNode; name: string; ch
     <div className="flex gap-2.5 rounded-lg border border-zinc-200 p-2.5 dark:border-zinc-800">
       <span className="mt-0.5 shrink-0 text-zinc-400">{icon}</span>
       <div>
-        <div className="text-[13px] font-bold">{name}</div>
-        <p className="text-[12.5px] text-zinc-600 dark:text-zinc-400">{children}</p>
+        <div className="text-[14px] font-bold">{name}</div>
+        <p className="text-[13.5px] text-zinc-600 dark:text-zinc-400">{children}</p>
       </div>
     </div>
   )
 }
 
 function Kbd({ children }: { children: React.ReactNode }) {
-  return <kbd className="rounded border border-zinc-300 bg-zinc-50 px-1 text-[11px] font-semibold text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">{children}</kbd>
+  return <kbd className="rounded border border-zinc-300 bg-zinc-50 px-1 text-[12px] font-semibold text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">{children}</kbd>
 }

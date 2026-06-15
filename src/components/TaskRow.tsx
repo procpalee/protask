@@ -61,17 +61,17 @@ export default function TaskRow({
           {done ? <CheckCircle2 size={17} /> : <Circle size={17} />}
         </button>
 
-        <span className={`min-w-0 flex-1 truncate text-[13.5px] ${done ? 'text-zinc-400 line-through dark:text-zinc-500' : task.important ? 'font-semibold' : ''}`}>
+        <span className={`min-w-0 flex-1 truncate text-[14.5px] ${done ? 'text-zinc-400 line-through dark:text-zinc-500' : task.important ? 'font-semibold' : ''}`}>
           {task.title}
           {ckTotal > 0 && (
-            <span className="ml-1.5 text-[11px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>
+            <span className="ml-1.5 text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>
           )}
         </span>
 
         <QuickBar task={task} selected={selected} />
 
         {showDate && task.scheduled_date && (
-          <span className="shrink-0 text-[11.5px] font-medium text-zinc-400">{fmtDateShort(task.scheduled_date)}</span>
+          <span className="shrink-0 text-[12.5px] font-medium text-zinc-400">{fmtDateShort(task.scheduled_date)}</span>
         )}
         {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
         <ProjectChip projectId={task.project_id} workspaceId={task.workspace_id} />
@@ -104,7 +104,7 @@ function Subtasks({ items, onChange }: { items: ChecklistItem[]; onChange: (next
             onChange={() => onChange(toggleCk(items, c.id))}
             className="mt-[3px] h-3 w-3 shrink-0 cursor-pointer accent-emerald-500"
           />
-          <span className={`text-[12px] leading-[1.45] ${c.done ? 'text-zinc-400 line-through dark:text-zinc-500' : 'text-zinc-500 dark:text-zinc-400'}`}>
+          <span className={`text-[13px] leading-[1.45] ${c.done ? 'text-zinc-400 line-through dark:text-zinc-500' : 'text-zinc-500 dark:text-zinc-400'}`}>
             {c.title}
           </span>
         </div>
@@ -122,7 +122,7 @@ function QuickBar({ task, selected }: { task: Task; selected?: boolean }) {
   const qf = useStore(s => (s.hoverTaskId === task.id ? s.quickFocus : -1))
   const [pop, setPop] = useState<null | 'sched' | 'deadline' | 'proj'>(null)
 
-  const qbtn = 'rounded px-1.5 py-0.5 text-[11px] font-semibold text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100'
+  const qbtn = 'rounded px-1.5 py-0.5 text-[12px] font-semibold text-zinc-500 hover:bg-zinc-200 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100'
   const on = 'bg-zinc-200 dark:bg-zinc-700'
   // 키보드 → 로 이동한 퀵액션 포커스 링 (Inbox·Today·Scheduled·Someday·Project·Deadline = 0~5)
   const foc = (i: number) => (qf === i ? ' ring-2 ring-blue-500 ring-inset bg-zinc-200 dark:bg-zinc-700' : '')
@@ -177,7 +177,7 @@ function QuickBar({ task, selected }: { task: Task; selected?: boolean }) {
         <div className="absolute top-6 right-0 z-30 w-[220px] rounded-lg border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
           <select
             autoFocus
-            className="input !py-1 !text-[12px]"
+            className="input !py-1 !text-[13px]"
             value={task.project_id ?? ''}
             onChange={e => {
               const pid = e.target.value || null
@@ -204,23 +204,23 @@ function QuickBar({ task, selected }: { task: Task; selected?: boolean }) {
 function DatePop({ label, value, quick, onPick }: { label: string; value: string | null; quick?: boolean; onPick: (d: string | null) => void }) {
   return (
     <div className="absolute top-6 right-0 z-30 w-[190px] rounded-lg border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-      <div className="mb-1 px-0.5 text-[10.5px] font-semibold text-zinc-400">{label}</div>
+      <div className="mb-1 px-0.5 text-[11.5px] font-semibold text-zinc-400">{label}</div>
       {quick && (
         <div className="mb-1.5 flex flex-wrap gap-1">
-          <button className="btn !px-2 !py-0.5 !text-[11px]" onClick={() => onPick(todayStr())}>오늘</button>
-          <button className="btn !px-2 !py-0.5 !text-[11px]" onClick={() => onPick(toStr(addDays(new Date(), 1)))}>내일</button>
-          <button className="btn !px-2 !py-0.5 !text-[11px]" onClick={() => onPick(toStr(addDays(new Date(), 7)))}>+1주</button>
+          <button className="btn !px-2 !py-0.5 !text-[12px]" onClick={() => onPick(todayStr())}>오늘</button>
+          <button className="btn !px-2 !py-0.5 !text-[12px]" onClick={() => onPick(toStr(addDays(new Date(), 1)))}>내일</button>
+          <button className="btn !px-2 !py-0.5 !text-[12px]" onClick={() => onPick(toStr(addDays(new Date(), 7)))}>+1주</button>
         </div>
       )}
       <input
         type="date"
         autoFocus
-        className="input !py-1 !text-[12px]"
+        className="input !py-1 !text-[13px]"
         value={value ?? ''}
         onChange={e => onPick(e.target.value || null)}
       />
       {value && (
-        <button className="mt-1 w-full rounded px-2 py-0.5 text-left text-[11px] font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950" onClick={() => onPick(null)}>
+        <button className="mt-1 w-full rounded px-2 py-0.5 text-left text-[12px] font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950" onClick={() => onPick(null)}>
           날짜 지움
         </button>
       )}
@@ -238,7 +238,7 @@ export function DeadlineBadge({ deadline }: { deadline: string }) {
         : 'border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-400'
   const label = d < 0 ? `마감 ${-d}일 지남` : d === 0 ? '오늘 마감' : `D-${d}`
   return (
-    <span className={`shrink-0 rounded-full border px-1.5 py-px text-[11px] font-semibold ${cls}`} title={`마감일 ${deadline}`}>
+    <span className={`shrink-0 rounded-full border px-1.5 py-px text-[12px] font-semibold ${cls}`} title={`마감일 ${deadline}`}>
       {label}
     </span>
   )

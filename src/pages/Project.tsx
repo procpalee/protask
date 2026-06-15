@@ -72,10 +72,10 @@ export default function ProjectPage() {
       {/* 헤더 */}
       <div className="flex flex-wrap items-center gap-2.5 px-5 pt-4 pb-2">
         <Link to={`/w/${ws.id}`} className="btn btn-ghost !px-1.5" title="워크스페이스로"><ArrowLeft size={15} /></Link>
-        <h1 className="text-[16px] font-bold tracking-tight">{project.title}</h1>
-        <span className="text-[12px] font-medium text-zinc-400">{ws.name}</span>
-        <span className="text-[12px] font-medium text-zinc-400">· {stats.done}/{stats.total} ({stats.pct}%)</span>
-        {project.descr && <span className="w-full pl-9 text-[12.5px] text-zinc-400 md:w-auto md:pl-0">{project.descr}</span>}
+        <h1 className="text-[17px] font-bold tracking-tight">{project.title}</h1>
+        <span className="text-[13px] font-medium text-zinc-400">{ws.name}</span>
+        <span className="text-[13px] font-medium text-zinc-400">· {stats.done}/{stats.total} ({stats.pct}%)</span>
+        {project.descr && <span className="w-full pl-9 text-[13.5px] text-zinc-400 md:w-auto md:pl-0">{project.descr}</span>}
       </div>
 
       {/* 툴바: 뷰 탭 + 그룹화 + 필터 */}
@@ -87,7 +87,7 @@ export default function ProjectPage() {
               <button
                 key={t.key}
                 onClick={() => setViewP(t.key)}
-                className={`flex items-center gap-1.5 rounded px-2 py-1 text-[12px] font-semibold ${
+                className={`flex items-center gap-1.5 rounded px-2 py-1 text-[13px] font-semibold ${
                   view === t.key ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
                 }`}
               >
@@ -98,9 +98,9 @@ export default function ProjectPage() {
         </div>
 
         {showGroup && (
-          <label className="flex items-center gap-1.5 text-[12px] text-zinc-500 dark:text-zinc-400">
+          <label className="flex items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400">
             그룹화
-            <select className="input !h-7 !w-auto !py-0 !text-[12px]" value={groupBy} onChange={e => setGroupP(e.target.value as GroupBy)}>
+            <select className="input !h-7 !w-auto !py-0 !text-[13px]" value={groupBy} onChange={e => setGroupP(e.target.value as GroupBy)}>
               <option value="status">상태</option>
               <option value="label">라벨</option>
               <option value="none">없음</option>
@@ -116,18 +116,18 @@ export default function ProjectPage() {
             <>
               <div className="fixed inset-0 z-40" onClick={() => setFilterOpen(false)} />
               <div className="absolute right-0 top-9 z-50 w-[230px] rounded-lg border border-zinc-200 bg-white p-3 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-                <label className="flex cursor-pointer items-center gap-2 text-[12.5px]">
+                <label className="flex cursor-pointer items-center gap-2 text-[13.5px]">
                   <input type="checkbox" className="h-3.5 w-3.5 accent-blue-600" checked={filter.showDone} onChange={e => setFilter(f => ({ ...f, showDone: e.target.checked }))} />
                   완료 항목 표시
                 </label>
                 <div className="mt-2.5 border-t border-zinc-100 pt-2 dark:border-zinc-800">
-                  <p className="mb-1 text-[11px] font-bold text-zinc-400">상태</p>
+                  <p className="mb-1 text-[12px] font-bold text-zinc-400">상태</p>
                   <div className="flex flex-wrap gap-1">
                     {KANBAN_ORDER.map(c => {
                       const on = filter.cols.includes(c)
                       return (
                         <button key={c} onClick={() => setFilter(f => ({ ...f, cols: on ? f.cols.filter(x => x !== c) : [...f.cols, c] }))}
-                          className={`rounded-full border px-2 py-px text-[11px] font-medium ${on ? 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-zinc-200 text-zinc-500 dark:border-zinc-700'}`}>
+                          className={`rounded-full border px-2 py-px text-[12px] font-medium ${on ? 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-zinc-200 text-zinc-500 dark:border-zinc-700'}`}>
                           {KANBAN_LABEL[c]}
                         </button>
                       )
@@ -136,13 +136,13 @@ export default function ProjectPage() {
                 </div>
                 {labelOptions.length > 0 && (
                   <div className="mt-2.5 border-t border-zinc-100 pt-2 dark:border-zinc-800">
-                    <p className="mb-1 text-[11px] font-bold text-zinc-400">라벨</p>
+                    <p className="mb-1 text-[12px] font-bold text-zinc-400">라벨</p>
                     <div className="flex flex-wrap gap-1">
                       {labelOptions.map(l => {
                         const on = filter.labels.includes(l)
                         return (
                           <button key={l} onClick={() => setFilter(f => ({ ...f, labels: on ? f.labels.filter(x => x !== l) : [...f.labels, l] }))}
-                            className={`rounded-full border px-2 py-px text-[11px] font-medium ${on ? 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-zinc-200 text-zinc-500 dark:border-zinc-700'}`}>
+                            className={`rounded-full border px-2 py-px text-[12px] font-medium ${on ? 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-zinc-200 text-zinc-500 dark:border-zinc-700'}`}>
                             {l}
                           </button>
                         )
@@ -151,7 +151,7 @@ export default function ProjectPage() {
                   </div>
                 )}
                 {filterCount > 0 && (
-                  <button className="mt-3 w-full rounded-md border border-zinc-200 py-1 text-[12px] font-medium text-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800" onClick={() => setFilter({ showDone: true, labels: [], cols: [] })}>
+                  <button className="mt-3 w-full rounded-md border border-zinc-200 py-1 text-[13px] font-medium text-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800" onClick={() => setFilter({ showDone: true, labels: [], cols: [] })}>
                     필터 초기화
                   </button>
                 )}

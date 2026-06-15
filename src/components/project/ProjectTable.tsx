@@ -115,7 +115,7 @@ export default function ProjectTable({
 
   return (
     <div className="mx-auto max-w-[1000px] px-5 pb-8">
-      <div className={`sticky top-0 z-20 grid ${gridCls} items-center gap-2 border-b border-zinc-200 bg-white px-2 py-1.5 text-[11px] font-semibold text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950`}>
+      <div className={`sticky top-0 z-20 grid ${gridCls} items-center gap-2 border-b border-zinc-200 bg-white px-2 py-1.5 text-[12px] font-semibold text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950`}>
         <span /><span>제목</span><span>상태</span><span>실행일</span><span>마감일</span>
       </div>
 
@@ -125,8 +125,8 @@ export default function ProjectTable({
               <section key={n.phase.key} className="mb-1.5">
                 <button className="flex w-full items-center gap-1.5 px-1 pt-3 pb-1 text-left" onClick={() => setCollapsed(c => ({ ...c, [n.phase.key]: !c[n.phase.key] }))}>
                   {collapsed[n.phase.key] ? <ChevronRight size={14} className="text-zinc-400" /> : <ChevronDown size={14} className="text-zinc-400" />}
-                  <span className="text-[13px] font-bold">{n.phase.label}</span>
-                  <span className="text-[11px] font-semibold text-zinc-400">{n.phase.tasks.length}</span>
+                  <span className="text-[14px] font-bold">{n.phase.label}</span>
+                  <span className="text-[12px] font-semibold text-zinc-400">{n.phase.tasks.length}</span>
                 </button>
                 {!collapsed[n.phase.key] && (
                   <div className="ml-[7px] border-l border-zinc-100 pl-3 dark:border-zinc-800">
@@ -165,12 +165,12 @@ export default function ProjectTable({
       </DndContext>
 
       {groups.every(g => g.tasks.length === 0) && (
-        <div className="mt-6 rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[13px] text-zinc-400 dark:border-zinc-700">
+        <div className="mt-6 rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[14px] text-zinc-400 dark:border-zinc-700">
           태스크가 없습니다 — 아래 그룹의 “+ 태스크”로 추가하세요.
         </div>
       )}
 
-      <DragOverlay>{activeTask ? <div className="rounded border border-blue-300 bg-white px-3 py-1.5 text-[12.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">{activeTask.title}</div> : null}</DragOverlay>
+      <DragOverlay>{activeTask ? <div className="rounded border border-blue-300 bg-white px-3 py-1.5 text-[13.5px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">{activeTask.title}</div> : null}</DragOverlay>
     </div>
   )
 }
@@ -198,8 +198,8 @@ function GroupBlock({ group, groupBy, gridCls, collapsed, onToggle, onOpen, onTo
         <button className="flex w-full items-center gap-1.5 px-1 pt-3 pb-1 text-left" onClick={onToggle}>
           {collapsed ? <ChevronRight size={13} className="text-zinc-400" /> : <ChevronDown size={13} className="text-zinc-400" />}
           {group.col && <span className={`h-2 w-2 rounded-full ${KANBAN_DOT[group.col]}`} />}
-          <span className="text-[12.5px] font-bold">{group.label}</span>
-          <span className="text-[11px] font-semibold text-zinc-400">{group.tasks.length}</span>
+          <span className="text-[13.5px] font-bold">{group.label}</span>
+          <span className="text-[12px] font-semibold text-zinc-400">{group.tasks.length}</span>
         </button>
       )}
 
@@ -211,7 +211,7 @@ function GroupBlock({ group, groupBy, gridCls, collapsed, onToggle, onOpen, onTo
           <div className="grid grid-cols-[24px_1fr] items-center gap-2 px-2 py-1">
             <Plus size={13} className="text-zinc-300" />
             <input
-              className="h-7 bg-transparent text-[12.5px] outline-none placeholder:text-zinc-400"
+              className="h-7 bg-transparent text-[13.5px] outline-none placeholder:text-zinc-400"
               placeholder="+ 태스크"
               value={text}
               onChange={e => setText(e.target.value)}
@@ -259,21 +259,21 @@ function Row({ task, gridCls, onOpen, onToggleDone, onCycle }: {
       </button>
 
       <button className="flex min-w-0 items-center gap-2 text-left" onClick={() => onOpen(task.id)}>
-        <span className={`truncate text-[13px] ${done ? 'text-zinc-400 line-through' : ''}`}>{task.title}</span>
-        {ckTotal > 0 && <span className="shrink-0 text-[11px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
+        <span className={`truncate text-[14px] ${done ? 'text-zinc-400 line-through' : ''}`}>{task.title}</span>
+        {ckTotal > 0 && <span className="shrink-0 text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
         {task.labels.map(l => (
-          <span key={l} className="shrink-0 rounded-full bg-zinc-100 px-1.5 py-px text-[10.5px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">{l}</span>
+          <span key={l} className="shrink-0 rounded-full bg-zinc-100 px-1.5 py-px text-[11.5px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">{l}</span>
         ))}
       </button>
 
       <button className="flex items-center gap-1.5 text-left" title={`${KANBAN_LABEL[col]} — 클릭하여 다음 단계로`} onClick={e => { e.stopPropagation(); onCycle(task.id) }} onPointerDown={e => e.stopPropagation()}>
         <span className={`h-2 w-2 shrink-0 rounded-full ${KANBAN_DOT[col as KanbanCol]}`} />
-        <span className="text-[11.5px] text-zinc-500 dark:text-zinc-400">{KANBAN_LABEL[col]}</span>
+        <span className="text-[12.5px] text-zinc-500 dark:text-zinc-400">{KANBAN_LABEL[col]}</span>
       </button>
 
-      <span className="text-[11.5px] text-zinc-500 dark:text-zinc-400">{task.scheduled_date ? fmtDateShort(task.scheduled_date) : ''}</span>
+      <span className="text-[12.5px] text-zinc-500 dark:text-zinc-400">{task.scheduled_date ? fmtDateShort(task.scheduled_date) : ''}</span>
 
-      <span className="flex">{task.deadline && !done ? <DeadlineBadge deadline={task.deadline} /> : task.deadline ? <span className="text-[11px] text-zinc-400">{fmtDateShort(task.deadline)}</span> : null}</span>
+      <span className="flex">{task.deadline && !done ? <DeadlineBadge deadline={task.deadline} /> : task.deadline ? <span className="text-[12px] text-zinc-400">{fmtDateShort(task.deadline)}</span> : null}</span>
     </div>
   )
 }

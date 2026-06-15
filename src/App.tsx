@@ -50,7 +50,7 @@ export default function App() {
   }, [fetchAll])
 
   if (REQUIRE_AUTH && !authReady) {
-    return <div className="flex h-full items-center justify-center text-[13px] text-zinc-400">불러오는 중…</div>
+    return <div className="flex h-full items-center justify-center text-[14px] text-zinc-400">불러오는 중…</div>
   }
   if (REQUIRE_AUTH && !session) {
     return <Login />
@@ -62,9 +62,9 @@ export default function App() {
         <Sidebar dark={dark} onToggleTheme={toggle} />
         <main className="min-w-0 flex-1 overflow-y-auto pb-14 md:pb-0">
           {!loaded ? (
-            <div className="flex h-full items-center justify-center text-[13px] text-zinc-400">불러오는 중…</div>
+            <div className="flex h-full items-center justify-center text-[14px] text-zinc-400">불러오는 중…</div>
           ) : (
-            <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] text-zinc-400">불러오는 중…</div>}>
+            <Suspense fallback={<div className="flex h-full items-center justify-center text-[14px] text-zinc-400">불러오는 중…</div>}>
               <Routes>
                 <Route path="/" element={<TodayPage />} />
                 <Route path="/inbox" element={<InboxPage />} />
@@ -105,7 +105,7 @@ function Flash() {
   }, [])
   if (!msg) return null
   return (
-    <div className="fixed bottom-16 left-1/2 z-[70] -translate-x-1/2 rounded-full bg-zinc-900 px-4 py-1.5 text-[12.5px] font-medium text-white shadow-lg md:bottom-6 dark:bg-zinc-100 dark:text-zinc-900">
+    <div className="fixed bottom-16 left-1/2 z-[70] -translate-x-1/2 rounded-full bg-zinc-900 px-4 py-1.5 text-[13.5px] font-medium text-white shadow-lg md:bottom-6 dark:bg-zinc-100 dark:text-zinc-900">
       {msg}
     </div>
   )
@@ -113,7 +113,7 @@ function Flash() {
 
 function MobileNav() {
   const cls = ({ isActive }: { isActive: boolean }) =>
-    `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium ${
+    `flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium ${
       isActive ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-400'
     }`
   return (

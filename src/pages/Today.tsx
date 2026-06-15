@@ -181,14 +181,14 @@ export default function TodayPage() {
   return (
     <div className={`mx-auto px-5 py-5 ${view === 'board' ? 'max-w-[1200px]' : 'max-w-[820px]'}`}>
       <div className="mb-4 flex items-center gap-3">
-        <h1 className="text-[18px] font-bold tracking-tight">Today</h1>
-        <span className="text-[12.5px] font-medium text-zinc-400">{fmtDate(todayStr())} · {doneCount}/{todayTasks.length} 완료</span>
+        <h1 className="text-[19px] font-bold tracking-tight">Today</h1>
+        <span className="text-[13.5px] font-medium text-zinc-400">{fmtDate(todayStr())} · {doneCount}/{todayTasks.length} 완료</span>
 
         {/* 보기 각도: 섹션 / 프로젝트 (리스트·보드 공통) */}
         <div className="ml-auto flex items-center rounded-md border border-zinc-200 p-0.5 dark:border-zinc-700">
           {([['section', '섹션'], ['wsproject', '프로젝트']] as const).map(([g, label]) => (
             <button key={g}
-              className={`rounded px-2 py-0.5 text-[12px] font-semibold ${groupBy === g ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+              className={`rounded px-2 py-0.5 text-[13px] font-semibold ${groupBy === g ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
               onClick={() => setGroupByP(g)}
             >{label}</button>
           ))}
@@ -196,11 +196,11 @@ export default function TodayPage() {
 
         <div className="flex items-center rounded-md border border-zinc-200 p-0.5 dark:border-zinc-700">
           <button
-            className={`flex items-center gap-1 rounded px-2 py-0.5 text-[12px] font-semibold ${view === 'list' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+            className={`flex items-center gap-1 rounded px-2 py-0.5 text-[13px] font-semibold ${view === 'list' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
             onClick={() => setViewP('list')} title="리스트"
           ><Rows3 size={13} /> 리스트</button>
           <button
-            className={`flex items-center gap-1 rounded px-2 py-0.5 text-[12px] font-semibold ${view === 'board' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+            className={`flex items-center gap-1 rounded px-2 py-0.5 text-[13px] font-semibold ${view === 'board' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
             onClick={() => setViewP('board')} title="섹션 보드"
           ><Columns3 size={13} /> 보드</button>
         </div>
@@ -210,7 +210,7 @@ export default function TodayPage() {
         <Plus size={15} className="shrink-0 text-zinc-400" />
         <input
           data-capture
-          className="h-9 flex-1 bg-transparent text-[13.5px] outline-none placeholder:text-zinc-400"
+          className="h-9 flex-1 bg-transparent text-[14.5px] outline-none placeholder:text-zinc-400"
           placeholder="오늘 할 일을 입력 — Enter"
           value={text}
           onChange={e => setText(e.target.value)}
@@ -225,10 +225,10 @@ export default function TodayPage() {
       {overdue.length > 0 && (
         <section className="mb-2">
           <div className="mt-1 mb-1.5 flex items-baseline gap-2 px-1.5">
-            <span className="text-[13px] font-bold tracking-tight">Overdue</span>
-            <span className="text-[11.5px] font-semibold text-zinc-400">{overdue.length}</span>
+            <span className="text-[14px] font-bold tracking-tight">Overdue</span>
+            <span className="text-[12.5px] font-semibold text-zinc-400">{overdue.length}</span>
             <button
-              className="ml-auto rounded px-1.5 py-0.5 text-[11px] font-semibold text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400"
+              className="ml-auto rounded px-1.5 py-0.5 text-[12px] font-semibold text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400"
               onClick={() => overdue.forEach(t => updateTask(t.id, { scheduled_date: todayStr() }))}
             >
               모두 오늘로
@@ -236,7 +236,7 @@ export default function TodayPage() {
           </div>
           {overdue.map(t => (
             <TaskRow key={t.id} task={t} onOpen={openDetail}
-              trailing={<span className="shrink-0 text-[11px] font-semibold text-amber-600 dark:text-amber-400">d+{-daysFromToday(t.scheduled_date!)}</span>}
+              trailing={<span className="shrink-0 text-[12px] font-semibold text-amber-600 dark:text-amber-400">d+{-daysFromToday(t.scheduled_date!)}</span>}
             />
           ))}
         </section>
@@ -248,7 +248,7 @@ export default function TodayPage() {
           groupBy === 'wsproject' ? (
             <div className="flex flex-col gap-3 md:flex-row md:snap-x md:snap-mandatory md:overflow-x-auto md:pb-2">
               {projColumns.map(c => <ProjBoardColumn key={c.id} col={c} onOpen={openDetail} />)}
-              {projColumns.length === 0 && <p className="px-2 py-3 text-[12.5px] text-zinc-400">오늘 할 일이 없습니다</p>}
+              {projColumns.length === 0 && <p className="px-2 py-3 text-[13.5px] text-zinc-400">오늘 할 일이 없습니다</p>}
             </div>
           ) : (
             <>
@@ -315,13 +315,13 @@ export default function TodayPage() {
               </div>
             ))}
             {wsGroups.noWs.length === 0 && wsGroups.groups.length === 0 && (
-              <p className="px-2 py-3 text-[12.5px] text-zinc-400">오늘 할 일이 없습니다</p>
+              <p className="px-2 py-3 text-[13.5px] text-zinc-400">오늘 할 일이 없습니다</p>
             )}
           </div>
         )}
         <DragOverlay>
           {activeTask ? (
-            <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[13px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
+            <div className="rounded-md border border-blue-300 bg-white px-3 py-2 text-[14px] shadow-lg dark:border-blue-700 dark:bg-zinc-800">
               {activeTask.title}
             </div>
           ) : null}
@@ -329,7 +329,7 @@ export default function TodayPage() {
       </DndContext>
 
       {todayTasks.length === 0 && overdue.length === 0 && (
-        <div className="mt-3 rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[13px] text-zinc-400 dark:border-zinc-700">
+        <div className="mt-3 rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[14px] text-zinc-400 dark:border-zinc-700">
           오늘 예정된 태스크가 없습니다
         </div>
       )}
@@ -358,7 +358,7 @@ function TodayEvents() {
     <section className="mb-4 rounded-lg border border-zinc-200 bg-white p-2.5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="mb-1 flex items-center gap-1.5 px-1">
         <CalendarDays size={13.5} className="text-zinc-400" />
-        <span className="text-[12px] font-bold text-zinc-500 dark:text-zinc-400">오늘 일정</span>
+        <span className="text-[13px] font-bold text-zinc-500 dark:text-zinc-400">오늘 일정</span>
         {gcal.status === 'connected' && (
           <button className="ml-auto rounded p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" onClick={() => void gcal.refresh()} title="새로고침">
             <RefreshCw size={13} />
@@ -369,33 +369,33 @@ function TodayEvents() {
       {gcal.status === 'disconnected' && (
         <div className="flex flex-wrap items-center gap-2 px-1 py-1">
           <CalendarX2 size={15} className="text-zinc-300 dark:text-zinc-600" />
-          <span className="text-[12px] text-zinc-400">캘린더 연결이 만료되었거나 아직 연결 전입니다.</span>
-          <button className="btn btn-primary !py-1 !text-[12px]" onClick={() => void gcal.connect()}>구글캘린더 연결</button>
-          {gcal.errDetail && <span className="w-full text-[10.5px] break-all text-red-400">{gcal.errDetail}</span>}
+          <span className="text-[13px] text-zinc-400">캘린더 연결이 만료되었거나 아직 연결 전입니다.</span>
+          <button className="btn btn-primary !py-1 !text-[13px]" onClick={() => void gcal.connect()}>구글캘린더 연결</button>
+          {gcal.errDetail && <span className="w-full text-[11.5px] break-all text-red-400">{gcal.errDetail}</span>}
         </div>
       )}
       {gcal.status === 'api_disabled' && (
-        <p className="px-1 py-1 text-[12px] text-amber-600 dark:text-amber-400">
+        <p className="px-1 py-1 text-[13px] text-amber-600 dark:text-amber-400">
           Google Calendar API가 사용 설정되지 않았습니다 —{' '}
           <a className="underline" href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank" rel="noreferrer">활성화</a> 후 새로고침.
         </p>
       )}
       {gcal.status === 'error' && (
-        <p className="px-1 py-1 text-[12px] text-red-500">일정을 불러오지 못했습니다. {gcal.errDetail}</p>
+        <p className="px-1 py-1 text-[13px] text-red-500">일정을 불러오지 못했습니다. {gcal.errDetail}</p>
       )}
-      {gcal.status === 'loading' && <p className="px-1 py-1 text-[12px] text-zinc-400">불러오는 중…</p>}
+      {gcal.status === 'loading' && <p className="px-1 py-1 text-[13px] text-zinc-400">불러오는 중…</p>}
       {gcal.status === 'connected' && (
         events.length === 0
-          ? <p className="px-1 py-1 text-[12px] text-zinc-400">오늘 일정이 없습니다. <Link to="/settings" className="underline">캘린더 선택</Link></p>
+          ? <p className="px-1 py-1 text-[13px] text-zinc-400">오늘 일정이 없습니다. <Link to="/settings" className="underline">캘린더 선택</Link></p>
           : (
             <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
               {events.map(ev => (
                 <div key={ev.id} className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800/60">
                   <span className="h-2 w-2 shrink-0 rounded-[3px]" style={{ background: ev.color ?? '#3b82f6' }} />
-                  <span className="w-[84px] shrink-0 text-[11.5px] font-semibold text-zinc-400">
+                  <span className="w-[84px] shrink-0 text-[12.5px] font-semibold text-zinc-400">
                     {ev.allDay ? '종일' : `${ev.start.slice(11, 16)}–${ev.end.slice(11, 16)}`}
                   </span>
-                  <span className="truncate text-[12.5px] font-medium">{ev.summary}</span>
+                  <span className="truncate text-[13.5px] font-medium">{ev.summary}</span>
                 </div>
               ))}
             </div>
@@ -409,7 +409,7 @@ function TodayEvents() {
 function SubLabel({ label, muted }: { label: string; muted?: boolean }) {
   return (
     <div className="mt-0.5 mb-0.5 pl-4">
-      <span className={`text-[11.5px] font-semibold ${muted ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-300'}`}>{label}</span>
+      <span className={`text-[12.5px] font-semibold ${muted ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-300'}`}>{label}</span>
     </div>
   )
 }
@@ -418,8 +418,8 @@ function SubLabel({ label, muted }: { label: string; muted?: boolean }) {
 function GroupLabel({ label, count }: { label: string; count: number }) {
   return (
     <div className="mt-1 mb-1.5 flex items-baseline gap-2 px-1.5">
-      <span className="text-[13px] font-bold tracking-tight">{label}</span>
-      <span className="text-[11.5px] font-semibold text-zinc-400">{count}</span>
+      <span className="text-[14px] font-bold tracking-tight">{label}</span>
+      <span className="text-[12.5px] font-semibold text-zinc-400">{count}</span>
     </div>
   )
 }
@@ -427,7 +427,7 @@ function GroupLabel({ label, count }: { label: string; count: number }) {
 /** 섹션 추가 (헤더 대신 본문 인라인 — 보기 각도 전환 시 상단 패널이 움직이지 않게) */
 function AddSectionBtn({ onAdd }: { onAdd: () => void }) {
   return (
-    <button onClick={onAdd} className="mt-1 mb-3 ml-1.5 flex items-center gap-1 rounded px-1.5 py-0.5 text-[12px] font-medium text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400">
+    <button onClick={onAdd} className="mt-1 mb-3 ml-1.5 flex items-center gap-1 rounded px-1.5 py-0.5 text-[13px] font-medium text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400">
       <Plus size={13} /> 섹션 추가
     </button>
   )
@@ -438,7 +438,7 @@ function WsHeader({ label }: { label: string }) {
   return (
     <div className="mb-0.5 flex items-baseline gap-1.5 px-1.5">
       <Folder size={13} className="shrink-0 self-center text-zinc-400" />
-      <span className="text-[13px] font-bold tracking-tight">{label}</span>
+      <span className="text-[14px] font-bold tracking-tight">{label}</span>
     </div>
   )
 }
@@ -455,8 +455,8 @@ function ProjBoardColumn({ col, onOpen }: { col: { id: string; label: string; co
     >
       <div className="mb-0.5 flex items-center gap-1.5 px-2">
         <span className="h-2 w-2 shrink-0 rounded-[3px]" style={{ background: col.color }} />
-        <span className="text-[12px] font-bold tracking-wide text-zinc-500 dark:text-zinc-300">{col.label}</span>
-        <span className="text-[11px] font-semibold text-zinc-400">{col.tasks.length || ''}</span>
+        <span className="text-[13px] font-bold tracking-wide text-zinc-500 dark:text-zinc-300">{col.label}</span>
+        <span className="text-[12px] font-semibold text-zinc-400">{col.tasks.length || ''}</span>
       </div>
       <div className="flex min-h-[60px] flex-1 flex-col gap-1.5 overflow-y-auto px-0.5">
         {col.tasks.map(t => <DraggableCard key={t.id} task={t} onOpen={onOpen} />)}
@@ -507,8 +507,8 @@ function Section({
     >
       {!hideHeader && (
         <div className="group mb-0.5 flex items-center gap-1.5 px-2 text-zinc-400">
-          <span className="text-[12px] font-bold tracking-wide">{name}</span>
-          <span className="text-[11px] font-semibold">{tasks.length || ''}</span>
+          <span className="text-[13px] font-bold tracking-wide">{name}</span>
+          <span className="text-[12px] font-semibold">{tasks.length || ''}</span>
           {custom && (
             <span className="invisible flex items-center gap-0.5 group-hover:visible">
               <button className="rounded p-0.5 hover:text-zinc-700 dark:hover:text-zinc-200" title="위로" disabled={isFirst}
@@ -573,9 +573,9 @@ function BoardCard({ task, onOpen }: { task: Task; onOpen: (id: string) => void 
           {done ? <CheckCircle2 size={16} /> : <Circle size={16} />}
         </button>
         <div className="min-w-0 flex-1">
-          <div className={`text-[12.5px] leading-snug break-words ${done ? 'text-zinc-400 line-through' : ''}`}>{task.title}</div>
+          <div className={`text-[13.5px] leading-snug break-words ${done ? 'text-zinc-400 line-through' : ''}`}>{task.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5 empty:hidden">
-            {ckTotal > 0 && <span className="text-[11px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
+            {ckTotal > 0 && <span className="text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
             {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
             <ProjectChip projectId={task.project_id} workspaceId={task.workspace_id} />
           </div>

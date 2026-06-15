@@ -90,7 +90,7 @@ export default function WorkspacePage() {
                     <button key={c} className={`h-5 w-5 rounded-[5px] hover:scale-110 ${ws.color === c ? 'ring-2 ring-zinc-400' : ''}`} style={{ background: c }} onClick={() => { updateWorkspace(ws.id, { color: c }); setColorOpen(false) }} />
                   ))}
                 </div>
-                <label className="mt-2 flex items-center gap-2 border-t border-zinc-100 pt-2 text-[11.5px] text-zinc-500 dark:border-zinc-800">
+                <label className="mt-2 flex items-center gap-2 border-t border-zinc-100 pt-2 text-[12.5px] text-zinc-500 dark:border-zinc-800">
                   직접 선택
                   <input type="color" className="h-6 w-7 cursor-pointer rounded border-0 bg-transparent p-0" value={ws.color ?? wsColor(ws.id, workspaces)} onChange={e => updateWorkspace(ws.id, { color: e.target.value })} />
                 </label>
@@ -98,8 +98,8 @@ export default function WorkspacePage() {
             </>
           )}
         </div>
-        <h1 className="cursor-text text-[18px] font-bold tracking-tight" title="클릭하여 이름 변경" onClick={() => { const n = window.prompt('워크스페이스 이름', ws.name); if (n?.trim()) updateWorkspace(ws.id, { name: n.trim() }) }}>{ws.name}</h1>
-        <span className="text-[12.5px] font-medium text-zinc-400">{stats.done}/{stats.total} · {pct}%</span>
+        <h1 className="cursor-text text-[19px] font-bold tracking-tight" title="클릭하여 이름 변경" onClick={() => { const n = window.prompt('워크스페이스 이름', ws.name); if (n?.trim()) updateWorkspace(ws.id, { name: n.trim() }) }}>{ws.name}</h1>
+        <span className="text-[13.5px] font-medium text-zinc-400">{stats.done}/{stats.total} · {pct}%</span>
         <div className="h-1.5 w-40 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800"><div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${pct}%` }} /></div>
         <button className="btn btn-danger ml-auto" title="워크스페이스 삭제" onClick={() => { if (window.confirm(`워크스페이스 "${ws.name}"와 모든 프로젝트·태스크를 삭제할까요?`)) { deleteWorkspace(ws.id); navigate('/') } }}>
           <Trash2 size={14} />
@@ -112,7 +112,7 @@ export default function WorkspacePage() {
           {VIEW_TABS.map(t => {
             const Icon = t.icon
             return (
-              <button key={t.key} onClick={() => setViewP(t.key)} className={`flex items-center gap-1.5 rounded px-2 py-1 text-[12px] font-semibold ${view === t.key ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}>
+              <button key={t.key} onClick={() => setViewP(t.key)} className={`flex items-center gap-1.5 rounded px-2 py-1 text-[13px] font-semibold ${view === t.key ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}>
                 <Icon size={13} /> {t.label}
               </button>
             )
@@ -120,9 +120,9 @@ export default function WorkspacePage() {
         </div>
 
         {showGroup && (
-          <label className="flex items-center gap-1.5 text-[12px] text-zinc-500 dark:text-zinc-400">
+          <label className="flex items-center gap-1.5 text-[13px] text-zinc-500 dark:text-zinc-400">
             그룹화
-            <select className="input !h-7 !w-auto !py-0 !text-[12px]" value={groupBy} onChange={e => setGroupP(e.target.value as GroupBy)}>
+            <select className="input !h-7 !w-auto !py-0 !text-[13px]" value={groupBy} onChange={e => setGroupP(e.target.value as GroupBy)}>
               <option value="phase-project">Phase · 프로젝트</option>
               <option value="phase">Phase</option>
               <option value="project">프로젝트</option>
@@ -142,18 +142,18 @@ export default function WorkspacePage() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setFilterOpen(false)} />
                 <div className="absolute right-0 top-9 z-50 w-[200px] rounded-lg border border-zinc-200 bg-white p-3 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-                  <p className="mb-1 text-[11px] font-bold text-zinc-400">프로젝트 상태</p>
+                  <p className="mb-1 text-[12px] font-bold text-zinc-400">프로젝트 상태</p>
                   <div className="flex flex-wrap gap-1">
                     {PROJECT_STATUS_ORDER.map(st => {
                       const on = filter.includes(st)
                       return (
-                        <button key={st} onClick={() => setFilter(f => on ? f.filter(x => x !== st) : [...f, st])} className={`flex items-center gap-1 rounded-full border px-2 py-px text-[11px] font-medium ${on ? 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-zinc-200 text-zinc-500 dark:border-zinc-700'}`}>
+                        <button key={st} onClick={() => setFilter(f => on ? f.filter(x => x !== st) : [...f, st])} className={`flex items-center gap-1 rounded-full border px-2 py-px text-[12px] font-medium ${on ? 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400' : 'border-zinc-200 text-zinc-500 dark:border-zinc-700'}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${PROJECT_STATUS_DOT[st]}`} />{PROJECT_STATUS_LABEL[st]}
                         </button>
                       )
                     })}
                   </div>
-                  {filter.length > 0 && <button className="mt-3 w-full rounded-md border border-zinc-200 py-1 text-[12px] font-medium text-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800" onClick={() => setFilter([])}>필터 초기화</button>}
+                  {filter.length > 0 && <button className="mt-3 w-full rounded-md border border-zinc-200 py-1 text-[13px] font-medium text-zinc-500 hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800" onClick={() => setFilter([])}>필터 초기화</button>}
                 </div>
               </>
             )}
@@ -167,7 +167,7 @@ export default function WorkspacePage() {
         {view === 'table' && <ProjectTable tasks={wsTasks} groupBy={groupBy} projects={wsProjects} phases={phases} onAdd={wsOnAdd} />}
         {view === 'calendar' && <WorkspaceCalendar tasks={wsTasks} projects={wsProjects} />}
         {view === 'overview' && (
-          <Suspense fallback={<div className="flex h-full items-center justify-center text-[13px] text-zinc-400">불러오는 중…</div>}>
+          <Suspense fallback={<div className="flex h-full items-center justify-center text-[14px] text-zinc-400">불러오는 중…</div>}>
             <OverviewPage />
           </Suspense>
         )}

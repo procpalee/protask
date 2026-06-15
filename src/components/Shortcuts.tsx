@@ -283,13 +283,13 @@ export default function Shortcuts() {
           <div className="space-y-1">
             {SHORTCUTS.map(s => (
               <div key={s.keys + s.desc} className="flex items-center justify-between gap-3 rounded px-1.5 py-1 hover:bg-zinc-50 dark:hover:bg-zinc-800/60">
-                <span className="text-[12.5px] text-zinc-600 dark:text-zinc-300">{s.desc}</span>
+                <span className="text-[13.5px] text-zinc-600 dark:text-zinc-300">{s.desc}</span>
                 <span className="flex shrink-0 gap-1">
                   {s.keys.split(' ').map((key, i) =>
                     key === '/' || key === '+' || key === '→' ? (
-                      <span key={i} className="text-[11px] text-zinc-400">{key}</span>
+                      <span key={i} className="text-[12px] text-zinc-400">{key}</span>
                     ) : (
-                      <kbd key={i} className="rounded border border-zinc-300 bg-zinc-50 px-1.5 py-px text-[11px] font-semibold text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+                      <kbd key={i} className="rounded border border-zinc-300 bg-zinc-50 px-1.5 py-px text-[12px] font-semibold text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
                         {key}
                       </kbd>
                     ),
