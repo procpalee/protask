@@ -23,7 +23,9 @@ export default function OverviewPage() {
   const [notesOpen, setNotesOpen] = useState(true)
   const [editing, setEditing] = useState(false)
   const [notesFull, setNotesFull] = useState(false)
-  const [ready, setReady] = useState(false)
+  // 데이터가 로드된 워크스페이스 id. 현재 wsId와 같을 때만 캔버스를 띄운다(전환 시 자동 언마운트)
+  const [loadedFor, setLoadedFor] = useState<string | null>(null)
+  const ready = loadedFor === wsId
   const dark = document.documentElement.classList.contains('dark')
 
   const sceneRef = useRef<SceneData>({})
@@ -43,6 +45,9 @@ export default function OverviewPage() {
 
   useEffect(() => {
     let cancelled = false
+    // 워크스페이스 전환 시 ref를 비워, 새 씬 로드 전 옛 씬이 다른 워크스페이스로 새어들어가는(오염) 것을 방지
+    sceneRef.current = {}
+    notesRef.current = ''
     void (async () => {
       const { data } = await supabase.from('workspace_canvas').select('*').eq('workspace_id', wsId).maybeSingle()
       if (cancelled) return
@@ -51,7 +56,7 @@ export default function OverviewPage() {
       setNotes(data?.notes ?? '')
       notesRef.current = data?.notes ?? ''
       sceneRef.current = scene
-      setReady(true)
+      setLoadedFor(wsId ?? null) // 로드 완료 표시 → ready=true가 되어 새 씬으로 캔버스 마운트
     })()
     return () => {
       cancelled = true
@@ -112,6 +117,7 @@ export default function OverviewPage() {
         <div className={`min-w-0 flex-1 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800 ${notesFull ? 'hidden' : ''}`}>
           {ready && (
             <Excalidraw
+              key={wsId}
               theme={dark ? 'dark' : 'light'}
               excalidrawAPI={api => { apiRef.current = api as unknown as typeof apiRef.current }}
               initialData={{
