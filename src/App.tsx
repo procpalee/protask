@@ -86,7 +86,7 @@ export default function App() {
       <QuickCapture />
       <Shortcuts />
       <Flash />
-      {/* 상세 — 데스크탑은 우측에 작은 팝업, 모바일은 전체화면 */}
+      {/* 상세 — 중앙 팝업 */}
       {detailTaskId && <TaskDetail key={detailTaskId} taskId={detailTaskId} onClose={() => openDetail(null)} />}
     </BrowserRouter>
   )

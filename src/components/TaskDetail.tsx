@@ -6,7 +6,7 @@ import { todayStr, toStr } from '../lib/dates'
 import { addDays } from 'date-fns'
 import Checklist from './Checklist'
 
-/** 태스크 상세 — 오른쪽 도킹 패널(리스트 안 가림, 다른 태스크 클릭 시 교체) */
+/** 태스크 상세 — 중앙 팝업(다른 태스크 클릭 시 교체) */
 export default function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () => void }) {
   const task = useStore(s => s.tasks.find(t => t.id === taskId))
   const projects = useStore(s => s.projects)
@@ -50,10 +50,11 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
   const sortedSections = [...sections].sort((a, b) => a.position - b.position)
 
   return (
-    <>
-      {/* 모바일 전용 옅은 backdrop (데스크탑은 우측 작은 팝업이라 리스트 위에 살짝 뜸) */}
-      <div className="fixed inset-0 z-40 bg-black/20 md:hidden" onMouseDown={onClose} />
-      <div className="animate-[panel-in_140ms_ease-out] fixed inset-0 z-50 flex flex-col overflow-hidden bg-white shadow-2xl md:inset-auto md:top-[68px] md:right-3 md:max-h-[80vh] md:w-[420px] md:rounded-xl md:border md:border-zinc-200 dark:bg-zinc-900 md:dark:border-zinc-700">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 pt-[9vh] backdrop-blur-[1px]"
+      onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="animate-[panel-in_140ms_ease-out] flex max-h-[82vh] w-full max-w-[600px] flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900">
         <div className="flex shrink-0 items-center gap-2 border-b border-zinc-100 bg-white px-4 py-2.5 dark:border-zinc-800 dark:bg-zinc-900">
           <span className="text-[13px] font-semibold text-zinc-400">태스크</span>
           <div className="ml-auto flex items-center gap-1">
@@ -199,6 +200,6 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
           </label>
         </div>
       </div>
-    </>
+    </div>
   )
 }
