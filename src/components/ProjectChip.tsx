@@ -13,7 +13,7 @@ export default function ProjectChip({ projectId, workspaceId }: { projectId: str
     const ws = workspaces.find(w => w.id === project.workspace_id)
     return (
       <span
-        className="inline-flex max-w-[150px] items-center rounded-full bg-[var(--pc)] px-2 py-px text-[12px] font-medium text-white dark:brightness-[0.72] dark:saturate-[0.85]"
+        className="inline-flex max-w-[110px] items-center rounded-full bg-[var(--pc)] px-1.5 py-px text-[11px] font-medium text-white dark:brightness-[0.85] dark:saturate-[0.92]"
         style={{ '--pc': projectColor(project.id, projects) } as CSSProperties}
         title={ws ? `${ws.name} / ${project.title}` : project.title}
       >
@@ -27,7 +27,7 @@ export default function ProjectChip({ projectId, workspaceId }: { projectId: str
   if (!ws) return null
   return (
     <span
-      className="inline-flex max-w-[150px] items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-1.5 py-px text-[12px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-400"
+      className="inline-flex max-w-[110px] items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 px-1.5 py-px text-[11px] font-medium text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-400"
       title={ws.name}
     >
       <Folder size={10} className="shrink-0" />

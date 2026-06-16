@@ -7,7 +7,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useStore, selInbox, selToday, selOverdue, selScheduled, selSomeday, projectColor } from '../store/store'
+import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday, projectColor } from '../store/store'
 import type { Project, Workspace } from '../types'
 import { onSyncStatus, type SyncStatus } from '../lib/sync'
 
@@ -130,7 +130,7 @@ export default function Sidebar({ dark, onToggleTheme }: { dark: boolean; onTogg
   const workspaces = useStore(s => s.workspaces)
   const inboxCount = useStore(s => selInbox(s).length)
   const todayCount = useStore(s => selOverdue(s).length + selToday(s).filter(t => t.status !== 'done').length)
-  const upcomingCount = useStore(s => selOverdue(s).length + selScheduled(s).length)
+  const upcomingCount = useStore(s => selDated(s).length)
   const somedayCount = useStore(s => selSomeday(s).length)
   const addWorkspace = useStore(s => s.addWorkspace)
   const navigate = useNavigate()

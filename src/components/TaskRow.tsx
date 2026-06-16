@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Circle, CheckCircle2, CalendarDays, FolderInput, Star } from 'lucide-react'
+import { Circle, CheckCircle2, CalendarDays, FolderInput, CircleSlash, Star } from 'lucide-react'
 import type { Task, ChecklistItem } from '../types'
-import { useStore } from '../store/store'
+import { useStore, projectColor } from '../store/store'
 import ProjectChip from './ProjectChip'
 import PlanPopover from './PlanPopover'
 import { daysFromToday, fmtDateShort } from '../lib/dates'
@@ -172,27 +172,33 @@ function ProjectControl({ task, selected }: { task: Task; selected?: boolean }) 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onMouseDown={() => setOpen(false)} />
-          <div className="absolute top-7 right-0 z-50 w-[220px] rounded-lg border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-            <select
-              autoFocus
-              className="input !py-1 !text-[13px]"
-              value={task.project_id ?? ''}
-              onChange={e => {
-                const pid = e.target.value || null
-                const proj = pid ? projects.find(p => p.id === pid) : null
-                updateTask(task.id, { project_id: pid, workspace_id: proj?.workspace_id ?? null })
-                setOpen(false)
-              }}
+          <div className="absolute top-7 right-0 z-50 max-h-[320px] w-[220px] overflow-y-auto rounded-lg border border-zinc-200 bg-white p-1 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+            <button
+              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100 dark:hover:bg-zinc-800 ${!task.project_id ? 'bg-zinc-100 font-semibold dark:bg-zinc-800' : ''}`}
+              onClick={() => { updateTask(task.id, { project_id: null, workspace_id: null }); setOpen(false) }}
             >
-              <option value="">프로젝트 없음</option>
-              {workspaces.map(w => (
-                <optgroup key={w.id} label={w.name}>
-                  {projects.filter(p => p.workspace_id === w.id).map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
+              <CircleSlash size={14} className="shrink-0 text-zinc-400" />
+              <span className="flex-1">프로젝트 없음</span>
+            </button>
+            {workspaces.map(w => {
+              const ps = projects.filter(p => p.workspace_id === w.id)
+              if (!ps.length) return null
+              return (
+                <div key={w.id}>
+                  <div className="px-2 pt-1.5 pb-0.5 text-[11px] font-semibold text-zinc-400">{w.name}</div>
+                  {ps.map(p => (
+                    <button
+                      key={p.id}
+                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100 dark:hover:bg-zinc-800 ${task.project_id === p.id ? 'bg-zinc-100 font-semibold dark:bg-zinc-800' : ''}`}
+                      onClick={() => { updateTask(task.id, { project_id: p.id, workspace_id: w.id }); setOpen(false) }}
+                    >
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ background: projectColor(p.id, projects) }} />
+                      <span className="flex-1 truncate">{p.title}</span>
+                    </button>
                   ))}
-                </optgroup>
-              ))}
-            </select>
+                </div>
+              )
+            })}
           </div>
         </>
       )}
