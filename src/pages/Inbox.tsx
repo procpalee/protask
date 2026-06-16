@@ -7,9 +7,15 @@ import { Plus, Sun, CalendarDays, Clock3, Moon, Folder } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { addDays } from 'date-fns'
 import { useStore, selInbox, useNavOrder } from '../store/store'
-import { parseQuick, todayStr, toStr } from '../lib/dates'
+import { parseQuick, todayStr, toStr, daysFromToday, fmtDateShort } from '../lib/dates'
 import type { Task } from '../types'
 import TaskRow from '../components/TaskRow'
+
+/** 인식된 실행일을 짧은 라벨로 (오늘/내일/모레/M·d) */
+function dateLabel(d: string): string {
+  const n = daysFromToday(d)
+  return n === 0 ? '오늘' : n === 1 ? '내일' : n === 2 ? '모레' : fmtDateShort(d)
+}
 
 export default function InboxPage() {
   const inbox = useStore(useShallow(selInbox))
@@ -26,8 +32,8 @@ export default function InboxPage() {
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
   )
 
+  const parsed = parseQuick(text)
   const submit = () => {
-    const parsed = parseQuick(text)
     if (!parsed.title) return
     addTask({ title: parsed.title, scheduled_date: parsed.date })
     setText('')
@@ -100,6 +106,15 @@ export default function InboxPage() {
             onChange={e => setText(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submit()}
           />
+          {parsed.date && (
+            <span
+              className="flex shrink-0 items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[12px] font-semibold text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
+              title={`인식된 실행일: ${parsed.date}`}
+            >
+              <CalendarDays size={12} />
+              {dateLabel(parsed.date)}
+            </span>
+          )}
         </div>
 
         {noWs.length > 0 && (
