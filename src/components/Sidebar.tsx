@@ -190,10 +190,13 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
           Someday
           <CountBadge n={somedayCount} />
         </NavLink>
-        <NavLink to="/calendar" className={navCls}>
-          <CalendarRange size={15.5} strokeWidth={1.9} />
-          Calendar
-        </NavLink>
+        {/* 캘린더 — 모바일(드로어)에선 숨김, 데스크탑 사이드바에만 노출 */}
+        <div className="hidden md:contents">
+          <NavLink to="/calendar" className={navCls}>
+            <CalendarRange size={15.5} strokeWidth={1.9} />
+            Calendar
+          </NavLink>
+        </div>
       </nav>
 
       <div className="mt-5 mb-1 flex items-center justify-between px-4">

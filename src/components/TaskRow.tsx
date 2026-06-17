@@ -34,7 +34,7 @@ export default function TaskRow({
     <div>
       <div
         ref={ref}
-        className={`group flex min-h-[44px] cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-zinc-100/80 md:min-h-[36px] dark:hover:bg-zinc-800/60 ${
+        className={`group flex min-h-[44px] cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 rounded-md px-2 py-1.5 hover:bg-zinc-100/80 md:min-h-[36px] md:flex-nowrap dark:hover:bg-zinc-800/60 ${
           selected ? 'bg-zinc-100/80 ring-2 ring-blue-500/50 ring-inset dark:bg-zinc-800/60' : ''
         }`}
         onClick={() => onOpen(task.id)}
@@ -66,10 +66,13 @@ export default function TaskRow({
           )}
         </span>
 
-        {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
-        <ScheduleChip task={task} selected={selected} />
-        <ProjectControl task={task} selected={selected} />
-        {trailing}
+        {/* 날짜·프로젝트 등 — 모바일에선 제목 아래 줄로 줄바꿈(들여쓰기) */}
+        <div className="flex shrink-0 items-center gap-2 max-md:order-last max-md:basis-full max-md:pl-[46px]">
+          {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
+          <ScheduleChip task={task} selected={selected} />
+          <ProjectControl task={task} selected={selected} />
+          {trailing}
+        </div>
       </div>
 
       {task.checklist.length > 0 && (

@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { Inbox, Sun, LayoutGrid, Settings as SettingsIcon, Plus, Menu } from 'lucide-react'
+import { Inbox, Sun, CalendarClock, Settings as SettingsIcon, Plus, Menu, Moon, SunMedium } from 'lucide-react'
 import Sidebar, { useTheme, MobileDrawer, SyncDot } from './components/Sidebar'
 import QuickCapture from './components/QuickCapture'
 import Shortcuts from './components/Shortcuts'
@@ -60,7 +60,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <MobileTopBar onMenu={() => setDrawerOpen(true)} />
+      <MobileTopBar onMenu={() => setDrawerOpen(true)} dark={dark} onToggleTheme={toggle} />
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} dark={dark} onToggleTheme={toggle} />
       <div className="flex h-full">
         <Sidebar dark={dark} onToggleTheme={toggle} />
@@ -124,8 +124,8 @@ const STATIC_TITLES: Record<string, string> = {
   '/calendar': 'Calendar', '/workspaces': '워크스페이스', '/settings': '설정', '/guide': '설명서',
 }
 
-/** 모바일 상단 바 — 햄버거(드로어) + 현재 화면 타이틀 + 동기화 점 */
-function MobileTopBar({ onMenu }: { onMenu: () => void }) {
+/** 모바일 상단 바 — 햄버거(드로어) + 현재 화면 타이틀 + 테마 토글 + 동기화 점 */
+function MobileTopBar({ onMenu, dark, onToggleTheme }: { onMenu: () => void; dark: boolean; onToggleTheme: () => void }) {
   const loc = useLocation()
   const workspaces = useStore(s => s.workspaces)
   const projects = useStore(s => s.projects)
@@ -149,7 +149,14 @@ function MobileTopBar({ onMenu }: { onMenu: () => void }) {
           <Menu size={20} />
         </button>
         <span className="truncate text-[15px] font-semibold tracking-tight">{title ?? 'Protask'}</span>
-        <SyncDot className="ml-auto mr-2 shrink-0" />
+        <button
+          onClick={onToggleTheme}
+          aria-label="테마 전환"
+          className="ml-auto rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+        >
+          {dark ? <SunMedium size={18} /> : <Moon size={18} />}
+        </button>
+        <SyncDot className="mr-1 shrink-0" />
       </div>
     </header>
   )
@@ -175,9 +182,9 @@ function MobileNav() {
     }`
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-zinc-800 dark:bg-zinc-950/95">
-      <NavLink to="/" end className={cls}><Sun size={18} />Today</NavLink>
       <NavLink to="/inbox" className={cls}><Inbox size={18} />Inbox</NavLink>
-      <NavLink to="/workspaces" className={cls}><LayoutGrid size={18} />워크스페이스</NavLink>
+      <NavLink to="/" end className={cls}><Sun size={18} />Today</NavLink>
+      <NavLink to="/upcoming" className={cls}><CalendarClock size={18} />Upcoming</NavLink>
       <NavLink to="/settings" className={cls}><SettingsIcon size={18} />설정</NavLink>
     </nav>
   )

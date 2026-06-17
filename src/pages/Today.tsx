@@ -17,6 +17,7 @@ import type { Task } from '../types'
 import { between } from '../lib/position'
 import { countCk } from '../lib/group'
 import { fmtDate, todayStr, toStr, daysFromToday } from '../lib/dates'
+import { useIsMobile } from '../lib/useIsMobile'
 import { addDays } from 'date-fns'
 import TaskRow, { DeadlineBadge } from '../components/TaskRow'
 import ProjectChip from '../components/ProjectChip'
@@ -40,6 +41,8 @@ export default function TodayPage() {
   const [text, setText] = useState('')
   const [view, setView] = useState<'list' | 'board'>(() => (localStorage.getItem('pd-todayview') as 'list' | 'board') || 'list')
   const setViewP = (v: 'list' | 'board') => { setView(v); localStorage.setItem('pd-todayview', v) }
+  const isMobile = useIsMobile()
+  const effView = isMobile ? 'list' : view // 모바일은 리스트 뷰만
   type GroupBy = 'section' | 'wsproject'
   const [groupBy, setGroupBy] = useState<GroupBy>(() => (localStorage.getItem('pd-todaygroup') === 'wsproject' ? 'wsproject' : 'section'))
   const setGroupByP = (g: GroupBy) => { setGroupBy(g); localStorage.setItem('pd-todaygroup', g) }
@@ -180,7 +183,7 @@ export default function TodayPage() {
   const boardKeys = keys.filter(k => k !== NONE || (bySec[NONE]?.length ?? 0) > 0)
 
   return (
-    <div className={`mx-auto px-5 py-5 ${view === 'board' ? 'max-w-[1200px]' : 'max-w-[820px]'}`}>
+    <div className={`mx-auto px-5 py-5 ${effView === 'board' ? 'max-w-[1200px]' : 'max-w-[820px]'}`}>
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
         <h1 className="text-[19px] font-bold tracking-tight">Today</h1>
         <span className="text-[13.5px] font-medium text-zinc-400">{fmtDate(todayStr())} · {doneCount}/{todayTasks.length} 완료</span>
@@ -195,7 +198,7 @@ export default function TodayPage() {
           ))}
         </div>
 
-        <div className="flex items-center rounded-md border border-zinc-200 p-0.5 dark:border-zinc-700">
+        <div className="hidden items-center rounded-md border border-zinc-200 p-0.5 md:flex dark:border-zinc-700">
           <button
             className={`flex items-center gap-1 rounded px-2 py-0.5 text-[13px] font-semibold ${view === 'list' ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
             onClick={() => setViewP('list')} title="리스트"
@@ -207,7 +210,7 @@ export default function TodayPage() {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-zinc-700 dark:bg-zinc-900">
+      <div className="mb-4 hidden items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 md:flex dark:border-zinc-700 dark:bg-zinc-900">
         <Plus size={15} className="shrink-0 text-zinc-400" />
         <input
           data-capture
@@ -219,8 +222,10 @@ export default function TodayPage() {
         />
       </div>
 
-      {/* 1) 오늘 일정 (구글캘린더) — 최상단 */}
-      <TodayEvents />
+      {/* 1) 오늘 일정 (구글캘린더) — 최상단. 모바일에선 캘린더 불필요 → 숨김 */}
+      <div className="hidden md:block">
+        <TodayEvents />
+      </div>
 
       {/* 2) Overdue — 경과 일수만 우측에 d+N */}
       {overdue.length > 0 && (
@@ -245,7 +250,7 @@ export default function TodayPage() {
 
       {/* 3) To-dos / Done — 리스트(기본) 또는 보드 */}
       <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        {view === 'board' ? (
+        {effView === 'board' ? (
           groupBy === 'wsproject' ? (
             <div className="flex flex-col gap-3 md:flex-row md:snap-x md:snap-mandatory md:overflow-x-auto md:pb-2">
               {projColumns.map(c => <ProjBoardColumn key={c.id} col={c} onOpen={openDetail} />)}
