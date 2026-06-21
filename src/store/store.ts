@@ -23,6 +23,9 @@ interface Store {
   /* UI 상태 (전역 상세 팝업 + hover 단축키 대상) */
   detailTaskId: string | null
   hoverTaskId: string | null
+  /** 리스트에서 인라인 서브태스크 입력을 띄울 태스크 id (Shift+Enter) */
+  addSubFor: string | null
+  setAddSubFor: (id: string | null) => void
   openDetail: (id: string | null) => void
   setHoverTask: (id: string | null) => void
   /** 현재 화면의 키보드 내비 대상 순서(flat). 페이지가 등록 */
@@ -110,8 +113,10 @@ export const useStore = create<Store>((set, get) => ({
   navOrder: [],
   navKind: 'task',
   quickFocus: -1,
-  openDetail: id => set({ detailTaskId: id, hoverTaskId: null, quickFocus: -1 }),
-  setHoverTask: id => set({ hoverTaskId: id, quickFocus: -1 }),
+  addSubFor: null,
+  setAddSubFor: id => set({ addSubFor: id }),
+  openDetail: id => set({ detailTaskId: id, hoverTaskId: null, quickFocus: -1, addSubFor: null }),
+  setHoverTask: id => set({ hoverTaskId: id, quickFocus: -1, addSubFor: null }),
   setQuickFocus: n => set({ quickFocus: n }),
   setNavOrder: (ids, kind = 'task') => set({ navOrder: ids, navKind: kind }),
   tabNav: null,

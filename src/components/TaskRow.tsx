@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Circle, CheckCircle2, CalendarDays, FolderInput, CircleSlash, Star } from 'lucide-react'
 import type { Task, ChecklistItem } from '../types'
-import { useStore, projectColor } from '../store/store'
+import { useStore, projectColor, nid } from '../store/store'
 import ProjectChip from './ProjectChip'
 import PlanPopover from './PlanPopover'
 import { daysFromToday, fmtDateShort } from '../lib/dates'
@@ -19,6 +19,8 @@ export default function TaskRow({
   const toggleDone = useStore(s => s.toggleDone)
   const updateTask = useStore(s => s.updateTask)
   const selected = useStore(s => s.hoverTaskId === task.id)
+  const addingSub = useStore(s => s.addSubFor === task.id)
+  const setAddSubFor = useStore(s => s.setAddSubFor)
   const done = task.status === 'done'
   const ref = useRef<HTMLDivElement>(null)
 
@@ -78,6 +80,34 @@ export default function TaskRow({
       {task.checklist.length > 0 && (
         <Subtasks items={task.checklist} onChange={next => updateTask(task.id, { checklist: next })} />
       )}
+
+      {addingSub && (
+        <InlineSubAdd
+          onAdd={title => updateTask(task.id, { checklist: [...task.checklist, { id: nid('ck'), title, done: false, children: [] }] })}
+          onClose={() => setAddSubFor(null)}
+        />
+      )}
+    </div>
+  )
+}
+
+/** 리스트에서 Shift+Enter로 여는 인라인 서브태스크 입력 — Enter 연속 추가, Esc/빈칸 blur 종료 */
+function InlineSubAdd({ onAdd, onClose }: { onAdd: (title: string) => void; onClose: () => void }) {
+  const [text, setText] = useState('')
+  return (
+    <div className="py-0.5 pr-2" style={{ paddingLeft: 46 }} onClick={e => e.stopPropagation()}>
+      <input
+        autoFocus
+        className="input !py-1 !text-[13px]"
+        placeholder="서브태스크 — Enter 추가 · Esc 종료"
+        value={text}
+        onChange={e => setText(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') { e.preventDefault(); const v = text.trim(); if (v) { onAdd(v); setText('') } }
+          else if (e.key === 'Escape') { e.preventDefault(); onClose() }
+        }}
+        onBlur={() => { const v = text.trim(); if (v) onAdd(v); onClose() }}
+      />
     </div>
   )
 }

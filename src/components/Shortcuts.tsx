@@ -30,6 +30,7 @@ export const SHORTCUTS: { keys: string; desc: string }[] = [
   { keys: 'I', desc: '선택 태스크: Inbox로 (날짜·Someday 해제)' },
   { keys: 'Space', desc: '선택 태스크: 완료 토글' },
   { keys: 'Enter', desc: '선택 태스크: 상세 팝업' },
+  { keys: 'Shift Enter', desc: '선택 태스크: 서브태스크 추가(인라인)' },
   { keys: 'Del', desc: '선택 태스크: 삭제 (Ctrl+Z 복원)' },
   { keys: '← / →', desc: '워크스페이스·프로젝트: 탭 전환 (선택 없을 때)' },
   { keys: 'Backspace', desc: '뒤로가기' },
@@ -145,6 +146,12 @@ export default function Shortcuts() {
       }
 
       /* ───── 태스크 선택 모드 ───── */
+      // Shift+Enter : 선택 태스크에 서브태스크 인라인 추가(상세 열지 않음). plain Enter보다 먼저 처리.
+      if (e.key === 'Enter' && e.shiftKey && store.navKind === 'task') {
+        e.preventDefault()
+        store.setAddSubFor(hover!)
+        return
+      }
       // 워크스페이스·프로젝트(탭 화면): ←/→ 가로 이동, ↑/↓ 격자 위아래, Esc 사이드바 포커스
       if (store.tabNav) {
         if (e.key === 'ArrowRight') { e.preventDefault(); store.moveHover(1); return }
