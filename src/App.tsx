@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { Inbox, Sun, CalendarClock, Settings as SettingsIcon, Plus, Menu, Moon, SunMedium } from 'lucide-react'
 import Sidebar, { useTheme, MobileDrawer, SyncDot } from './components/Sidebar'
 import QuickCapture from './components/QuickCapture'
@@ -19,6 +19,7 @@ import WorkspaceListPage from './pages/WorkspaceList'
 import Login from './components/Login'
 import { useStore } from './store/store'
 import { useAuth, REQUIRE_AUTH } from './store/authStore'
+import { parseQuick } from './lib/dates'
 
 export default function App() {
   const { dark, toggle } = useTheme()
@@ -60,6 +61,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <EntryParams />
       <MobileTopBar onMenu={() => setDrawerOpen(true)} dark={dark} onToggleTheme={toggle} />
       <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} dark={dark} onToggleTheme={toggle} />
       <div className="flex h-full">
@@ -160,6 +162,40 @@ function MobileTopBar({ onMenu, dark, onToggleTheme }: { onMenu: () => void; dar
       </div>
     </header>
   )
+}
+
+/**
+ * PWA 진입 파라미터 처리 — 데이터 로드 후 1회 실행(fetch 경합 방지).
+ * - `?capture=1` (앱 아이콘 길게 누르기 '빠른 캡처' shortcut) → 전역 캡처 모달 열기
+ * - 공유(share_target, `?text=`/`?title=`/`?url=`) → 공유 텍스트로 Inbox에 즉시 추가 + 토스트
+ * 처리 후 URL 파라미터를 제거해 새로고침 시 재실행을 막는다.
+ */
+function EntryParams() {
+  const navigate = useNavigate()
+  const loaded = useStore(s => s.loaded)
+  const handled = useRef(false)
+  useEffect(() => {
+    if (handled.current) return
+    const sp = new URLSearchParams(window.location.search)
+    const shared = sp.get('text') || sp.get('title') || sp.get('url')
+    const capture = sp.get('capture')
+    if (!shared && !capture) { handled.current = true; return }
+    if (shared) {
+      if (!loaded) return // 공유 캡처는 데이터 로드 후 처리(fetch 경합 방지) — 로드되면 effect 재실행
+      handled.current = true
+      const parsed = parseQuick(shared)
+      useStore.getState().addTask({ title: parsed.title || shared, scheduled_date: parsed.date })
+      window.dispatchEvent(new CustomEvent('pd:flash', { detail: parsed.date ? '추가됨' : '추가됨 · Inbox' }))
+      navigate('/inbox', { replace: true })
+    } else {
+      // 빠른 캡처 딥링크 — 데이터 로드와 무관하게 모달 열기.
+      // QuickCapture의 리스너 등록(마운트 effect) 이후에 열리도록 다음 틱에 디스패치.
+      handled.current = true
+      window.history.replaceState({}, '', window.location.pathname)
+      setTimeout(() => window.dispatchEvent(new Event('pd:capture-open')), 0)
+    }
+  }, [loaded, navigate])
+  return null
 }
 
 /** 모바일 빠른 캡처 FAB — 어느 화면에서나 전역 캡처를 연다(하단 탭 위에 띄움) */
