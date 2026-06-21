@@ -98,7 +98,7 @@ function InlineSubAdd({ onAdd, onClose }: { onAdd: (title: string) => void; onCl
     <div className="py-0.5 pr-2" style={{ paddingLeft: 46 }} onClick={e => e.stopPropagation()}>
       <input
         autoFocus
-        className="input !py-1 !text-[13px]"
+        className="input !py-1 !text-[14px]"
         placeholder="서브태스크 — Enter 추가 · Esc 종료"
         value={text}
         onChange={e => setText(e.target.value)}
@@ -131,7 +131,7 @@ function Subtasks({ items, onChange }: { items: ChecklistItem[]; onChange: (next
             onChange={() => onChange(toggleCk(items, c.id))}
             className="mt-[3px] h-3 w-3 shrink-0 cursor-pointer accent-emerald-500"
           />
-          <span className={`text-[13px] leading-[1.45] ${c.done ? 'text-zinc-400 line-through dark:text-zinc-500' : 'text-zinc-500 dark:text-zinc-400'}`}>
+          <span className={`text-[14px] leading-[1.45] ${c.done ? 'text-zinc-400 line-through dark:text-zinc-500' : 'text-zinc-500 dark:text-zinc-400'}`}>
             {c.title}
           </span>
         </div>

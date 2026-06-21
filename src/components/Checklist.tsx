@@ -110,7 +110,7 @@ export default function Checklist({
             {editing?.id === c.id ? (
               <input
                 autoFocus
-                className="input !py-0.5 !text-[13.5px]"
+                className="input !py-0.5 !text-[14px]"
                 value={editing.text}
                 onChange={e => setEditing({ id: c.id, text: e.target.value })}
                 onBlur={commitEdit}
@@ -121,7 +121,7 @@ export default function Checklist({
               />
             ) : (
               <span
-                className={`flex-1 cursor-text text-[13.5px] leading-[1.45] ${c.done ? 'text-zinc-400 line-through dark:text-zinc-500' : ''}`}
+                className={`flex-1 cursor-text text-[14px] leading-[1.45] ${c.done ? 'text-zinc-400 line-through dark:text-zinc-500' : ''}`}
                 onClick={() => setEditing({ id: c.id, text: c.title })}
               >
                 {c.title}
@@ -146,7 +146,7 @@ export default function Checklist({
             <div style={{ marginLeft: (depth + 1) * 16 }} className="py-0.5 pr-6">
               <input
                 autoFocus
-                className="input !py-1 !text-[13.5px]"
+                className="input !py-1 !text-[14px]"
                 placeholder="하위 항목 — Enter 추가 · Tab 들여쓰기 · Shift+Tab 내어쓰기"
                 value={add.text}
                 onChange={e => setAdd({ ...add, text: e.target.value })}
@@ -168,7 +168,7 @@ export default function Checklist({
         <div className="py-0.5 pr-6">
           <input
             autoFocus
-            className="input !py-1 !text-[13.5px]"
+            className="input !py-1 !text-[14px]"
             placeholder="서브태스크 — Enter 추가 · Tab 들여쓰기"
             value={add.text}
             onChange={e => setAdd({ ...add, text: e.target.value })}
