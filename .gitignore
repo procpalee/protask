@@ -33,3 +33,10 @@ dist-ssr
 # Python
 __pycache__/
 *.pyc
+
+# folder-sync (local paths / secrets / logs / private roadmap — never commit)
+mcp/.env
+mcp/folder_sync.registry.json
+mcp/folder_sync.log
+*/.git/folder_sync.log
+TODO.md
