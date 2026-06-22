@@ -73,6 +73,7 @@ export default function App() {
                 <Route path="/" element={<TodayPage />} />
                 <Route path="/inbox" element={<InboxPage />} />
                 <Route path="/upcoming" element={<UpcomingPage />} />
+                <Route path="/week" element={<Navigate to="/" replace />} />
                 <Route path="/scheduled" element={<Navigate to="/upcoming" replace />} />
                 <Route path="/someday" element={<SomedayPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
@@ -121,7 +122,7 @@ function Flash() {
 
 const STATIC_TITLES: Record<string, string> = {
   '/': 'Today', '/inbox': 'Inbox', '/upcoming': 'Upcoming', '/someday': 'Someday',
-  '/calendar': 'Calendar', '/workspaces': '워크스페이스', '/settings': '설정', '/guide': '설명서',
+  '/calendar': 'Calendar', '/week': '주간', '/workspaces': '워크스페이스', '/settings': '설정', '/guide': '설명서',
 }
 
 /** 모바일 상단 바 — 햄버거(드로어) + 현재 화면 타이틀 + 테마 토글 + 동기화 점 */

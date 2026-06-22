@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   DndContext, DragOverlay, PointerSensor, TouchSensor, closestCorners,
   useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent, type DragStartEvent,
@@ -22,10 +22,35 @@ import { addDays } from 'date-fns'
 import TaskRow, { DeadlineBadge } from '../components/TaskRow'
 import ProjectChip from '../components/ProjectChip'
 import { Link } from 'react-router-dom'
+import WeekBoard from './Week'
 
 const NONE = 'none'
 
+/** 오늘/이번주 모드 전환 탭 (데스크탑 전용 — 모바일은 오늘 고정) */
+function ModeTabs({ mode, setMode }: { mode: 'today' | 'week'; setMode: (m: 'today' | 'week') => void }) {
+  return (
+    <div className="hidden items-center rounded-md border border-zinc-200 p-0.5 md:flex dark:border-zinc-700">
+      {([['today', '오늘'], ['week', '이번주']] as const).map(([m, label]) => (
+        <button key={m}
+          className={`rounded px-2.5 py-0.5 text-[13px] font-semibold ${mode === m ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-50' : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}
+          onClick={() => setMode(m)}
+        >{label}</button>
+      ))}
+    </div>
+  )
+}
+
+/** Today 라우트 — 오늘(일간)/이번주(주간 보드) 전환. 주간은 데스크탑 전용. */
 export default function TodayPage() {
+  const [mode, setMode] = useState<'today' | 'week'>(() => (localStorage.getItem('pd-today-mode') as 'today' | 'week') || 'today')
+  const setModeP = (m: 'today' | 'week') => { setMode(m); localStorage.setItem('pd-today-mode', m) }
+  const isMobile = useIsMobile()
+  const effMode = isMobile ? 'today' : mode
+  const tabs = <ModeTabs mode={mode} setMode={setModeP} />
+  return effMode === 'week' ? <WeekBoard leading={tabs} /> : <TodayDaily leading={tabs} />
+}
+
+function TodayDaily({ leading }: { leading: ReactNode }) {
   const todayTasks = useStore(useShallow(selToday))
   const overdue = useStore(useShallow(selOverdue))
   const sections = useStore(s => s.sections)
@@ -185,7 +210,8 @@ export default function TodayPage() {
   return (
     <div className={`mx-auto px-5 py-5 ${effView === 'board' ? 'max-w-[1200px]' : 'max-w-[820px]'}`}>
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="text-[19px] font-bold tracking-tight">Today</h1>
+        {leading}
+        <h1 className="text-[19px] font-bold tracking-tight md:hidden">Today</h1>
         <span className="text-[13.5px] font-medium text-zinc-400">{fmtDate(todayStr())} · {doneCount}/{todayTasks.length} 완료</span>
 
         {/* 보기 각도: 섹션 / 프로젝트 (리스트·보드 공통) */}
