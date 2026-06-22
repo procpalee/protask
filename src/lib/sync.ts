@@ -23,6 +23,8 @@ let flushing = false
 let inFlight: Op | null = null
 let retryTimer: ReturnType<typeof setTimeout> | null = null
 let failStreak = 0
+/** 마지막으로 실패한 동기화 op과 에러 — 디버깅용(콘솔 window.__pdSyncError). */
+export let lastSyncError: { table: string; kind: string; rowId: string; error: unknown } | null = null
 const listeners = new Set<(s: SyncStatus, pending: number) => void>()
 
 function loadQueue(): Op[] {
@@ -91,11 +93,13 @@ export async function flush(): Promise<void> {
     const op = queue[0]
     inFlight = op
     let ok = false
+    let lastErr: unknown = null
     for (let attempt = 0; attempt < 3 && !ok; attempt++) {
       try {
         await exec(op)
         ok = true
-      } catch {
+      } catch (e) {
+        lastErr = e
         if (!navigator.onLine) break
         await new Promise(r => setTimeout(r, 400 * (attempt + 1)))
       }
@@ -106,6 +110,10 @@ export async function flush(): Promise<void> {
       saveQueue()
       failStreak = 0
     } else {
+      // 실패 원인을 표면화(이전엔 조용히 삼켜 디버깅 불가). 콘솔 + 보관.
+      lastSyncError = { table: op.table, kind: op.kind, rowId: op.rowId, error: lastErr }
+      const se = lastErr as { status?: number; code?: string; message?: string } | null
+      console.warn(`[sync] 저장 실패 — ${op.table}/${op.kind} ${op.rowId}`, se?.status ?? '', se?.code ?? '', se?.message ?? lastErr)
       // 보존 + 나중 재시도. 실패 시 refetch 금지(로컬 의도 보존).
       flushing = false
       notify(navigator.onLine ? 'error' : 'offline')
@@ -135,5 +143,7 @@ export function retryNow(): void {
 }
 
 window.addEventListener('online', () => retryNow())
+// 디버깅: 콘솔에서 window.__pdSync() 로 대기 큐·마지막 에러 확인
+;(window as unknown as { __pdSync: () => unknown }).__pdSync = () => ({ pending: queue.length, queue, lastError: lastSyncError })
 // 부팅 시 잔여 큐 flush
 void flush()
