@@ -36,9 +36,9 @@ export default function TaskRow({
     <div>
       <div
         ref={ref}
-        className={`group flex min-h-[44px] cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 rounded-md px-2 py-1.5 hover:bg-zinc-100/80 md:min-h-[36px] md:flex-nowrap dark:hover:bg-zinc-800/60 ${
-          selected ? 'bg-zinc-100/80 ring-2 ring-blue-500/50 ring-inset dark:bg-zinc-800/60' : ''
-        }`}
+        className={`group flex min-h-[44px] cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 rounded-md border-l-[3px] px-2 py-1.5 hover:bg-zinc-100/80 md:min-h-[36px] md:flex-nowrap dark:hover:bg-zinc-800/60 ${
+          task.important && !done ? 'border-amber-400 bg-amber-50/50 dark:border-amber-500 dark:bg-amber-500/10' : 'border-transparent'
+        } ${selected ? 'bg-zinc-100/80 ring-2 ring-blue-500/50 ring-inset dark:bg-zinc-800/60' : ''}`}
         onClick={() => onOpen(task.id)}
       >
         {/* 중요 토글 — 중요면 항상 노란 별, 아니면 hover/선택 시 토글 가능 */}
@@ -61,7 +61,7 @@ export default function TaskRow({
           {done ? <CheckCircle2 size={17} /> : <Circle size={17} />}
         </button>
 
-        <span className={`min-w-0 flex-1 truncate text-[14.5px] ${done ? 'text-zinc-400 line-through dark:text-zinc-500' : task.important ? 'font-semibold' : ''}`}>
+        <span className={`min-w-0 flex-1 truncate text-[14.5px] ${done ? 'text-zinc-400 line-through dark:text-zinc-500' : task.important ? 'font-semibold text-amber-700 dark:text-amber-300' : ''}`}>
           {task.title}
           {ckTotal > 0 && (
             <span className="ml-1.5 text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>
