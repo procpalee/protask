@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Download, CalendarCheck2, Unplug, LogOut, RefreshCw } from 'lucide-react'
+import { Download, CalendarCheck2, Unplug, LogOut, RefreshCw, FolderGit2, FolderPlus, RotateCw, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { gcalEnabled } from '../lib/gcal'
 import { useGcal } from '../store/gcalStore'
 import { useAuth, REQUIRE_AUTH } from '../store/authStore'
+import { connectFolder, listFolders, removeFolder, syncFolder, fsSupported, type FolderMeta } from '../lib/folderConnect'
+import { promptDialog, confirmDialog } from '../store/dialogStore'
 
 export default function SettingsPage() {
   const [exporting, setExporting] = useState(false)
@@ -12,10 +14,51 @@ export default function SettingsPage() {
   const session = useAuth(s => s.session)
   const signOut = useAuth(s => s.signOut)
 
+  // 로컬 폴더 연결
+  const [folders, setFolders] = useState<FolderMeta[]>([])
+  const [busy, setBusy] = useState<string | null>(null) // 동기화 중인 폴더 id 또는 'connect'
+  const [fsErr, setFsErr] = useState<string | null>(null)
+  const refreshFolders = () => void listFolders().then(setFolders)
+
   useEffect(() => {
     void gcal.init()
+    refreshFolders()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const onConnect = async () => {
+    setFsErr(null)
+    setBusy('connect')
+    try {
+      const name = await promptDialog({ title: '폴더 연결', placeholder: '프로젝트 이름(비우면 폴더명)', confirmLabel: '폴더 선택…' })
+      if (name === null) return // 취소
+      const m = await connectFolder(name)
+      if (m) refreshFolders()
+    } catch (e) {
+      setFsErr(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const onSync = async (m: FolderMeta) => {
+    setFsErr(null)
+    setBusy(m.id)
+    try {
+      await syncFolder(m)
+      refreshFolders()
+    } catch (e) {
+      setFsErr(e instanceof Error ? e.message : String(e))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const onDisconnect = async (m: FolderMeta) => {
+    if (!(await confirmDialog({ title: '연결 해제', message: `"${m.name}" 폴더 연결을 끊을까요? 보드의 프로젝트·태스크는 남습니다(이후 자동 동기화만 중단).`, confirmLabel: '연결 해제' }))) return
+    await removeFolder(m.id)
+    refreshFolders()
+  }
 
   const exportJson = async () => {
     setExporting(true)
@@ -63,6 +106,46 @@ export default function SettingsPage() {
         <button className="btn btn-primary" onClick={() => void exportJson()} disabled={exporting}>
           {exporting ? '내보내는 중…' : 'JSON 내보내기'}
         </button>
+      </section>
+
+      <section className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <h2 className="mb-1 flex items-center gap-1.5 text-[14.5px] font-bold"><FolderGit2 size={14} /> 로컬 폴더 연결</h2>
+        <p className="mb-3 text-[13.5px] text-zinc-400">
+          로컬 프로젝트 폴더를 선택하면 그 안의 체크리스트(<code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">TODO.md</code>의 <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">- [ ]</code>)가 프로젝트·태스크로 들어오고, <code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">README.md</code>는 개요로 표시됩니다. 폴더가 바뀌면 “동기화”를 누르세요.
+        </p>
+        {!fsSupported ? (
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-[13px] text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+            이 브라우저는 폴더 선택(File System Access)을 지원하지 않습니다. 데스크탑 <b>Chrome·Edge</b>에서 열어 주세요.
+          </p>
+        ) : (
+          <>
+            <button className="btn btn-primary" onClick={() => void onConnect()} disabled={busy !== null}>
+              <FolderPlus size={14} /> {busy === 'connect' ? '연결 중…' : '폴더 연결'}
+            </button>
+            {fsErr && <p className="mt-2 text-[12.5px] text-red-600 dark:text-red-400">{fsErr}</p>}
+            {folders.length > 0 && (
+              <ul className="mt-3 space-y-1.5">
+                {folders.map(m => (
+                  <li key={m.id} className="flex items-center gap-2 rounded-md border border-zinc-200 px-3 py-2 dark:border-zinc-800">
+                    <FolderGit2 size={14} className="shrink-0 text-zinc-400" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-[13.5px] font-semibold">{m.name}</div>
+                      <div className="text-[12px] text-zinc-400">
+                        {m.handle.name} · {m.lastSync ? `마지막 동기화 ${new Date(m.lastSync).toLocaleString()}` : '미동기화'}
+                      </div>
+                    </div>
+                    <button className="btn !py-1" onClick={() => void onSync(m)} disabled={busy !== null} title="다시 동기화">
+                      <RotateCw size={13} className={busy === m.id ? 'animate-spin' : ''} /> 동기화
+                    </button>
+                    <button className="btn btn-danger !py-1" onClick={() => void onDisconnect(m)} disabled={busy !== null} title="연결 해제">
+                      <Trash2 size={13} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
       </section>
 
       <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
