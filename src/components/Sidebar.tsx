@@ -1,102 +1,23 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Inbox, Sun, CalendarClock, CalendarRange, Plus, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, Folder, FolderOpen, ChevronRight, ChevronDown, X } from 'lucide-react'
+import { Inbox, Sun, CalendarClock, CalendarRange, Plus, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import {
-  DndContext, PointerSensor, TouchSensor, closestCenter,
-  useSensor, useSensors, type DragEndEvent,
-} from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday, projectColor } from '../store/store'
-import type { Project, Workspace } from '../types'
+import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday } from '../store/store'
+import { wsColor, type Workspace } from '../types'
 import { onSyncStatus, type SyncStatus } from '../lib/sync'
 import { promptDialog } from '../store/dialogStore'
 
-const LS_EXP = 'pd-ws-expanded'
-function loadExpanded(): Set<string> {
-  try { return new Set(JSON.parse(localStorage.getItem(LS_EXP) || '[]') as string[]) } catch { return new Set() }
-}
-function saveExpanded(id: string, open: boolean) {
-  const s = loadExpanded()
-  if (open) s.add(id); else s.delete(id)
-  try { localStorage.setItem(LS_EXP, JSON.stringify([...s])) } catch { /* ignore */ }
-}
-
-/** 워크스페이스 = 폴더. 토글로 프로젝트 펼침. 워크스페이스 클릭=워크스페이스 뷰, 프로젝트 클릭=프로젝트 뷰 */
-function WorkspaceItem({ ws }: { ws: Workspace }) {
-  const projects = useStore(s => s.projects)
-  const reorderProjects = useStore(s => s.reorderProjects)
-  const [open, setOpen] = useState(() => loadExpanded().has(ws.id))
-  const toggle = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); const n = !open; setOpen(n); saveExpanded(ws.id, n) }
-  const wsProjects = projects.filter(p => p.workspace_id === ws.id).sort((a, b) => a.position - b.position)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
-  )
-  const onDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e
-    if (!over || active.id === over.id) return
-    const ids = wsProjects.map(p => p.id)
-    const oldIndex = ids.indexOf(String(active.id))
-    const newIndex = ids.indexOf(String(over.id))
-    if (oldIndex < 0 || newIndex < 0) return
-    reorderProjects(arrayMove(ids, oldIndex, newIndex))
-  }
-
-  return (
-    <div>
-      <div className="flex items-center">
-        <button onClick={toggle} className="rounded p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200" title={open ? '접기' : '프로젝트 펼치기'}>
-          {open ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-        </button>
-        <NavLink
-          to={`/w/${ws.id}`}
-          className={({ isActive }) => `flex min-w-0 flex-1 items-center gap-2 rounded-md px-1.5 py-1.5 text-[14px] font-medium transition-colors ${
-            isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
-          }`}
-        >
-          {open ? <FolderOpen size={14} className="shrink-0 text-zinc-400" /> : <Folder size={14} className="shrink-0 text-zinc-400" />}
-          <span className="truncate">{ws.name}</span>
-        </NavLink>
-      </div>
-      {open && (
-        <div className="mt-0.5 mb-1 ml-3 flex flex-col gap-0.5 border-l border-zinc-200 pl-2 dark:border-zinc-800">
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <SortableContext items={wsProjects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-              {wsProjects.map(p => (
-                <ProjectRow key={p.id} ws={ws} project={p} color={projectColor(p.id, projects)} />
-              ))}
-            </SortableContext>
-          </DndContext>
-          {wsProjects.length === 0 && <div className="px-1.5 py-1 text-[12.5px] text-zinc-400">프로젝트 없음</div>}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** 사이드바 프로젝트 행 — 클릭=프로젝트 뷰 이동, 드래그(>5px)=순서 변경 */
-function ProjectRow({ ws, project, color }: { ws: Workspace; project: Project; color: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.id })
-  const style = { transform: CSS.Transform.toString(transform), transition }
+/** 사이드바 프로젝트 행 (최상위) — 클릭=프로젝트 뷰. 서브프로젝트는 프로젝트 뷰 안에서만 다룬다. */
+function ProjectNavRow({ ws, workspaces }: { ws: Workspace; workspaces: Workspace[] }) {
   return (
     <NavLink
-      ref={setNodeRef}
-      style={style}
-      to={`/w/${ws.id}/p/${project.id}`}
-      title={project.title}
-      draggable={false}
-      {...attributes}
-      {...listeners}
-      className={({ isActive }) => `flex touch-none items-center gap-2 rounded-md px-1.5 py-1 text-[13.5px] transition-colors ${
-        isDragging ? 'z-10 opacity-60 shadow-sm' : ''
-      } ${
-        isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
+      to={`/w/${ws.id}`}
+      title={ws.name}
+      className={({ isActive }) => `flex items-center gap-2 rounded-md px-1.5 py-1.5 text-[14px] font-medium transition-colors ${
+        isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
       }`}
     >
-      <span className="h-2 w-2 shrink-0 rounded-[3px]" style={{ background: color }} />
-      <span className="truncate">{project.title}</span>
+      <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(ws.id, workspaces) }} />
+      <span className="truncate">{ws.name}</span>
     </NavLink>
   )
 }
@@ -150,7 +71,7 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
   const navigate = useNavigate()
 
   const onAddWs = async () => {
-    const name = await promptDialog({ title: '새 워크스페이스', placeholder: '워크스페이스 이름', confirmLabel: '만들기' })
+    const name = await promptDialog({ title: '새 프로젝트', placeholder: '프로젝트 이름', confirmLabel: '만들기' })
     if (!name?.trim()) return
     const id = addWorkspace(name.trim())
     navigate(`/w/${id}`)
@@ -200,17 +121,17 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
       </nav>
 
       <div className="mt-5 mb-1 flex items-center justify-between px-4">
-        <span className="text-[12px] font-semibold tracking-wide text-zinc-400 uppercase dark:text-zinc-500">워크스페이스</span>
-        <button onClick={onAddWs} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 워크스페이스">
+        <span className="text-[12px] font-semibold tracking-wide text-zinc-400 uppercase dark:text-zinc-500">프로젝트</span>
+        <button onClick={onAddWs} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 프로젝트">
           <Plus size={14} />
         </button>
       </div>
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2.5 pb-2">
-        {workspaces.map(w => <WorkspaceItem key={w.id} ws={w} />)}
+        {workspaces.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} />)}
         {workspaces.length === 0 && (
           <div className="px-2.5 py-2 text-[13px] text-zinc-400">
             <LayoutGrid size={14} className="mb-1" />
-            워크스페이스가 없습니다
+            프로젝트가 없습니다
           </div>
         )}
       </nav>

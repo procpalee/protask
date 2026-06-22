@@ -59,7 +59,7 @@ export default function SettingsPage() {
 
       <section className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="mb-1 flex items-center gap-1.5 text-[14.5px] font-bold"><Download size={14} /> 백업</h2>
-        <p className="mb-3 text-[13.5px] text-zinc-400">전체 데이터(워크스페이스·프로젝트·태스크·캔버스·섹션)를 JSON 파일로 내보냅니다. 주기적으로 받아두세요.</p>
+        <p className="mb-3 text-[13.5px] text-zinc-400">전체 데이터(프로젝트·서브프로젝트·태스크·캔버스·섹션)를 JSON 파일로 내보냅니다. 주기적으로 받아두세요.</p>
         <button className="btn btn-primary" onClick={() => void exportJson()} disabled={exporting}>
           {exporting ? '내보내는 중…' : 'JSON 내보내기'}
         </button>

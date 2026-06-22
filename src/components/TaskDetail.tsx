@@ -103,18 +103,24 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
               <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">프로젝트</span>
               <select
                 className="input"
-                value={task.project_id ?? ''}
+                value={task.project_id ? `p:${task.project_id}` : task.workspace_id ? `w:${task.workspace_id}` : ''}
                 onChange={e => {
-                  const pid = e.target.value || null
-                  const proj = pid ? projects.find(p => p.id === pid) : null
-                  updateTask(task.id, { project_id: pid, workspace_id: proj?.workspace_id ?? null })
+                  const v = e.target.value
+                  if (!v) updateTask(task.id, { project_id: null, workspace_id: null })
+                  else if (v.startsWith('w:')) updateTask(task.id, { workspace_id: v.slice(2), project_id: null })
+                  else {
+                    const pid = v.slice(2)
+                    const proj = projects.find(p => p.id === pid)
+                    updateTask(task.id, { project_id: pid, workspace_id: proj?.workspace_id ?? null })
+                  }
                 }}
               >
                 <option value="">없음 (Inbox)</option>
                 {workspaces.map(w => (
                   <optgroup key={w.id} label={w.name}>
+                    <option value={`w:${w.id}`}>{w.name} (전체)</option>
                     {projects.filter(p => p.workspace_id === w.id).map(p => (
-                      <option key={p.id} value={p.id}>{p.title}</option>
+                      <option key={p.id} value={`p:${p.id}`}>{p.title}</option>
                     ))}
                   </optgroup>
                 ))}

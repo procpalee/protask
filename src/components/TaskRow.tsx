@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Circle, CheckCircle2, CalendarDays, FolderInput, CircleSlash, Star } from 'lucide-react'
-import type { Task, ChecklistItem } from '../types'
+import { wsColor, type Task, type ChecklistItem } from '../types'
 import { useStore, projectColor, nid } from '../store/store'
 import ProjectChip from './ProjectChip'
 import PlanPopover from './PlanPopover'
@@ -215,17 +215,23 @@ function ProjectControl({ task, selected }: { task: Task; selected?: boolean }) 
             </button>
             {workspaces.map(w => {
               const ps = projects.filter(p => p.workspace_id === w.id)
-              if (!ps.length) return null
+              const wsActive = task.workspace_id === w.id && !task.project_id
               return (
                 <div key={w.id}>
-                  <div className="px-2 pt-1.5 pb-0.5 text-[11px] font-semibold text-zinc-400">{w.name}</div>
+                  <button
+                    className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 ${wsActive ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
+                    onClick={() => { updateTask(task.id, { workspace_id: w.id, project_id: null }); setOpen(false) }}
+                  >
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(w.id, workspaces) }} />
+                    <span className="flex-1 truncate">{w.name}</span>
+                  </button>
                   {ps.map(p => (
                     <button
                       key={p.id}
-                      className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100 dark:hover:bg-zinc-800 ${task.project_id === p.id ? 'bg-zinc-100 font-semibold dark:bg-zinc-800' : ''}`}
+                      className={`flex w-full items-center gap-2 rounded-md py-1.5 pr-2 pl-6 text-left text-[13px] hover:bg-zinc-100 dark:hover:bg-zinc-800 ${task.project_id === p.id ? 'bg-zinc-100 font-semibold dark:bg-zinc-800' : ''}`}
                       onClick={() => { updateTask(task.id, { project_id: p.id, workspace_id: w.id }); setOpen(false) }}
                     >
-                      <span className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ background: projectColor(p.id, projects) }} />
+                      <span className="h-2 w-2 shrink-0 rounded-[3px]" style={{ background: projectColor(p.id, projects) }} />
                       <span className="flex-1 truncate">{p.title}</span>
                     </button>
                   ))}

@@ -181,19 +181,19 @@ export default function CalendarPage() {
           className="input !h-7 !w-auto !py-0 !text-[13px]"
           value={fWs}
           onChange={e => { setFWs(e.target.value); setFProj('') }}
-          title="워크스페이스 필터"
+          title="프로젝트 필터"
         >
-          <option value="">전체 워크스페이스</option>
-          <option value="__none">워크스페이스 없음</option>
+          <option value="">전체 프로젝트</option>
+          <option value="__none">프로젝트 없음</option>
           {workspaces.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
         </select>
         <select
           className="input !h-7 !w-auto !py-0 !text-[13px]"
           value={fProj}
           onChange={e => setFProj(e.target.value)}
-          title="프로젝트 필터"
+          title="서브프로젝트 필터"
         >
-          <option value="">전체 프로젝트</option>
+          <option value="">전체 서브프로젝트</option>
           {projOptions.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
         </select>
         {(fWs || fProj) && (

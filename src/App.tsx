@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
-import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { Inbox, Sun, CalendarClock, Settings as SettingsIcon, Plus, Menu, Moon, SunMedium } from 'lucide-react'
 import Sidebar, { useTheme, MobileDrawer, SyncDot } from './components/Sidebar'
 import QuickCapture from './components/QuickCapture'
@@ -12,7 +12,6 @@ import UpcomingPage from './pages/Upcoming'
 import SomedayPage from './pages/Someday'
 import CalendarPage from './pages/Calendar'
 import WorkspacePage from './pages/Workspace'
-import ProjectPage from './pages/Project'
 import SettingsPage from './pages/Settings'
 import GuidePage from './pages/Guide'
 import WorkspaceListPage from './pages/WorkspaceList'
@@ -79,7 +78,7 @@ export default function App() {
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/workspaces" element={<WorkspaceListPage />} />
                 <Route path="/w/:wsId" element={<WorkspacePage />} />
-                <Route path="/w/:wsId/p/:projectId" element={<ProjectPage />} />
+                <Route path="/w/:wsId/p/:projectId" element={<SubprojectRedirect />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/guide" element={<GuidePage />} />
               </Routes>
@@ -122,25 +121,25 @@ function Flash() {
 
 const STATIC_TITLES: Record<string, string> = {
   '/': 'Today', '/inbox': 'Inbox', '/upcoming': 'Upcoming', '/someday': 'Someday',
-  '/calendar': 'Calendar', '/week': '주간', '/workspaces': '워크스페이스', '/settings': '설정', '/guide': '설명서',
+  '/calendar': 'Calendar', '/week': '주간', '/workspaces': '프로젝트', '/settings': '설정', '/guide': '설명서',
+}
+
+/** 구 서브프로젝트 URL(/w/:wsId/p/:projectId) → 프로젝트 뷰로 리다이렉트 */
+function SubprojectRedirect() {
+  const { wsId } = useParams<{ wsId: string }>()
+  return <Navigate to={`/w/${wsId}`} replace />
 }
 
 /** 모바일 상단 바 — 햄버거(드로어) + 현재 화면 타이틀 + 테마 토글 + 동기화 점 */
 function MobileTopBar({ onMenu, dark, onToggleTheme }: { onMenu: () => void; dark: boolean; onToggleTheme: () => void }) {
   const loc = useLocation()
   const workspaces = useStore(s => s.workspaces)
-  const projects = useStore(s => s.projects)
 
   let title = STATIC_TITLES[loc.pathname]
   if (!title) {
-    // /w/:wsId 또는 /w/:wsId/p/:projectId — 엔티티 이름으로
-    const seg = loc.pathname.split('/').filter(Boolean) // ['w', wsId, 'p', pid]
-    if (seg[0] === 'w') {
-      const pid = seg[2] === 'p' ? seg[3] : undefined
-      title = (pid && projects.find(p => p.id === pid)?.title)
-        || workspaces.find(w => w.id === seg[1])?.name
-        || 'Protask'
-    }
+    // /w/:wsId — 프로젝트(구 워크스페이스) 이름으로
+    const seg = loc.pathname.split('/').filter(Boolean) // ['w', wsId]
+    if (seg[0] === 'w') title = workspaces.find(w => w.id === seg[1])?.name || 'Protask'
   }
 
   return (

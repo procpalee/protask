@@ -96,7 +96,7 @@ export default function OverviewPage() {
     }
   }, [persist])
 
-  if (!ws) return <div className="p-8 text-zinc-400">워크스페이스를 찾을 수 없습니다.</div>
+  if (!ws) return <div className="p-8 text-zinc-400">프로젝트를 찾을 수 없습니다.</div>
 
   return (
     <div className="flex h-full flex-col">
