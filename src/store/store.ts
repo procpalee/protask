@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { customAlphabet } from 'nanoid'
 import { supabase } from '../lib/supabase'
 import { enqueue, pendingCount } from '../lib/sync'
-import { addDays } from 'date-fns'
+import { addDays, startOfWeek } from 'date-fns'
 import { nextOccurrence, todayStr, toStr } from '../lib/dates'
 import { GAP } from '../lib/position'
 import type { Bucket, ChecklistItem, Phase, Project, Section, Task, Workspace } from '../types'
@@ -447,6 +447,13 @@ export const selScheduled = (s: Store) => {
   const today = todayStr()
   return s.tasks.filter(t => t.scheduled_date && t.scheduled_date > today && t.status !== 'done')
     .sort((a, b) => (a.scheduled_date ?? '').localeCompare(b.scheduled_date ?? '') || a.position - b.position)
+}
+
+/** This Week = 이번주(월~일) 요일에 배정된 미완료 (주간 보드의 요일 칸 집합, 현재 주 기준) */
+export const selWeek = (s: Store) => {
+  const start = toStr(startOfWeek(new Date(), { weekStartsOn: 1 }))
+  const end = toStr(addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 6))
+  return s.tasks.filter(t => t.status !== 'done' && !t.someday && t.scheduled_date && t.scheduled_date >= start && t.scheduled_date <= end)
 }
 
 /** Upcoming = 날짜 있는 미완료(지연·오늘·미래 전부). 페이지에서 버킷으로 분류 */

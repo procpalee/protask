@@ -1,7 +1,7 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday } from '../store/store'
+import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday, selWeek } from '../store/store'
 import { wsColor, type Workspace } from '../types'
 import { onSyncStatus, retryNow, type SyncStatus } from '../lib/sync'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
@@ -104,6 +104,7 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
   const workspaces = useStore(s => s.workspaces)
   const inboxCount = useStore(s => selInbox(s).length)
   const todayCount = useStore(s => selOverdue(s).length + selToday(s).filter(t => t.status !== 'done').length)
+  const weekCount = useStore(s => selWeek(s).length)
   const upcomingCount = useStore(s => selDated(s).length)
   const somedayCount = useStore(s => selSomeday(s).length)
   const addWorkspace = useStore(s => s.addWorkspace)
@@ -145,6 +146,7 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
           <NavLink to="/week" className={navCls}>
             <CalendarDays size={15.5} strokeWidth={1.9} />
             This Week
+            <CountBadge n={weekCount} />
           </NavLink>
         </div>
         <NavLink to="/upcoming" className={navCls}>

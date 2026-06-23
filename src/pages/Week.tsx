@@ -158,15 +158,12 @@ export default function WeekBoard() {
 
   const activeTask = activeId ? tasks.find(t => t.id === activeId) : null
   const rangeLabel = `${fmtDateShort(weekStart)} – ${fmtDateShort(weekEnd)}`
-  // 이번주 요일에 배정된 할 일 수(백로그 제외)
-  const assignedCount = Object.entries(cols).reduce((n, [k, arr]) => (k === BACKLOG ? n : n + arr.length), 0)
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 px-5 pt-5 pb-3">
         <h1 className="text-[19px] font-bold tracking-tight">This Week</h1>
         <span className="text-[15px] font-medium text-zinc-400">{rangeLabel}</span>
-        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[13px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">배정 {assignedCount}</span>
         <div className="ml-auto flex items-center gap-1">
           <button className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800" onClick={() => setWeekOffset(o => o - 1)} title="이전 주"><ChevronLeft size={16} /></button>
           <button className={`rounded-md px-2 py-1 text-[14px] font-semibold ${weekOffset === 0 ? 'text-zinc-300 dark:text-zinc-600' : 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950'}`} onClick={() => setWeekOffset(0)} disabled={weekOffset === 0}>이번주</button>
