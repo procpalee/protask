@@ -1,23 +1,21 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
-import { CalendarDays, Columns3, Filter, PanelsTopLeft, List, Plus, Trash2 } from 'lucide-react'
+import { Columns3, Filter, PanelsTopLeft, List, Plus, Trash2 } from 'lucide-react'
 import { useStore, projectStats, useViewTabs } from '../store/store'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
 import { wsColor, WS_PALETTE, PROJECT_STATUS_LABEL, PROJECT_STATUS_ORDER, PROJECT_STATUS_DOT, type ProjectStatus } from '../types'
 import type { TaskGroup } from '../lib/group'
 import SubprojectBoard from '../components/workspace/SubprojectBoard'
-import WorkspaceCalendar from '../components/workspace/WorkspaceCalendar'
 import ProjectTable from '../components/project/ProjectTable'
 
 const OverviewPage = lazy(() => import('./Overview'))
 
-type View = 'overview' | 'list' | 'board' | 'calendar'
+type View = 'overview' | 'list' | 'board'
 const VIEW_TABS: { key: View; label: string; icon: typeof List }[] = [
   { key: 'overview', label: '개요', icon: PanelsTopLeft },
   { key: 'list', label: '리스트', icon: List },
   { key: 'board', label: '보드', icon: Columns3 },
-  { key: 'calendar', label: '캘린더', icon: CalendarDays },
 ]
 
 /** 프로젝트 뷰 — 서브프로젝트(하위 섹션)별로 태스크를 묶어 보여준다. (구 워크스페이스 페이지) */
@@ -151,7 +149,6 @@ export default function WorkspacePage() {
       <div className="min-h-0 flex-1 overflow-y-auto pt-3">
         {view === 'list' && <ProjectTable tasks={wsTasks} groupBy="project" projects={wsProjects} onAdd={wsOnAdd} />}
         {view === 'board' && <SubprojectBoard wsId={ws.id} projects={filtered} tasks={wsTasks} />}
-        {view === 'calendar' && <WorkspaceCalendar tasks={wsTasks} projects={wsProjects} />}
         {view === 'overview' && (
           <Suspense fallback={<div className="flex h-full items-center justify-center text-[14px] text-zinc-400">불러오는 중…</div>}>
             <OverviewPage />

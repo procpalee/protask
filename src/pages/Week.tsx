@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   DndContext, DragOverlay, PointerSensor, TouchSensor, closestCorners, pointerWithin,
   useDroppable, useSensor, useSensors, type CollisionDetection, type DragEndEvent, type DragStartEvent,
@@ -23,9 +23,8 @@ const NONE = 'none'
 const dsKey = (date: string, secId: string) => `${date}::${secId}`
 
 /** 주간 플래너 보드 — 요일 7칸(각 칸: 캘린더 일정 + 시간 섹션별 태스크) + 백로그(미배정·지연).
- *  드래그로 scheduled_date·today_section 배정. 데스크탑 전용.
- *  leading: 헤더 좌측 노드(예: Today의 오늘/이번주 탭). 없으면 "주간" 제목. */
-export default function WeekBoard({ leading }: { leading?: ReactNode }) {
+ *  드래그로 scheduled_date·today_section 배정. 데스크탑 전용(/week). */
+export default function WeekBoard() {
   const tasks = useStore(s => s.tasks)
   const sections = useStore(s => s.sections)
   const updateTask = useStore(s => s.updateTask)
@@ -162,7 +161,7 @@ export default function WeekBoard({ leading }: { leading?: ReactNode }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-3 px-5 pt-5 pb-3">
-        {leading ?? <h1 className="text-[19px] font-bold tracking-tight">주간</h1>}
+        <h1 className="text-[19px] font-bold tracking-tight">This Week</h1>
         <span className="text-[13.5px] font-medium text-zinc-400">{rangeLabel}</span>
         <div className="ml-auto flex items-center gap-1">
           <button className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800" onClick={() => setWeekOffset(o => o - 1)} title="이전 주"><ChevronLeft size={16} /></button>

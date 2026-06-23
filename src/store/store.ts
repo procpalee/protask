@@ -291,7 +291,6 @@ export const useStore = create<Store>((set, get) => ({
       today_section: t.today_section ?? null,
       today_position: t.today_position ?? null,
       checklist: t.checklist ?? [],
-      labels: t.labels ?? [],
       recurrence: t.recurrence ?? null,
       created_at: nowISO(),
       updated_at: nowISO(),
@@ -376,7 +375,6 @@ export const useStore = create<Store>((set, get) => ({
         scheduled_date: nextOccurrence(t.scheduled_date < todayStr() ? todayStr() : t.scheduled_date, t.recurrence),
         deadline: null,
         checklist: t.checklist.map(c => resetCk(c)),
-        labels: t.labels,
         recurrence: t.recurrence,
       })
     }

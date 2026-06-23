@@ -85,10 +85,9 @@ export default function ProjectTable({
       insertAt = origIdx !== -1 && origIdx < overIdx ? overPos + 1 : overPos
     }
 
-    // 그룹 이동 패치: 구분 그룹→bucketPatch, 라벨 그룹→labels, 프로젝트 그룹→project_id
+    // 그룹 이동 패치: 구분 그룹→bucketPatch, 프로젝트 그룹→project_id
     let patch: Partial<Task> = {}
     if (groupBy === 'status' && group.col && bucketOf(task) !== group.col) patch = bucketPatch(group.col)
-    else if (groupBy === 'label' && group.label_value && !task.labels.includes(group.label_value)) patch = { labels: [group.label_value] }
     else if ((groupBy === 'project' || groupBy === 'phase-project') && group.project_id !== undefined && task.project_id !== group.project_id) patch = { project_id: group.project_id }
 
     const sameGroup = Object.keys(patch).length === 0
@@ -256,9 +255,6 @@ function Row({ task, gridCls, onOpen, onToggleDone }: {
       <button className="flex min-w-0 items-center gap-2 text-left" onClick={() => onOpen(task.id)}>
         <span className={`truncate text-[14px] ${done ? 'text-zinc-400 line-through' : ''}`}>{task.title}</span>
         {ckTotal > 0 && <span className="shrink-0 text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
-        {task.labels.map(l => (
-          <span key={l} className="shrink-0 rounded-full bg-zinc-100 px-1.5 py-px text-[11.5px] font-medium text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">{l}</span>
-        ))}
       </button>
 
       <span className="flex items-center gap-1.5" title={BUCKET_LABEL[col]}>

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Inbox, Sun, CalendarClock, CalendarRange, Plus, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
+import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday } from '../store/store'
 import { wsColor, type Workspace } from '../types'
@@ -116,6 +116,13 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
           Today
           <CountBadge n={todayCount} />
         </NavLink>
+        {/* 이번주(주간 보드) — 데스크탑 전용(모바일 드로어/하단탭엔 숨김) */}
+        <div className="hidden md:contents">
+          <NavLink to="/week" className={navCls}>
+            <CalendarDays size={15.5} strokeWidth={1.9} />
+            This Week
+          </NavLink>
+        </div>
         <NavLink to="/upcoming" className={navCls}>
           <CalendarClock size={15.5} strokeWidth={1.9} />
           Upcoming

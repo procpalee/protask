@@ -7,6 +7,7 @@ import Shortcuts from './components/Shortcuts'
 import TaskDetail from './components/TaskDetail'
 import DialogHost from './components/DialogHost'
 import TodayPage from './pages/Today'
+import WeekPage from './pages/Week'
 import InboxPage from './pages/Inbox'
 import UpcomingPage from './pages/Upcoming'
 import SomedayPage from './pages/Someday'
@@ -72,7 +73,7 @@ export default function App() {
                 <Route path="/" element={<TodayPage />} />
                 <Route path="/inbox" element={<InboxPage />} />
                 <Route path="/upcoming" element={<UpcomingPage />} />
-                <Route path="/week" element={<Navigate to="/" replace />} />
+                <Route path="/week" element={<WeekPage />} />
                 <Route path="/scheduled" element={<Navigate to="/upcoming" replace />} />
                 <Route path="/someday" element={<SomedayPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
@@ -121,7 +122,7 @@ function Flash() {
 
 const STATIC_TITLES: Record<string, string> = {
   '/': 'Today', '/inbox': 'Inbox', '/upcoming': 'Upcoming', '/someday': 'Someday',
-  '/calendar': 'Calendar', '/week': '주간', '/workspaces': '프로젝트', '/settings': '설정', '/guide': '설명서',
+  '/calendar': 'Calendar', '/week': 'This Week', '/workspaces': '프로젝트', '/settings': '설정', '/guide': '설명서',
 }
 
 /** 구 서브프로젝트 URL(/w/:wsId/p/:projectId) → 프로젝트 뷰로 리다이렉트 */

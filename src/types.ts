@@ -99,7 +99,6 @@ export interface Task {
   today_section: string | null
   today_position: number | null
   checklist: ChecklistItem[]
-  labels: string[]
   recurrence: Recurrence | null
   created_at: string
   updated_at: string
