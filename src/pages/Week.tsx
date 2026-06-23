@@ -15,6 +15,7 @@ import { between } from '../lib/position'
 import { useTaskContextMenu } from '../components/TaskContextMenu'
 import { countCk } from '../lib/group'
 import { DeadlineBadge } from '../components/TaskRow'
+import ProjectChip from '../components/ProjectChip'
 import type { Task } from '../types'
 import type { GcalEvent } from '../lib/gcal'
 
@@ -342,6 +343,7 @@ function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: 
             )}
             {ckTotal > 0 && <span className="text-[13px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
             {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
+            <ProjectChip projectId={task.project_id} workspaceId={task.workspace_id} />
           </div>
         </div>
       </div>
