@@ -1,24 +1,48 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
+import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday } from '../store/store'
 import { wsColor, type Workspace } from '../types'
 import { onSyncStatus, retryNow, type SyncStatus } from '../lib/sync'
-import { promptDialog } from '../store/dialogStore'
+import { promptDialog, confirmDialog } from '../store/dialogStore'
+import { useContextMenu, MenuItem } from './TaskContextMenu'
 
-/** 사이드바 프로젝트 행 (최상위) — 클릭=프로젝트 뷰. 서브프로젝트는 프로젝트 뷰 안에서만 다룬다. */
+/** 사이드바 프로젝트 행 (최상위) — 클릭=프로젝트 뷰, 우클릭=이름 변경·삭제. */
 function ProjectNavRow({ ws, workspaces }: { ws: Workspace; workspaces: Workspace[] }) {
+  const updateWorkspace = useStore(s => s.updateWorkspace)
+  const deleteWorkspace = useStore(s => s.deleteWorkspace)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { onContextMenu, menu } = useContextMenu(close => (
+    <>
+      <MenuItem icon={Pencil} label="이름 변경" onClose={close} onPick={async () => {
+        const n = await promptDialog({ title: '프로젝트 이름 변경', defaultValue: ws.name, confirmLabel: '변경' })
+        if (n?.trim()) updateWorkspace(ws.id, { name: n.trim() })
+      }} />
+      <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
+      <MenuItem icon={Trash2} label="삭제" danger onClose={close} onPick={async () => {
+        if (await confirmDialog({ title: '프로젝트 삭제', message: `"${ws.name}"와 모든 서브프로젝트·태스크를 삭제할까요?`, confirmLabel: '삭제', danger: true })) {
+          deleteWorkspace(ws.id)
+          if (location.pathname === `/w/${ws.id}`) navigate('/')
+        }
+      }} />
+    </>
+  ))
   return (
-    <NavLink
-      to={`/w/${ws.id}`}
-      title={ws.name}
-      className={({ isActive }) => `flex items-center gap-2 rounded-md px-1.5 py-1.5 text-[14px] font-medium transition-colors ${
-        isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
-      }`}
-    >
-      <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(ws.id, workspaces) }} />
-      <span className="truncate">{ws.name}</span>
-    </NavLink>
+    <>
+      <NavLink
+        to={`/w/${ws.id}`}
+        title={ws.name}
+        onContextMenu={onContextMenu}
+        className={({ isActive }) => `flex items-center gap-2 rounded-md px-1.5 py-1.5 text-[14px] font-medium transition-colors ${
+          isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
+        }`}
+      >
+        <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(ws.id, workspaces) }} />
+        <span className="truncate">{ws.name}</span>
+      </NavLink>
+      {menu}
+    </>
   )
 }
 
