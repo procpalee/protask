@@ -4,6 +4,7 @@ import { wsColor, type Task, type ChecklistItem } from '../types'
 import { useStore, projectColor, nid } from '../store/store'
 import ProjectChip from './ProjectChip'
 import PlanPopover from './PlanPopover'
+import TaskContextMenu from './TaskContextMenu'
 import { daysFromToday, fmtDateShort } from '../lib/dates'
 
 /** GTD 리스트 공용 행: 완료 토글 + 제목 + 칩 + deadline 배지 + hover/키보드 퀵 액션 */
@@ -23,6 +24,7 @@ export default function TaskRow({
   const setAddSubFor = useStore(s => s.setAddSubFor)
   const done = task.status === 'done'
   const ref = useRef<HTMLDivElement>(null)
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null)
 
   // 키보드로 선택되면 화면 안으로 스크롤
   useEffect(() => {
@@ -40,6 +42,7 @@ export default function TaskRow({
           task.important && !done ? 'border-amber-400 bg-amber-50/50 dark:border-amber-500 dark:bg-amber-500/10' : 'border-transparent'
         } ${selected ? 'bg-zinc-100/80 ring-2 ring-blue-500/50 ring-inset dark:bg-zinc-800/60' : ''}`}
         onClick={() => onOpen(task.id)}
+        onContextMenu={e => { e.preventDefault(); setCtxMenu({ x: e.clientX, y: e.clientY }) }}
       >
         {/* 중요 토글 — 중요면 항상 노란 별, 아니면 hover/선택 시 토글 가능 */}
         <button
@@ -86,6 +89,10 @@ export default function TaskRow({
           onAdd={title => updateTask(task.id, { checklist: [...task.checklist, { id: nid('ck'), title, done: false, children: [] }] })}
           onClose={() => setAddSubFor(null)}
         />
+      )}
+
+      {ctxMenu && (
+        <TaskContextMenu task={task} x={ctxMenu.x} y={ctxMenu.y} onOpen={onOpen} onClose={() => setCtxMenu(null)} />
       )}
     </div>
   )
