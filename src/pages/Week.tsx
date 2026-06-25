@@ -14,7 +14,7 @@ import { toStr, todayStr, fmtDateShort } from '../lib/dates'
 import { between } from '../lib/position'
 import { useTaskContextMenu } from '../components/TaskContextMenu'
 import { countCk } from '../lib/group'
-import { DeadlineBadge } from '../components/TaskRow'
+import { DeadlineBadge, Subtasks } from '../components/TaskRow'
 import ProjectChip from '../components/ProjectChip'
 import type { Task } from '../types'
 import type { GcalEvent } from '../lib/gcal'
@@ -317,6 +317,7 @@ function SortableCard({ task, onOpen, overdue }: { task: Task; onOpen: (id: stri
 
 function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: boolean; selected?: boolean; overdue?: boolean }) {
   const toggleDone = useStore(s => s.toggleDone)
+  const updateTask = useStore(s => s.updateTask)
   const done = task.status === 'done'
   const ckTotal = countCk(task.checklist)
   const ckDone = countCk(task.checklist, true)
@@ -347,6 +348,9 @@ function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: 
           </div>
         </div>
       </div>
+      {task.checklist.length > 0 && (
+        <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} onChange={next => updateTask(task.id, { checklist: next })} />
+      )}
     </div>
   )
 }

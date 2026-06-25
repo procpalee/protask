@@ -12,7 +12,7 @@ import { paletteColor, type Project, type Task } from '../../types'
 import { between } from '../../lib/position'
 import { useTaskContextMenu } from '../TaskContextMenu'
 import { countCk } from '../../lib/group'
-import { DeadlineBadge } from '../TaskRow'
+import { DeadlineBadge, Subtasks } from '../TaskRow'
 import { fmtDateShort } from '../../lib/dates'
 
 const NONE = '__none'
@@ -192,6 +192,7 @@ function SortableCard({ task, onOpen }: { task: Task; onOpen: (id: string) => vo
 
 function CardBody({ task, overlay, selected }: { task: Task; overlay?: boolean; selected?: boolean }) {
   const toggleDone = useStore(s => s.toggleDone)
+  const updateTask = useStore(s => s.updateTask)
   const done = task.status === 'done'
   const ckTotal = countCk(task.checklist)
   const ckDone = countCk(task.checklist, true)
@@ -211,6 +212,9 @@ function CardBody({ task, overlay, selected }: { task: Task; overlay?: boolean; 
           </div>
         </div>
       </div>
+      {task.checklist.length > 0 && (
+        <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} onChange={next => updateTask(task.id, { checklist: next })} />
+      )}
     </div>
   )
 }
