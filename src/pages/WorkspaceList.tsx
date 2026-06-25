@@ -27,7 +27,7 @@ export default function WorkspaceListPage() {
         </button>
       </div>
       <div className="space-y-2">
-        {workspaces.map(w => {
+        {workspaces.filter(w => !w.archived).map(w => {
           const wsProjects = projects.filter(p => p.workspace_id === w.id)
           const st = wsProjects.reduce(
             (acc, p) => {

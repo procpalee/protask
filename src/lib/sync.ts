@@ -6,7 +6,7 @@ import { supabase } from './supabase'
  * 큐는 localStorage에 영속 — 오프라인/새로고침에도 유실 없음.
  */
 
-type Table = 'workspaces' | 'workspace_canvas' | 'phases' | 'projects' | 'tasks' | 'today_sections'
+type Table = 'workspaces' | 'workspace_canvas' | 'phases' | 'projects' | 'tasks' | 'today_sections' | 'folders'
 
 export interface Op {
   table: Table

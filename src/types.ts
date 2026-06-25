@@ -50,6 +50,17 @@ export interface Workspace {
   /** 사용자 지정 색상(hex). null이면 팔레트에서 인덱스로 결정 */
   color: string | null
   position: number
+  /** 아카이브(숨김) — 사이드바 기본 목록에서 숨고 '아카이브' 섹션에서 복원 */
+  archived: boolean
+  /** 소속 폴더(그룹). null이면 폴더 없음 */
+  folder_id: string | null
+}
+
+/** 프로젝트 그룹(폴더) — 사이드바에서 프로젝트를 묶어 접기/펼치기 */
+export interface Folder {
+  id: string
+  name: string
+  position: number
 }
 
 export interface Phase {

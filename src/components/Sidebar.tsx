@@ -1,16 +1,19 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, HelpCircle, X } from 'lucide-react'
+import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, HelpCircle, X, Folder, FolderPlus, FolderMinus, Archive, ArchiveRestore, ChevronDown, ChevronRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useStore, selInbox, selToday, selOverdue, selDated, selWeek } from '../store/store'
-import { wsColor, type Workspace } from '../types'
+import { wsColor, type Workspace, type Folder as FolderT } from '../types'
 import { onSyncStatus, retryNow, type SyncStatus } from '../lib/sync'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
 import { useContextMenu, MenuItem } from './TaskContextMenu'
 
-/** 사이드바 프로젝트 행 (최상위) — 클릭=프로젝트 뷰, 우클릭=이름 변경·삭제. */
-function ProjectNavRow({ ws, workspaces }: { ws: Workspace; workspaces: Workspace[] }) {
+const Divider = () => <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
+
+/** 사이드바 프로젝트 행 (최상위) — 클릭=프로젝트 뷰, 우클릭=이름변경·아카이브·폴더 이동·삭제. */
+function ProjectNavRow({ ws, workspaces, folders }: { ws: Workspace; workspaces: Workspace[]; folders: FolderT[] }) {
   const updateWorkspace = useStore(s => s.updateWorkspace)
   const deleteWorkspace = useStore(s => s.deleteWorkspace)
+  const addFolder = useStore(s => s.addFolder)
   const navigate = useNavigate()
   const location = useLocation()
   const { onContextMenu, menu } = useContextMenu(close => (
@@ -19,7 +22,18 @@ function ProjectNavRow({ ws, workspaces }: { ws: Workspace; workspaces: Workspac
         const n = await promptDialog({ title: '프로젝트 이름 변경', defaultValue: ws.name, confirmLabel: '변경' })
         if (n?.trim()) updateWorkspace(ws.id, { name: n.trim() })
       }} />
-      <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
+      <MenuItem icon={ws.archived ? ArchiveRestore : Archive} label={ws.archived ? '아카이브 해제' : '아카이브'} onClose={close} onPick={() => updateWorkspace(ws.id, { archived: !ws.archived })} />
+      <Divider />
+      <div className="px-2.5 py-0.5 text-[11.5px] font-semibold text-zinc-400">폴더로 이동</div>
+      {folders.map(f => (
+        <MenuItem key={f.id} icon={Folder} label={f.name} onClose={close} onPick={() => updateWorkspace(ws.id, { folder_id: f.id })} />
+      ))}
+      {ws.folder_id && <MenuItem icon={FolderMinus} label="폴더에서 빼기" onClose={close} onPick={() => updateWorkspace(ws.id, { folder_id: null })} />}
+      <MenuItem icon={FolderPlus} label="새 폴더에 담기…" onClose={close} onPick={async () => {
+        const n = await promptDialog({ title: '새 폴더', placeholder: '폴더 이름', confirmLabel: '만들기' })
+        if (n?.trim()) updateWorkspace(ws.id, { folder_id: addFolder(n.trim()) })
+      }} />
+      <Divider />
       <MenuItem icon={Trash2} label="삭제" danger onClose={close} onPick={async () => {
         if (await confirmDialog({ title: '프로젝트 삭제', message: `"${ws.name}"와 모든 서브프로젝트·태스크를 삭제할까요?`, confirmLabel: '삭제', danger: true })) {
           deleteWorkspace(ws.id)
@@ -36,13 +50,67 @@ function ProjectNavRow({ ws, workspaces }: { ws: Workspace; workspaces: Workspac
         onContextMenu={onContextMenu}
         className={({ isActive }) => `flex items-center gap-2 rounded-md px-1.5 py-1.5 text-[14px] font-medium transition-colors ${
           isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
-        }`}
+        } ${ws.archived ? 'opacity-60' : ''}`}
       >
         <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(ws.id, workspaces) }} />
         <span className="truncate">{ws.name}</span>
       </NavLink>
       {menu}
     </>
+  )
+}
+
+/** 프로젝트 폴더(그룹) — 접기/펼치기 + 우클릭 이름변경·삭제 */
+function FolderGroup({ folder, members, workspaces, folders }: { folder: FolderT; members: Workspace[]; workspaces: Workspace[]; folders: FolderT[] }) {
+  const updateFolder = useStore(s => s.updateFolder)
+  const deleteFolder = useStore(s => s.deleteFolder)
+  const [open, setOpen] = useState(() => localStorage.getItem(`pd-folder-${folder.id}`) !== '0')
+  const toggle = () => setOpen(o => { localStorage.setItem(`pd-folder-${folder.id}`, o ? '0' : '1'); return !o })
+  const { onContextMenu, menu } = useContextMenu(close => (
+    <>
+      <MenuItem icon={Pencil} label="폴더 이름 변경" onClose={close} onPick={async () => {
+        const n = await promptDialog({ title: '폴더 이름 변경', defaultValue: folder.name, confirmLabel: '변경' })
+        if (n?.trim()) updateFolder(folder.id, { name: n.trim() })
+      }} />
+      <Divider />
+      <MenuItem icon={Trash2} label="폴더 삭제 (프로젝트는 유지)" danger onClose={close} onPick={async () => {
+        if (await confirmDialog({ title: '폴더 삭제', message: `"${folder.name}" 폴더를 삭제할까요? 안의 프로젝트는 '폴더 없음'으로 남습니다.`, confirmLabel: '삭제', danger: true })) deleteFolder(folder.id)
+      }} />
+    </>
+  ))
+  return (
+    <div>
+      <button onClick={toggle} onContextMenu={onContextMenu} className="flex w-full items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left text-[13.5px] font-semibold text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/60">
+        {open ? <ChevronDown size={13} className="shrink-0 text-zinc-400" /> : <ChevronRight size={13} className="shrink-0 text-zinc-400" />}
+        <Folder size={13.5} className="shrink-0 text-zinc-400" />
+        <span className="truncate">{folder.name}</span>
+        <span className="ml-auto text-[12px] font-semibold text-zinc-400">{members.length || ''}</span>
+      </button>
+      {open && (
+        <div className="ml-3 border-l border-zinc-200 pl-1.5 dark:border-zinc-800">
+          {members.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} folders={folders} />)}
+          {members.length === 0 && <div className="px-1.5 py-1 text-[12.5px] text-zinc-400">비어 있음</div>}
+        </div>
+      )}
+      {menu}
+    </div>
+  )
+}
+
+/** 아카이브된 프로젝트 — 접기/펼치기 */
+function ArchiveSection({ archived, workspaces, folders }: { archived: Workspace[]; workspaces: Workspace[]; folders: FolderT[] }) {
+  const [open, setOpen] = useState(() => localStorage.getItem('pd-archive-open') === '1')
+  const toggle = () => setOpen(o => { localStorage.setItem('pd-archive-open', o ? '0' : '1'); return !o })
+  return (
+    <div className="mt-3 border-t border-zinc-200 pt-2 dark:border-zinc-800">
+      <button onClick={toggle} className="flex w-full items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left text-[13px] font-semibold text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/60">
+        {open ? <ChevronDown size={13} className="shrink-0 text-zinc-400" /> : <ChevronRight size={13} className="shrink-0 text-zinc-400" />}
+        <Archive size={13} className="shrink-0 text-zinc-400" />
+        <span>아카이브</span>
+        <span className="ml-auto text-[12px] font-semibold text-zinc-400">{archived.length}</span>
+      </button>
+      {open && archived.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} folders={folders} />)}
+    </div>
   )
 }
 
@@ -102,18 +170,31 @@ export function SyncDot({ className = '' }: { className?: string }) {
 /** 사이드바 본문 — 데스크탑 고정 사이드바와 모바일 드로어가 공유 */
 function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onToggleTheme: () => void; onClose?: () => void }) {
   const workspaces = useStore(s => s.workspaces)
+  const folders = useStore(s => s.folders)
   const inboxCount = useStore(s => selInbox(s).length)
   const todayCount = useStore(s => selOverdue(s).length + selToday(s).filter(t => t.status !== 'done').length)
   const weekCount = useStore(s => selWeek(s).length)
   const upcomingCount = useStore(s => selDated(s).length)
   const addWorkspace = useStore(s => s.addWorkspace)
+  const addFolder = useStore(s => s.addFolder)
   const navigate = useNavigate()
+
+  // 활성(비아카이브) 프로젝트를 폴더별로 분류 + 아카이브
+  const active = workspaces.filter(w => !w.archived)
+  const archived = workspaces.filter(w => w.archived)
+  const sortedFolders = [...folders].sort((a, b) => a.position - b.position)
+  const folderIds = new Set(folders.map(f => f.id))
+  const ungrouped = active.filter(w => !w.folder_id || !folderIds.has(w.folder_id))
 
   const onAddWs = async () => {
     const name = await promptDialog({ title: '새 프로젝트', placeholder: '프로젝트 이름', confirmLabel: '만들기' })
     if (!name?.trim()) return
     const id = addWorkspace(name.trim())
     navigate(`/w/${id}`)
+  }
+  const onAddFolder = async () => {
+    const name = await promptDialog({ title: '새 폴더', placeholder: '폴더 이름', confirmLabel: '만들기' })
+    if (name?.trim()) addFolder(name.trim())
   }
 
   return (
@@ -164,18 +245,27 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
 
       <div className="mt-5 mb-1 flex items-center justify-between px-4">
         <span className="text-[12px] font-semibold tracking-wide text-zinc-400 uppercase dark:text-zinc-500">프로젝트</span>
-        <button onClick={onAddWs} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 프로젝트">
-          <Plus size={14} />
-        </button>
+        <div className="flex items-center gap-0.5">
+          <button onClick={onAddFolder} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 폴더">
+            <FolderPlus size={14} />
+          </button>
+          <button onClick={onAddWs} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 프로젝트">
+            <Plus size={14} />
+          </button>
+        </div>
       </div>
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2.5 pb-2">
-        {workspaces.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} />)}
-        {workspaces.length === 0 && (
+        {sortedFolders.map(f => (
+          <FolderGroup key={f.id} folder={f} members={active.filter(w => w.folder_id === f.id)} workspaces={workspaces} folders={sortedFolders} />
+        ))}
+        {ungrouped.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} folders={sortedFolders} />)}
+        {active.length === 0 && folders.length === 0 && (
           <div className="px-2.5 py-2 text-[13px] text-zinc-400">
             <LayoutGrid size={14} className="mb-1" />
             프로젝트가 없습니다
           </div>
         )}
+        {archived.length > 0 && <ArchiveSection archived={archived} workspaces={workspaces} folders={sortedFolders} />}
       </nav>
 
       <div className="flex items-center gap-1 border-t border-zinc-200 px-2.5 py-2 dark:border-zinc-800">

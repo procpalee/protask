@@ -6,7 +6,7 @@ import { enqueue, pendingCount } from '../lib/sync'
 import { addDays, startOfWeek } from 'date-fns'
 import { nextOccurrence, todayStr, toStr } from '../lib/dates'
 import { GAP } from '../lib/position'
-import type { Bucket, ChecklistItem, Phase, Project, Section, Task, Workspace } from '../types'
+import type { Bucket, ChecklistItem, Folder, Phase, Project, Section, Task, Workspace } from '../types'
 import { paletteColor } from '../types'
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
@@ -32,6 +32,7 @@ export function flattenCk(items: ChecklistItem[]): string[] {
 interface Store {
   loaded: boolean
   workspaces: Workspace[]
+  folders: Folder[]
   phases: Phase[]
   projects: Project[]
   tasks: Task[]
@@ -74,6 +75,11 @@ interface Store {
   addWorkspace: (name: string) => string
   updateWorkspace: (id: string, patch: Partial<Workspace>) => void
   deleteWorkspace: (id: string) => void
+
+  /* folders (프로젝트 그룹) */
+  addFolder: (name: string) => string
+  updateFolder: (id: string, patch: Partial<Folder>) => void
+  deleteFolder: (id: string) => void
 
   /* phases */
   addPhase: (workspaceId: string, name: string) => string
@@ -124,6 +130,7 @@ function pushUndo(e: UndoEntry) {
 export const useStore = create<Store>((set, get) => ({
   loaded: false,
   workspaces: [],
+  folders: [],
   phases: [],
   projects: [],
   tasks: [],
@@ -160,12 +167,13 @@ export const useStore = create<Store>((set, get) => ({
     // (안 그러면 실패가 반복되는 op 하나가 앱 부팅을 영구히 막아 "불러오는 중…"에서 멈춘다).
     if (get().loaded && pendingCount() > 0) return
     const cutoff = new Date(Date.now() - 30 * 86400_000).toISOString()
-    const [ws, ph, pr, tk, sc] = await Promise.all([
+    const [ws, ph, pr, tk, sc, fd] = await Promise.all([
       supabase.from('workspaces').select('*').order('position'),
       supabase.from('phases').select('*').order('position'),
       supabase.from('projects').select('*').order('position'),
       supabase.from('tasks').select('*').or(`completed_at.is.null,completed_at.gte.${cutoff}`),
       supabase.from('today_sections').select('*').order('position'),
+      supabase.from('folders').select('*').order('position'),
     ])
     if (ws.error || ph.error || pr.error || tk.error) return
     set({
@@ -174,6 +182,7 @@ export const useStore = create<Store>((set, get) => ({
       projects: (pr.data ?? []) as Project[],
       tasks: (tk.data ?? []) as Task[],
       sections: (sc.error ? [] : (sc.data ?? [])) as Section[], // 테이블 미생성 시에도 부팅
+      folders: (fd.error ? [] : (fd.data ?? [])) as Folder[],
       loaded: true,
     })
   },
@@ -219,7 +228,7 @@ export const useStore = create<Store>((set, get) => ({
   /* ───── workspaces ───── */
   addWorkspace: name => {
     const id = nid('ws')
-    const row: Workspace = { id, name, color: paletteColor(get().workspaces.length), position: maxPos(get().workspaces) + GAP }
+    const row: Workspace = { id, name, color: paletteColor(get().workspaces.length), position: maxPos(get().workspaces) + GAP, archived: false, folder_id: null }
     set(s => ({ workspaces: [...s.workspaces, row] }))
     enqueue({ table: 'workspaces', kind: 'upsert', rowId: id, payload: row })
     return id
@@ -236,6 +245,27 @@ export const useStore = create<Store>((set, get) => ({
       tasks: s.tasks.filter(t => t.workspace_id !== id),
     }))
     enqueue({ table: 'workspaces', kind: 'delete', rowId: id })
+  },
+
+  /* ───── folders (프로젝트 그룹) ───── */
+  addFolder: name => {
+    const id = nid('fd')
+    const row: Folder = { id, name, position: maxPos(get().folders) + GAP }
+    set(s => ({ folders: [...s.folders, row] }))
+    enqueue({ table: 'folders', kind: 'upsert', rowId: id, payload: row })
+    return id
+  },
+  updateFolder: (id, patch) => {
+    set(s => ({ folders: s.folders.map(f => (f.id === id ? { ...f, ...patch } : f)) }))
+    enqueue({ table: 'folders', kind: 'update', rowId: id, payload: patch })
+  },
+  deleteFolder: id => {
+    // 폴더 삭제 시 소속 프로젝트는 폴더 없음으로(DB ON DELETE SET NULL 미러)
+    set(s => ({
+      folders: s.folders.filter(f => f.id !== id),
+      workspaces: s.workspaces.map(w => (w.folder_id === id ? { ...w, folder_id: null } : w)),
+    }))
+    enqueue({ table: 'folders', kind: 'delete', rowId: id })
   },
 
   /* ───── phases ───── */
