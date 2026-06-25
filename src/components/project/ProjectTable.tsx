@@ -50,10 +50,13 @@ export default function ProjectTable({
     [nested, tasks, projects, phases],
   )
   // 드래그/키보드 내비가 쓰는 리프 그룹 (중첩이면 프로젝트 하위 그룹들을 평탄화)
-  const groups = useMemo(
-    () => nested ? (nestedGroups ?? []).flatMap(n => n.children) : groupTasks(tasks, groupBy, projects, phases),
-    [nested, nestedGroups, tasks, groupBy, projects, phases],
-  )
+  const groups = useMemo(() => {
+    const base = nested ? (nestedGroups ?? []).flatMap(n => n.children) : groupTasks(tasks, groupBy, projects, phases)
+    // 프로젝트 리스트: 추가할 곳이 항상 있도록 '미분류' 그룹을 보장(비어 있어도 '+ 태스크' 입력 노출)
+    if (groupBy === 'project' && !base.some(g => g.key === '__none'))
+      return [...base, { key: '__none', label: '미분류', project_id: null as string | null, tasks: [] }]
+    return base
+  }, [nested, nestedGroups, tasks, groupBy, projects, phases])
 
   useNavOrder(useMemo(() => groups.flatMap(g => g.tasks.map(t => t.id)), [groups]), 'task')
 
