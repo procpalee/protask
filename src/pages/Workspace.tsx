@@ -1,7 +1,7 @@
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
-import { Columns3, Filter, PanelsTopLeft, List, Plus, Trash2 } from 'lucide-react'
+import { Columns3, Filter, List, Plus, Trash2 } from 'lucide-react'
 import { useStore, projectStats, useViewTabs } from '../store/store'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
 import { wsColor, WS_PALETTE, PROJECT_STATUS_LABEL, PROJECT_STATUS_ORDER, PROJECT_STATUS_DOT, type ProjectStatus } from '../types'
@@ -9,11 +9,8 @@ import type { TaskGroup } from '../lib/group'
 import SubprojectBoard from '../components/workspace/SubprojectBoard'
 import ProjectTable from '../components/project/ProjectTable'
 
-const OverviewPage = lazy(() => import('./Overview'))
-
-type View = 'overview' | 'list' | 'board'
+type View = 'list' | 'board'
 const VIEW_TABS: { key: View; label: string; icon: typeof List }[] = [
-  { key: 'overview', label: '개요', icon: PanelsTopLeft },
   { key: 'list', label: '리스트', icon: List },
   { key: 'board', label: '보드', icon: Columns3 },
 ]
@@ -56,8 +53,8 @@ export default function WorkspacePage() {
 
   if (!ws) return <div className="p-8 text-zinc-400">프로젝트를 찾을 수 없습니다.</div>
   const pct = stats.total ? Math.round((stats.done / stats.total) * 100) : 0
-  const showFilter = view !== 'overview'
-  const showAddSub = view === 'list' || view === 'board'
+  const showFilter = true
+  const showAddSub = true
 
   // 리스트(서브프로젝트 그룹) 태스크 추가: project 그룹→project_id, 미분류→없음
   const wsOnAdd = (title: string, g: TaskGroup) => {
@@ -149,11 +146,6 @@ export default function WorkspacePage() {
       <div className="min-h-0 flex-1 overflow-y-auto pt-3">
         {view === 'list' && <ProjectTable tasks={wsTasks} groupBy="project" projects={wsProjects} onAdd={wsOnAdd} />}
         {view === 'board' && <SubprojectBoard wsId={ws.id} projects={filtered} tasks={wsTasks} />}
-        {view === 'overview' && (
-          <Suspense fallback={<div className="flex h-full items-center justify-center text-[14px] text-zinc-400">불러오는 중…</div>}>
-            <OverviewPage />
-          </Suspense>
-        )}
       </div>
     </div>
   )
