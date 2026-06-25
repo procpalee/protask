@@ -10,7 +10,6 @@ import TodayPage from './pages/Today'
 import WeekPage from './pages/Week'
 import InboxPage from './pages/Inbox'
 import UpcomingPage from './pages/Upcoming'
-import SomedayPage from './pages/Someday'
 import CalendarPage from './pages/Calendar'
 import WorkspacePage from './pages/Workspace'
 import SettingsPage from './pages/Settings'
@@ -75,7 +74,7 @@ export default function App() {
                 <Route path="/upcoming" element={<UpcomingPage />} />
                 <Route path="/week" element={<WeekPage />} />
                 <Route path="/scheduled" element={<Navigate to="/upcoming" replace />} />
-                <Route path="/someday" element={<SomedayPage />} />
+                <Route path="/someday" element={<Navigate to="/inbox" replace />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/workspaces" element={<WorkspaceListPage />} />
                 <Route path="/w/:wsId" element={<WorkspacePage />} />

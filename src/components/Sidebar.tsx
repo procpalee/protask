@@ -1,7 +1,7 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, CloudMoon, HelpCircle, X } from 'lucide-react'
+import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, HelpCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useStore, selInbox, selToday, selOverdue, selDated, selSomeday, selWeek } from '../store/store'
+import { useStore, selInbox, selToday, selOverdue, selDated, selWeek } from '../store/store'
 import { wsColor, type Workspace } from '../types'
 import { onSyncStatus, retryNow, type SyncStatus } from '../lib/sync'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
@@ -106,7 +106,6 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
   const todayCount = useStore(s => selOverdue(s).length + selToday(s).filter(t => t.status !== 'done').length)
   const weekCount = useStore(s => selWeek(s).length)
   const upcomingCount = useStore(s => selDated(s).length)
-  const somedayCount = useStore(s => selSomeday(s).length)
   const addWorkspace = useStore(s => s.addWorkspace)
   const navigate = useNavigate()
 
@@ -153,11 +152,6 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
           <CalendarClock size={15.5} strokeWidth={1.9} />
           Upcoming
           <CountBadge n={upcomingCount} />
-        </NavLink>
-        <NavLink to="/someday" className={navCls}>
-          <CloudMoon size={15.5} strokeWidth={1.9} />
-          Someday
-          <CountBadge n={somedayCount} />
         </NavLink>
         {/* 캘린더 — 모바일(드로어)에선 숨김, 데스크탑 사이드바에만 노출 */}
         <div className="hidden md:contents">

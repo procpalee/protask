@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Plus, CalendarDays, Folder } from 'lucide-react'
+import { Plus, CalendarDays, Folder, ChevronDown, ChevronRight, CloudMoon } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
-import { useStore, selInbox, useNavOrder } from '../store/store'
+import { useStore, selInbox, selSomeday, useNavOrder } from '../store/store'
 import { parseQuick, daysFromToday, fmtDateShort } from '../lib/dates'
 import type { Task } from '../types'
 import TaskRow from '../components/TaskRow'
@@ -14,10 +14,13 @@ function dateLabel(d: string): string {
 
 export default function InboxPage() {
   const inbox = useStore(useShallow(selInbox))
+  const someday = useStore(useShallow(selSomeday))
   const workspaces = useStore(s => s.workspaces)
   const addTask = useStore(s => s.addTask)
   const openDetail = useStore(s => s.openDetail)
   const [text, setText] = useState('')
+  const [showSomeday, setShowSomeday] = useState(() => localStorage.getItem('pd-inbox-someday') === '1')
+  const toggleSomeday = () => setShowSomeday(o => { localStorage.setItem('pd-inbox-someday', o ? '0' : '1'); return !o })
 
   const parsed = parseQuick(text)
   const submit = () => {
@@ -41,8 +44,11 @@ export default function InboxPage() {
     return { noWs, groups }
   }, [inbox, workspaces])
 
-  // 키보드 내비 순서 (화면 표시 순서 그대로 flat)
-  useNavOrder(useMemo(() => [...noWs, ...groups.flatMap(g => g.tasks)].map(t => t.id), [noWs, groups]))
+  // 키보드 내비 순서 (화면 표시 순서 그대로 flat) — Someday는 펼쳤을 때만
+  useNavOrder(useMemo(
+    () => [...noWs, ...groups.flatMap(g => g.tasks), ...(showSomeday ? someday : [])].map(t => t.id),
+    [noWs, groups, showSomeday, someday],
+  ))
 
   return (
     <div className="mx-auto max-w-[760px] px-5 py-5">
@@ -91,6 +97,19 @@ export default function InboxPage() {
         <div className="rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[14px] text-zinc-400 dark:border-zinc-700">
           Inbox가 비었습니다 ✓
         </div>
+      )}
+
+      {/* Someday — Inbox 아래에 펼침형 섹션 */}
+      {someday.length > 0 && (
+        <section className="mt-6 border-t border-zinc-200 pt-3 dark:border-zinc-800">
+          <button className="mb-0.5 flex w-full items-center gap-1.5 px-1.5 py-1 text-left" onClick={toggleSomeday}>
+            {showSomeday ? <ChevronDown size={15} className="text-zinc-400" /> : <ChevronRight size={15} className="text-zinc-400" />}
+            <CloudMoon size={14} className="text-zinc-400" />
+            <span className="text-[14px] font-bold">Someday</span>
+            <span className="text-[12.5px] font-semibold text-zinc-400">{someday.length}</span>
+          </button>
+          {showSomeday && someday.map(t => <TaskRow key={t.id} task={t} onOpen={openDetail} />)}
+        </section>
       )}
     </div>
   )
