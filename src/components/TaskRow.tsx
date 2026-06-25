@@ -98,7 +98,7 @@ export default function TaskRow({
 }
 
 /** 리스트에서 Shift+Enter로 여는 인라인 서브태스크 입력 — Enter 연속 추가, Esc/빈칸 blur 종료 */
-function InlineSubAdd({ onAdd, onClose }: { onAdd: (title: string) => void; onClose: () => void }) {
+export function InlineSubAdd({ onAdd, onClose }: { onAdd: (title: string) => void; onClose: () => void }) {
   const [text, setText] = useState('')
   return (
     <div className="py-0.5 pr-2" style={{ paddingLeft: 46 }} onClick={e => e.stopPropagation()}>
@@ -136,7 +136,7 @@ function addChildCk(items: ChecklistItem[], id: string, title: string): Checklis
   )
 }
 
-function Subtasks({ items, projectId, workspaceId, onChange }: { items: ChecklistItem[]; projectId: string | null; workspaceId: string | null; onChange: (next: ChecklistItem[]) => void }) {
+export function Subtasks({ items, projectId, workspaceId, onChange }: { items: ChecklistItem[]; projectId: string | null; workspaceId: string | null; onChange: (next: ChecklistItem[]) => void }) {
   // 태스크 행과 동일한 디자인 + 단계마다 세로 가이드 선/들여쓰기. 각 행은 우클릭 메뉴 + 부모 프로젝트 태그.
   const render = (list: ChecklistItem[]): React.ReactNode =>
     list.map(c => (
