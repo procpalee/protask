@@ -1,11 +1,16 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { Inbox, Sun, CalendarClock, CalendarRange, CalendarDays, Plus, Pencil, Trash2, Settings, Moon, SunMedium, LayoutGrid, HelpCircle, X, Folder, FolderPlus, FolderMinus, Archive, ArchiveRestore, ChevronDown, ChevronRight } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useStore, selInbox, selToday, selOverdue, selDated, selWeek } from '../store/store'
 import { wsColor, type Workspace, type Folder as FolderT } from '../types'
 import { onSyncStatus, retryNow, type SyncStatus } from '../lib/sync'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
 import { useContextMenu, MenuItem } from './TaskContextMenu'
+import {
+  DndContext, DragOverlay, PointerSensor, TouchSensor, pointerWithin, closestCenter,
+  useDraggable, useDroppable, useSensor, useSensors,
+  type CollisionDetection, type DragEndEvent,
+} from '@dnd-kit/core'
 
 const Divider = () => <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
 
@@ -16,6 +21,7 @@ function ProjectNavRow({ ws, workspaces, folders }: { ws: Workspace; workspaces:
   const addFolder = useStore(s => s.addFolder)
   const navigate = useNavigate()
   const location = useLocation()
+  const { setNodeRef, attributes, listeners, isDragging } = useDraggable({ id: ws.id })
   const { onContextMenu, menu } = useContextMenu(close => (
     <>
       <MenuItem icon={Pencil} label="이름 변경" onClose={close} onPick={async () => {
@@ -45,12 +51,15 @@ function ProjectNavRow({ ws, workspaces, folders }: { ws: Workspace; workspaces:
   return (
     <>
       <NavLink
+        ref={setNodeRef}
+        {...attributes}
+        {...listeners}
         to={`/w/${ws.id}`}
         title={ws.name}
         onContextMenu={onContextMenu}
         className={({ isActive }) => `flex items-center gap-2 rounded-md px-1.5 py-1.5 text-[14px] font-medium transition-colors ${
           isActive ? 'bg-zinc-200/70 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800/60 dark:hover:text-zinc-100'
-        } ${ws.archived ? 'opacity-60' : ''}`}
+        } ${ws.archived ? 'opacity-60' : ''} ${isDragging ? 'opacity-40' : ''}`}
       >
         <span className="h-2.5 w-2.5 shrink-0 rounded-[4px]" style={{ background: wsColor(ws.id, workspaces) }} />
         <span className="truncate">{ws.name}</span>
@@ -64,6 +73,7 @@ function ProjectNavRow({ ws, workspaces, folders }: { ws: Workspace; workspaces:
 function FolderGroup({ folder, members, workspaces, folders }: { folder: FolderT; members: Workspace[]; workspaces: Workspace[]; folders: FolderT[] }) {
   const updateFolder = useStore(s => s.updateFolder)
   const deleteFolder = useStore(s => s.deleteFolder)
+  const { setNodeRef, isOver } = useDroppable({ id: `folder:${folder.id}` })
   const [open, setOpen] = useState(() => localStorage.getItem(`pd-folder-${folder.id}`) !== '0')
   const toggle = () => setOpen(o => { localStorage.setItem(`pd-folder-${folder.id}`, o ? '0' : '1'); return !o })
   const { onContextMenu, menu } = useContextMenu(close => (
@@ -79,7 +89,7 @@ function FolderGroup({ folder, members, workspaces, folders }: { folder: FolderT
     </>
   ))
   return (
-    <div>
+    <div ref={setNodeRef} className={`rounded-md ${isOver ? 'bg-blue-50/60 ring-2 ring-blue-400/60 dark:bg-blue-950/30' : ''}`}>
       <button onClick={toggle} onContextMenu={onContextMenu} className="flex w-full items-center gap-1.5 rounded-md px-1.5 py-1.5 text-left text-[13.5px] font-semibold text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800/60">
         {open ? <ChevronDown size={13} className="shrink-0 text-zinc-400" /> : <ChevronRight size={13} className="shrink-0 text-zinc-400" />}
         <Folder size={13.5} className="shrink-0 text-zinc-400" />
@@ -93,6 +103,17 @@ function FolderGroup({ folder, members, workspaces, folders }: { folder: FolderT
         </div>
       )}
       {menu}
+    </div>
+  )
+}
+
+/** 폴더 없음 영역 드롭존 — 여기로 끌면 폴더에서 빼낸다 */
+function UngroupZone({ children, dragging }: { children: ReactNode; dragging: boolean }) {
+  const { setNodeRef, isOver } = useDroppable({ id: 'folder:__none' })
+  return (
+    <div ref={setNodeRef} className={`rounded-md ${isOver ? 'bg-blue-50/60 ring-2 ring-blue-400/60 dark:bg-blue-950/30' : ''}`}>
+      {children}
+      {dragging && <div className="mx-1 my-1 rounded-md border border-dashed border-zinc-300 px-2.5 py-1.5 text-center text-[12px] text-zinc-400 dark:border-zinc-700">여기로 끌면 폴더에서 빼기</div>}
     </div>
   )
 }
@@ -197,6 +218,25 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
     if (name?.trim()) addFolder(name.trim())
   }
 
+  // 드래그앤드롭: 프로젝트를 폴더(또는 폴더 없음)로 끌어 담기
+  const updateWorkspace = useStore(s => s.updateWorkspace)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+  )
+  const collision: CollisionDetection = args => { const p = pointerWithin(args); return p.length ? p : closestCenter(args) }
+  const onDragEnd = (e: DragEndEvent) => {
+    setDragId(null)
+    const { active, over } = e
+    if (!over) return
+    const overId = String(over.id)
+    if (overId.startsWith('folder:')) {
+      const fid = overId.slice(7)
+      updateWorkspace(String(active.id), { folder_id: fid === '__none' ? null : fid })
+    }
+  }
+
   return (
     <>
       <div className="flex items-center gap-2 px-4 pt-4 pb-3">
@@ -254,19 +294,30 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
           </button>
         </div>
       </div>
-      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2.5 pb-2">
-        {sortedFolders.map(f => (
-          <FolderGroup key={f.id} folder={f} members={active.filter(w => w.folder_id === f.id)} workspaces={workspaces} folders={sortedFolders} />
-        ))}
-        {ungrouped.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} folders={sortedFolders} />)}
-        {active.length === 0 && folders.length === 0 && (
-          <div className="px-2.5 py-2 text-[13px] text-zinc-400">
-            <LayoutGrid size={14} className="mb-1" />
-            프로젝트가 없습니다
-          </div>
-        )}
-        {archived.length > 0 && <ArchiveSection archived={archived} workspaces={workspaces} folders={sortedFolders} />}
-      </nav>
+      <DndContext sensors={sensors} collisionDetection={collision} onDragStart={e => setDragId(String(e.active.id))} onDragEnd={onDragEnd} onDragCancel={() => setDragId(null)}>
+        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2.5 pb-2">
+          {sortedFolders.map(f => (
+            <FolderGroup key={f.id} folder={f} members={active.filter(w => w.folder_id === f.id)} workspaces={workspaces} folders={sortedFolders} />
+          ))}
+          <UngroupZone dragging={!!dragId}>
+            {ungrouped.map(w => <ProjectNavRow key={w.id} ws={w} workspaces={workspaces} folders={sortedFolders} />)}
+          </UngroupZone>
+          {active.length === 0 && folders.length === 0 && (
+            <div className="px-2.5 py-2 text-[13px] text-zinc-400">
+              <LayoutGrid size={14} className="mb-1" />
+              프로젝트가 없습니다
+            </div>
+          )}
+          {archived.length > 0 && <ArchiveSection archived={archived} workspaces={workspaces} folders={sortedFolders} />}
+        </nav>
+        <DragOverlay>
+          {dragId ? (
+            <div className="rounded-md border border-blue-300 bg-white px-2 py-1.5 text-[14px] font-medium shadow-lg dark:border-blue-700 dark:bg-zinc-800">
+              {workspaces.find(w => w.id === dragId)?.name}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       <div className="flex items-center gap-1 border-t border-zinc-200 px-2.5 py-2 dark:border-zinc-800">
         <NavLink to="/guide" className={navCls} title="사용 설명서">
