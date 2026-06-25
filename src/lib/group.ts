@@ -33,9 +33,9 @@ export function groupTasks(tasks: Task[], groupBy: GroupBy, projects: Project[] 
   }
   if (groupBy === 'project') {
     const ordered = [...projects].sort((a, b) => a.position - b.position)
+    // 빈 서브프로젝트도 표시(리스트에서 누락 방지 — 보드와 동일하게 전부 노출)
     const groups: TaskGroup[] = ordered
       .map((p, i) => ({ key: p.id, label: p.title, project_id: p.id as string | null, color: paletteColor(i), tasks: tasks.filter(t => t.project_id === p.id).sort(byPos) }))
-      .filter(g => g.tasks.length)
     const none = tasks.filter(t => !t.project_id).sort(byPos)
     if (none.length) groups.push({ key: '__none', label: '미분류', project_id: null, tasks: none })
     return groups
