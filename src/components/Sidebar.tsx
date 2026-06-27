@@ -285,14 +285,7 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
 
       <div className="mt-5 mb-1 flex items-center justify-between px-4">
         <span className="text-[12px] font-semibold tracking-wide text-zinc-400 uppercase dark:text-zinc-500">프로젝트</span>
-        <div className="flex items-center gap-0.5">
-          <button onClick={onAddFolder} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 폴더">
-            <FolderPlus size={14} />
-          </button>
-          <button onClick={onAddWs} className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200" title="새 프로젝트">
-            <Plus size={14} />
-          </button>
-        </div>
+        <AddMenu onAddWs={onAddWs} onAddFolder={onAddFolder} />
       </div>
       <DndContext sensors={sensors} collisionDetection={collision} onDragStart={e => setDragId(String(e.active.id))} onDragEnd={onDragEnd} onDragCancel={() => setDragId(null)}>
         <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2.5 pb-2">
@@ -337,6 +330,41 @@ function SidebarContent({ dark, onToggleTheme, onClose }: { dark: boolean; onTog
         </button>
       </div>
     </>
+  )
+}
+
+/** 프로젝트/폴더 추가 — + 버튼 클릭 시 종류 선택 메뉴 */
+function AddMenu({ onAddWs, onAddFolder }: { onAddWs: () => void; onAddFolder: () => void }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+        title="추가"
+      >
+        <Plus size={14} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onMouseDown={() => setOpen(false)} />
+          <div className="absolute top-7 right-0 z-50 w-40 rounded-lg border border-zinc-200 bg-white p-1 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+            <button
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              onClick={() => { setOpen(false); onAddWs() }}
+            >
+              <LayoutGrid size={14} className="shrink-0 text-zinc-400" /> 새 프로젝트
+            </button>
+            <button
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              onClick={() => { setOpen(false); onAddFolder() }}
+            >
+              <FolderPlus size={14} className="shrink-0 text-zinc-400" /> 새 폴더
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 
