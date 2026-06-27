@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Square, SquareCheckBig, CalendarDays, FolderInput, CircleSlash, Star, Pencil, ListPlus, Trash2, IndentIncrease, IndentDecrease } from 'lucide-react'
+import { Square, SquareCheckBig, CalendarDays, FolderInput, CircleSlash, Star, Pencil, ListPlus, Trash2, IndentIncrease, IndentDecrease, ChevronDown, ChevronRight } from 'lucide-react'
 import { wsColor, type Task, type ChecklistItem } from '../types'
 import { useStore, projectColor, nid } from '../store/store'
 import ProjectChip from './ProjectChip'
@@ -7,6 +7,27 @@ import PlanPopover from './PlanPopover'
 import { useTaskContextMenu, useContextMenu, MenuItem } from './TaskContextMenu'
 import { promptDialog } from '../store/dialogStore'
 import { daysFromToday, fmtDateShort } from '../lib/dates'
+
+/** 서브태스크 접힘 상태(노드 id별, localStorage 유지) */
+function useCollapsed(id: string) {
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(`pd-ck-collapsed-${id}`) === '1')
+  const toggle = () => setCollapsed(v => { localStorage.setItem(`pd-ck-collapsed-${id}`, v ? '0' : '1'); return !v })
+  return [collapsed, toggle] as const
+}
+
+/** 서브태스크 접기/펼치기 토글 — 쉐브론 + 완료/전체 개수 (좌측 정렬 유지 위해 우측에 배치) */
+function CollapseToggle({ collapsed, done, total, onToggle }: { collapsed: boolean; done: number; total: number; onToggle: () => void }) {
+  return (
+    <button
+      onClick={e => { e.stopPropagation(); onToggle() }}
+      className="flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[12px] font-medium text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+      title={collapsed ? '서브태스크 펼치기' : '서브태스크 접기'}
+    >
+      {collapsed ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
+      {done}/{total}
+    </button>
+  )
+}
 
 /** GTD 리스트 공용 행: 완료 토글 + 제목 + 칩 + deadline 배지 + hover/키보드 퀵 액션 */
 export default function TaskRow({
@@ -34,6 +55,7 @@ export default function TaskRow({
 
   const ckTotal = countCk(task.checklist)
   const ckDone = countCk(task.checklist, true)
+  const [collapsed, toggleCollapsed] = useCollapsed(task.id)
 
   return (
     <div>
@@ -58,10 +80,9 @@ export default function TaskRow({
 
         <span className={`min-w-0 flex-1 truncate text-[14.5px] ${done ? 'text-zinc-400 line-through dark:text-zinc-500' : task.important ? 'font-semibold text-amber-700 dark:text-amber-300' : ''}`}>
           {task.title}
-          {ckTotal > 0 && (
-            <span className="ml-1.5 text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>
-          )}
         </span>
+
+        {ckTotal > 0 && <CollapseToggle collapsed={collapsed} done={ckDone} total={ckTotal} onToggle={toggleCollapsed} />}
 
         {/* 날짜·프로젝트 등 — 모바일에선 제목 아래 줄로 줄바꿈(들여쓰기) */}
         <div className="flex shrink-0 items-center gap-2 max-md:order-last max-md:basis-full max-md:pl-[46px]">
@@ -80,7 +101,7 @@ export default function TaskRow({
         </div>
       </div>
 
-      {task.checklist.length > 0 && (
+      {task.checklist.length > 0 && !collapsed && (
         <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} onChange={next => updateTask(task.id, { checklist: next })} />
       )}
 
@@ -179,16 +200,14 @@ function outdentCk(items: ChecklistItem[], id: string): ChecklistItem[] {
 
 export function Subtasks({ items, projectId, workspaceId, onChange, hideProjectTag }: { items: ChecklistItem[]; projectId: string | null; workspaceId: string | null; onChange: (next: ChecklistItem[]) => void; hideProjectTag?: boolean }) {
   // 태스크 행과 동일한 디자인 + 단계마다 세로 가이드 선/들여쓰기. 각 행은 우클릭 메뉴 + 부모 프로젝트 태그.
-  const render = (list: ChecklistItem[]): React.ReactNode =>
-    list.map(c => (
-      <div key={c.id}>
-        <SubtaskRow item={c} root={items} projectId={projectId} workspaceId={workspaceId} onChange={onChange} hideProjectTag={hideProjectTag} />
-        {c.children.length > 0 && (
-          <div className="ml-3 border-l-2 border-zinc-200 pl-2 dark:border-zinc-700">{render(c.children)}</div>
-        )}
-      </div>
-    ))
-  return <div className="mb-1 ml-3 border-l-2 border-zinc-200 pl-2 dark:border-zinc-700">{render(items)}</div>
+  // 자식 렌더링·접기는 SubtaskRow가 직접 담당(노드별 접힘 상태).
+  return (
+    <div className="mb-1 ml-3 border-l-2 border-zinc-200 pl-2 dark:border-zinc-700">
+      {items.map(c => (
+        <SubtaskRow key={c.id} item={c} root={items} projectId={projectId} workspaceId={workspaceId} onChange={onChange} hideProjectTag={hideProjectTag} />
+      ))}
+    </div>
+  )
 }
 
 /** 서브태스크 한 줄 — 태스크 행과 같은 모양 + 우클릭 메뉴(완료·이름변경·하위추가·삭제) + 부모 프로젝트 태그 */
@@ -209,6 +228,8 @@ function SubtaskRow({ item, root, projectId, workspaceId, onChange, hideProjectT
   ))
   const addingChild = useStore(s => s.addSubFor === item.id)
   const setAddSubFor = useStore(s => s.setAddSubFor)
+  const hasChildren = item.children.length > 0
+  const [collapsed, toggleCollapsed] = useCollapsed(item.id)
   return (
     <>
       <div
@@ -230,10 +251,18 @@ function SubtaskRow({ item, root, projectId, workspaceId, onChange, hideProjectT
         <span className={`min-w-0 flex-1 truncate text-[14.5px] ${item.done ? 'text-zinc-400 line-through dark:text-zinc-500' : ''}`}>
           {item.title}
         </span>
+        {hasChildren && <CollapseToggle collapsed={collapsed} done={countCk(item.children, true)} total={countCk(item.children)} onToggle={toggleCollapsed} />}
         {!hideProjectTag && (projectId || workspaceId) && (
           <span className="shrink-0"><ProjectChip projectId={projectId} workspaceId={workspaceId} /></span>
         )}
       </div>
+      {hasChildren && !collapsed && (
+        <div className="ml-3 border-l-2 border-zinc-200 pl-2 dark:border-zinc-700">
+          {item.children.map(ch => (
+            <SubtaskRow key={ch.id} item={ch} root={root} projectId={projectId} workspaceId={workspaceId} onChange={onChange} hideProjectTag={hideProjectTag} />
+          ))}
+        </div>
+      )}
       {addingChild && (
         <div className="ml-3 border-l-2 border-zinc-200 pl-2 dark:border-zinc-700">
           <InlineSubAdd
