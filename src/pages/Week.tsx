@@ -8,14 +8,12 @@ import { CSS } from '@dnd-kit/utilities'
 import { Square, SquareCheckBig, Plus, ChevronLeft, ChevronRight, Inbox as InboxIcon } from 'lucide-react'
 import { startOfWeek, addDays, addWeeks, format } from 'date-fns'
 import { ko } from 'date-fns/locale'
-import { useStore, useNavOrder, scheduledSubtasksOf, type ScheduledSubtask } from '../store/store'
+import { useStore, useNavOrder } from '../store/store'
 import { useGcal } from '../store/gcalStore'
 import { toStr, todayStr, fmtDateShort } from '../lib/dates'
 import { between } from '../lib/position'
 import { useTaskContextMenu } from '../components/TaskContextMenu'
-import { countCk } from '../lib/group'
-import { DeadlineBadge, Subtasks } from '../components/TaskRow'
-import SubtaskScheduleRow from '../components/SubtaskScheduleRow'
+import { DeadlineBadge } from '../components/TaskRow'
 import ProjectChip from '../components/ProjectChip'
 import type { Task } from '../types'
 import type { GcalEvent } from '../lib/gcal'
@@ -28,7 +26,6 @@ const dsKey = (date: string, secId: string) => `${date}::${secId}`
  *  드래그로 scheduled_date·today_section 배정. 데스크탑 전용(/week). */
 export default function WeekBoard() {
   const tasks = useStore(s => s.tasks)
-  const schedSubs = useMemo(() => scheduledSubtasksOf(tasks), [tasks])
   const sections = useStore(s => s.sections)
   const updateTask = useStore(s => s.updateTask)
   const addTask = useStore(s => s.addTask)
@@ -90,19 +87,6 @@ export default function WeekBoard() {
     map[BACKLOG] = [...overdue, ...inbox]
     return { cols: map, overdueIds: new Set(overdue.map(t => t.id)) }
   }, [tasks, days, sortedSections, secIds, weekStart, weekEnd])
-
-  // 날짜 배정된 서브태스크 — 요일별 + 연체(주 시작 이전)분은 백로그로
-  const { subsByDay, overdueSubs } = useMemo(() => {
-    const byDay: Record<string, ScheduledSubtask[]> = {}
-    for (const d of days) byDay[d.key] = []
-    const overdue: ScheduledSubtask[] = []
-    for (const s of schedSubs) {
-      if (s.done) continue
-      if (s.scheduled_date >= weekStart && s.scheduled_date <= weekEnd) byDay[s.scheduled_date]?.push(s)
-      else if (s.scheduled_date < weekStart) overdue.push(s)
-    }
-    return { subsByDay: byDay, overdueSubs: overdue }
-  }, [schedSubs, days, weekStart, weekEnd])
 
   useNavOrder(useMemo(() => {
     const ids = [...cols[BACKLOG].map(t => t.id)]
@@ -188,19 +172,19 @@ export default function WeekBoard() {
 
       <DndContext sensors={sensors} collisionDetection={collision} autoScroll={false} onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))} onDragEnd={onDragEnd} onDragCancel={() => setActiveId(null)}>
         <div className="flex min-h-0 flex-1 gap-3 px-5 pb-5">
-          <BacklogColumn tasks={cols[BACKLOG]} overdueIds={overdueIds} subs={overdueSubs} onOpen={openDetail} />
+          <BacklogColumn tasks={cols[BACKLOG]} overdueIds={overdueIds} onOpen={openDetail} />
           <div className="grid min-h-0 min-w-0 flex-1 grid-cols-3 grid-rows-2 gap-3">
             {days.slice(0, 5).map(d => (
               <DayColumn key={d.key} date={d.key} label={d.label} short={d.short}
                 isToday={d.key === today} isPast={d.key < today}
-                sections={sortedSections} cols={cols} subs={subsByDay[d.key] ?? []} events={gcal.eventsOn(d.key)}
+                sections={sortedSections} cols={cols} events={gcal.eventsOn(d.key)}
                 onOpen={openDetail} onAdd={title => addTask({ title, scheduled_date: d.key })} />
             ))}
             <div className="grid min-h-0 grid-rows-2 gap-3">
               {days.slice(5).map(d => (
                 <DayColumn key={d.key} date={d.key} label={d.label} short={d.short}
                   isToday={d.key === today} isPast={d.key < today}
-                  sections={sortedSections} cols={cols} subs={subsByDay[d.key] ?? []} events={gcal.eventsOn(d.key)}
+                  sections={sortedSections} cols={cols} events={gcal.eventsOn(d.key)}
                   onOpen={openDetail} onAdd={title => addTask({ title, scheduled_date: d.key })} />
               ))}
             </div>
@@ -212,7 +196,7 @@ export default function WeekBoard() {
   )
 }
 
-function BacklogColumn({ tasks, overdueIds, subs, onOpen }: { tasks: Task[]; overdueIds: Set<string>; subs: ScheduledSubtask[]; onOpen: (id: string) => void }) {
+function BacklogColumn({ tasks, overdueIds, onOpen }: { tasks: Task[]; overdueIds: Set<string>; onOpen: (id: string) => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: BACKLOG })
   return (
     <div
@@ -224,33 +208,26 @@ function BacklogColumn({ tasks, overdueIds, subs, onOpen }: { tasks: Task[]; ove
         <span className="text-[15px] font-bold">배정 대기</span>
         <span className="text-[13.5px] font-semibold text-zinc-400">{tasks.length}</span>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-2 pb-2">
-        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-2 pb-2">
           {tasks.map(t => <SortableCard key={t.id} task={t} onOpen={onOpen} overdue={overdueIds.has(t.id)} />)}
-        </SortableContext>
-        {subs.length > 0 && (
-          <div className="flex flex-col gap-0.5 rounded-md bg-white/50 px-1 py-1 dark:bg-zinc-800/30">
-            <div className="px-1 text-[11.5px] font-semibold text-zinc-400">지난 서브태스크</div>
-            {subs.map(s => <SubtaskScheduleRow key={s.id} item={s} compact />)}
-          </div>
-        )}
-      </div>
+        </div>
+      </SortableContext>
     </div>
   )
 }
 
-function DayColumn({ date, label, short, isToday, isPast, sections, cols, subs, events, onOpen, onAdd }: {
+function DayColumn({ date, label, short, isToday, isPast, sections, cols, events, onOpen, onAdd }: {
   date: string; label: string; short: string; isToday: boolean; isPast: boolean
   sections: { id: string; name: string }[]
   cols: Record<string, Task[]>
-  subs: ScheduledSubtask[]
   events: GcalEvent[]
   onOpen: (id: string) => void; onAdd: (title: string) => void
 }) {
   const [adding, setAdding] = useState(false)
   const [text, setText] = useState('')
   const commit = (keep: boolean) => { const v = text.trim(); if (v) onAdd(v); setText(''); if (!keep) setAdding(false) }
-  const count = [NONE, ...sections.map(s => s.id)].reduce((n, sid) => n + (cols[dsKey(date, sid)]?.length ?? 0), 0) + subs.length
+  const count = [NONE, ...sections.map(s => s.id)].reduce((n, sid) => n + (cols[dsKey(date, sid)]?.length ?? 0), 0)
   return (
     <div
       className={`flex h-full min-h-0 min-w-0 flex-col rounded-lg border ${
@@ -285,11 +262,6 @@ function DayColumn({ date, label, short, isToday, isPast, sections, cols, subs, 
         {sections.map(s => (
           <SectionZone key={s.id} date={date} secId={s.id} label={s.name} tasks={cols[dsKey(date, s.id)] ?? []} onOpen={onOpen} />
         ))}
-        {subs.length > 0 && (
-          <div className="mt-0.5 flex flex-col gap-0.5 rounded-md bg-white/50 px-1 py-1 dark:bg-zinc-800/30">
-            {subs.map(s => <SubtaskScheduleRow key={s.id} item={s} compact />)}
-          </div>
-        )}
       </div>
     </div>
   )
@@ -344,10 +316,7 @@ function SortableCard({ task, onOpen, overdue }: { task: Task; onOpen: (id: stri
 
 function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: boolean; selected?: boolean; overdue?: boolean }) {
   const toggleDone = useStore(s => s.toggleDone)
-  const updateTask = useStore(s => s.updateTask)
   const done = task.status === 'done'
-  const ckTotal = countCk(task.checklist)
-  const ckDone = countCk(task.checklist, true)
   return (
     <div
       className={`cursor-pointer rounded-md border bg-white p-2 shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-colors hover:border-blue-400 dark:bg-zinc-800/90 dark:hover:border-blue-600 ${
@@ -369,15 +338,11 @@ function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: 
             {overdue && task.scheduled_date && (
               <span className="rounded-full bg-red-50 px-1.5 py-px text-[12px] font-semibold text-red-600 dark:bg-red-950 dark:text-red-400">지연 {fmtDateShort(task.scheduled_date)}</span>
             )}
-            {ckTotal > 0 && <span className="text-[13px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
             {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
             <ProjectChip projectId={task.project_id} workspaceId={task.workspace_id} />
           </div>
         </div>
       </div>
-      {task.checklist.length > 0 && (
-        <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} onChange={next => updateTask(task.id, { checklist: next })} />
-      )}
     </div>
   )
 }

@@ -6,15 +6,15 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Square, SquareCheckBig, ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react'
-import { useStore, bucketOf, bucketPatch, useNavOrder, nid } from '../../store/store'
+import { useStore, bucketOf, bucketPatch, useNavOrder } from '../../store/store'
 import { promptDialog, confirmDialog } from '../../store/dialogStore'
 import { useContextMenu, MenuItem, useTaskContextMenu } from '../TaskContextMenu'
 import { BUCKET_DOT, BUCKET_LABEL, type Bucket, type Task } from '../../types'
 import { fmtDateShort } from '../../lib/dates'
 import { between } from '../../lib/position'
-import { groupTasks, countCk, type GroupBy, type TaskGroup } from '../../lib/group'
+import { groupTasks, type GroupBy, type TaskGroup } from '../../lib/group'
 import type { Phase, Project } from '../../types'
-import { DeadlineBadge, Subtasks, InlineSubAdd, addCkAtDepth } from '../TaskRow'
+import { DeadlineBadge } from '../TaskRow'
 
 /** 노션식 테이블 뷰 — 그룹화(상태/라벨/프로젝트/Phase/없음)·접기·인라인 완료/상태·라벨 + 키보드 선택 + 드래그 */
 export default function ProjectTable({
@@ -251,14 +251,9 @@ function Row({ task, gridCls, onOpen, onToggleDone }: {
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id })
   const selected = useStore(s => s.hoverTaskId === task.id)
-  const updateTask = useStore(s => s.updateTask)
-  const addingSub = useStore(s => s.addSubFor === task.id)
-  const setAddSubFor = useStore(s => s.setAddSubFor)
   const { onContextMenu, menu } = useTaskContextMenu(task, onOpen)
   const done = task.status === 'done'
   const col = bucketOf(task)
-  const ckTotal = countCk(task.checklist)
-  const ckDone = countCk(task.checklist, true)
   return (
     <>
     <div
@@ -283,7 +278,6 @@ function Row({ task, gridCls, onOpen, onToggleDone }: {
 
       <button className="flex min-w-0 items-center gap-2 text-left" onClick={() => onOpen(task.id)}>
         <span className={`truncate text-[14px] ${done ? 'text-zinc-400 line-through' : ''}`}>{task.title}</span>
-        {ckTotal > 0 && <span className="shrink-0 text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
       </button>
 
       <span className="flex items-center gap-1.5" title={BUCKET_LABEL[col]}>
@@ -295,15 +289,6 @@ function Row({ task, gridCls, onOpen, onToggleDone }: {
 
       <span className="flex">{task.deadline && !done ? <DeadlineBadge deadline={task.deadline} /> : task.deadline ? <span className="text-[12px] text-zinc-400">{fmtDateShort(task.deadline)}</span> : null}</span>
     </div>
-    {task.checklist.length > 0 && (
-      <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} hideProjectTag onChange={next => updateTask(task.id, { checklist: next })} />
-    )}
-    {addingSub && (
-      <InlineSubAdd
-        onAdd={(title, depth) => updateTask(task.id, { checklist: addCkAtDepth(task.checklist, depth, { id: nid('ck'), title, done: false, children: [] }) })}
-        onClose={() => setAddSubFor(null)}
-      />
-    )}
     {menu}
     </>
   )

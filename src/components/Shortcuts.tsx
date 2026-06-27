@@ -108,7 +108,6 @@ export default function Shortcuts() {
       const hover = store.hoverTaskId
       const hasSel = !!hover && !store.detailTaskId
       const k = e.key.toLowerCase()
-      const hoverIsSubtask = !!hover && !store.tasks.some(t => t.id === hover) // 선택된 게 서브태스크(체크리스트)인지
 
       /* ───── 뷰 이동 모드 (선택 없음) ───── */
       if (!hasSel && !store.detailTaskId) {
@@ -147,12 +146,6 @@ export default function Shortcuts() {
       }
 
       /* ───── 태스크 선택 모드 ───── */
-      // Shift+Enter : 선택 태스크에 서브태스크 인라인 추가(상세 열지 않음). plain Enter보다 먼저 처리.
-      if (e.key === 'Enter' && e.shiftKey && store.navKind === 'task') {
-        e.preventDefault()
-        store.setAddSubFor(hover!)
-        return
-      }
       // 워크스페이스·프로젝트(탭 화면): ←/→ 가로 이동, ↑/↓ 격자 위아래, Esc 사이드바 포커스
       if (store.tabNav) {
         if (e.key === 'ArrowRight') { e.preventDefault(); store.moveHover(1); return }
@@ -184,7 +177,7 @@ export default function Shortcuts() {
       }
 
       // 선택 태스크 퀵액션 (리스트 뷰): → 다음 · ← 이전(맨앞에서 선택 해제) · 1~6 직접 · Enter 적용
-      if (!store.tabNav && store.navKind === 'task' && !hoverIsSubtask) {
+      if (!store.tabNav && store.navKind === 'task') {
         const QN = 6 // Inbox · Today · Scheduled · Someday · Project · Deadline
         const applyQuick = (i: number) => {
           store.setQuickFocus(-1)
@@ -232,22 +225,6 @@ export default function Shortcuts() {
           const p = store.projects.find(x => x.id === hover)
           if (p) navigate(`/w/${p.workspace_id}/p/${p.id}`)
         }
-        return
-      }
-
-      /* 서브태스크(체크리스트 항목) 선택 시 — 완료(Space)/삭제(Delete)만, 그 외 태스크 전용 키 무시 */
-      if (hoverIsSubtask) {
-        if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); store.toggleChecklistItem(hover!); return }
-        if (e.key === 'Delete') {
-          e.preventDefault()
-          const order = store.navOrder
-          const idx = order.indexOf(hover!)
-          store.deleteChecklistItem(hover!)
-          const nextId = order[idx + 1] ?? order[idx - 1] ?? null
-          store.setHoverTask(nextId && nextId !== hover ? nextId : null)
-          return
-        }
-        if (e.key === 'Enter') { e.preventDefault(); return } // 서브태스크엔 상세 없음
         return
       }
 

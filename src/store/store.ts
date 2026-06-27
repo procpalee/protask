@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { create } from 'zustand'
 import { customAlphabet } from 'nanoid'
 import { supabase } from '../lib/supabase'
@@ -12,27 +12,6 @@ import { paletteColor } from '../types'
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
 export const nid = (p: string) => `${p}_${nanoid()}`
 
-/* 체크리스트(서브태스크) 트리 헬퍼 (id로 재귀) — 키보드 내비/단축키용 */
-function ckHas(items: ChecklistItem[], id: string): boolean {
-  return items.some(c => c.id === id || ckHas(c.children, id))
-}
-function ckToggle(items: ChecklistItem[], id: string): ChecklistItem[] {
-  return items.map(c => ({ ...c, done: c.id === id ? !c.done : c.done, children: ckToggle(c.children, id) }))
-}
-function ckDelete(items: ChecklistItem[], id: string): ChecklistItem[] {
-  return items.filter(c => c.id !== id).map(c => ({ ...c, children: ckDelete(c.children, id) }))
-}
-/** id 매칭 항목에 부분 패치 머지 (서브태스크 날짜 등) */
-export function ckUpdate(items: ChecklistItem[], id: string, patch: Partial<ChecklistItem>): ChecklistItem[] {
-  return items.map(c => (c.id === id ? { ...c, ...patch } : { ...c, children: ckUpdate(c.children, id, patch) }))
-}
-/** 렌더 순서(깊이 우선)대로 체크리스트 항목 id 평탄화 — navOrder 확장용 */
-export function flattenCk(items: ChecklistItem[]): string[] {
-  const out: string[] = []
-  for (const c of items) { out.push(c.id); out.push(...flattenCk(c.children)) }
-  return out
-}
-
 interface Store {
   loaded: boolean
   workspaces: Workspace[]
@@ -45,9 +24,6 @@ interface Store {
   /* UI 상태 (전역 상세 팝업 + hover 단축키 대상) */
   detailTaskId: string | null
   hoverTaskId: string | null
-  /** 리스트에서 인라인 서브태스크 입력을 띄울 태스크 id (Shift+Enter) */
-  addSubFor: string | null
-  setAddSubFor: (id: string | null) => void
   openDetail: (id: string | null) => void
   setHoverTask: (id: string | null) => void
   /** 현재 화면의 키보드 내비 대상 순서(flat). 페이지가 등록 */
@@ -106,12 +82,6 @@ interface Store {
   undo: () => string | null
   /** 칸반/Today 리스트 리밸런스: ids 순서대로 position 컬럼 재배치 */
   rebalance: (ids: string[], field: 'position' | 'today_position') => void
-  /** 서브태스크(체크리스트 항목) 완료 토글 — 소속 태스크를 찾아 적용 (키보드 Space) */
-  toggleChecklistItem: (itemId: string) => void
-  /** 서브태스크 삭제 — 소속 태스크를 찾아 적용 (키보드 Delete) */
-  deleteChecklistItem: (itemId: string) => void
-  /** 서브태스크 부분 수정(날짜 등) — 소속 태스크를 찾아 적용 */
-  updateChecklistItem: (itemId: string, patch: Partial<ChecklistItem>) => void
 }
 
 const nowISO = () => new Date().toISOString()
@@ -147,10 +117,8 @@ export const useStore = create<Store>((set, get) => ({
   navOrder: [],
   navKind: 'task',
   quickFocus: -1,
-  addSubFor: null,
-  setAddSubFor: id => set({ addSubFor: id }),
-  openDetail: id => set({ detailTaskId: id, hoverTaskId: null, quickFocus: -1, addSubFor: null }),
-  setHoverTask: id => set({ hoverTaskId: id, quickFocus: -1, addSubFor: null }),
+  openDetail: id => set({ detailTaskId: id, hoverTaskId: null, quickFocus: -1 }),
+  setHoverTask: id => set({ hoverTaskId: id, quickFocus: -1 }),
   setQuickFocus: n => set({ quickFocus: n }),
   setNavOrder: (ids, kind = 'task') => set({ navOrder: ids, navKind: kind }),
   tabNav: null,
@@ -447,18 +415,6 @@ export const useStore = create<Store>((set, get) => ({
     }))
     for (const u of updates) enqueue({ table: 'tasks', kind: 'update', rowId: u.id, payload: { [field]: u.pos } })
   },
-  toggleChecklistItem: itemId => {
-    const owner = get().tasks.find(t => ckHas(t.checklist, itemId))
-    if (owner) get().updateTask(owner.id, { checklist: ckToggle(owner.checklist, itemId) })
-  },
-  deleteChecklistItem: itemId => {
-    const owner = get().tasks.find(t => ckHas(t.checklist, itemId))
-    if (owner) get().updateTask(owner.id, { checklist: ckDelete(owner.checklist, itemId) })
-  },
-  updateChecklistItem: (itemId, patch) => {
-    const owner = get().tasks.find(t => ckHas(t.checklist, itemId))
-    if (owner) get().updateTask(owner.id, { checklist: ckUpdate(owner.checklist, itemId, patch) })
-  },
 }))
 
 function resetCk(c: ChecklistItem): ChecklistItem {
@@ -530,38 +486,6 @@ export const selDated = (s: Store) =>
   s.tasks.filter(t => t.scheduled_date && t.status !== 'done')
     .sort((a, b) => (a.scheduled_date ?? '').localeCompare(b.scheduled_date ?? '') || a.position - b.position)
 
-/** 날짜가 배정된 서브태스크(가상 항목) — 부모 맥락 포함. Today/Week에서 날짜로 필터링해 사용 */
-export interface ScheduledSubtask {
-  id: string
-  title: string
-  done: boolean
-  scheduled_date: string
-  taskId: string
-  taskTitle: string
-  workspace_id: string | null
-  project_id: string | null
-}
-/** tasks 배열에서 날짜 배정된 서브태스크를 평탄화. 페이지에서 useMemo(tasks)로 호출(참조 안정) */
-export function scheduledSubtasksOf(tasks: Task[]): ScheduledSubtask[] {
-  const out: ScheduledSubtask[] = []
-  const walk = (items: ChecklistItem[], task: Task) => {
-    for (const c of items) {
-      if (c.scheduled_date) {
-        out.push({
-          id: c.id, title: c.title, done: c.done, scheduled_date: c.scheduled_date,
-          taskId: task.id, taskTitle: task.title, workspace_id: task.workspace_id, project_id: task.project_id,
-        })
-      }
-      if (c.children.length) walk(c.children, task)
-    }
-  }
-  for (const t of tasks) {
-    if (t.status === 'done') continue // 부모 완료 시 서브태스크는 노출하지 않음
-    if (t.checklist.length) walk(t.checklist, t)
-  }
-  return out.sort((a, b) => a.scheduled_date.localeCompare(b.scheduled_date) || a.taskTitle.localeCompare(b.taskTitle))
-}
-
 /** 프로젝트 진행률 (hold 제외) */
 export function projectStats(s: Store, projectId: string): { done: number; total: number; pct: number } {
   const list = s.tasks.filter(t => t.project_id === projectId && !t.someday) /* 백로그(Someday)는 진행률 제외 */
@@ -569,25 +493,12 @@ export function projectStats(s: Store, projectId: string): { done: number; total
   return { done, total: list.length, pct: list.length ? Math.round((done / list.length) * 100) : 0 }
 }
 
-/** 페이지가 키보드 내비 순서를 등록 — 언마운트 시 정리. kind=task|project.
- *  task 모드에선 각 태스크 뒤에 그 서브태스크(체크리스트) id를 화면 순서대로 끼워, 방향키로 서브태스크도 선택되게 한다. */
+/** 페이지가 키보드 내비 순서를 등록 — 언마운트 시 정리. kind=task|project. */
 export function useNavOrder(ids: string[], kind: 'task' | 'project' = 'task'): void {
   const setNavOrder = useStore(s => s.setNavOrder)
-  const tasks = useStore(s => s.tasks)
-  const expanded = useMemo(() => {
-    if (kind !== 'task') return ids
-    const byId = new Map(tasks.map(t => [t.id, t]))
-    const out: string[] = []
-    for (const id of ids) {
-      out.push(id)
-      const t = byId.get(id)
-      if (t && t.checklist.length) out.push(...flattenCk(t.checklist))
-    }
-    return out
-  }, [ids, tasks, kind])
-  const key = kind + '|' + expanded.join(',')
+  const key = kind + '|' + ids.join(',')
   useEffect(() => {
-    setNavOrder(expanded, kind)
+    setNavOrder(ids, kind)
     return () => {
       useStore.getState().setNavOrder([])
       useStore.getState().setHoverTask(null)

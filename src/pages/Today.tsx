@@ -7,7 +7,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities'
 import { CalendarX2, RefreshCw, CalendarDays, Plus, Pencil, Trash2, ChevronUp, ChevronDown, Folder } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
-import { useStore, selToday, selOverdue, scheduledSubtasksOf, useNavOrder } from '../store/store'
+import { useStore, selToday, selOverdue, useNavOrder } from '../store/store'
 import { promptDialog, confirmDialog } from '../store/dialogStore'
 import { useGcal } from '../store/gcalStore'
 import type { Task } from '../types'
@@ -15,7 +15,6 @@ import { between } from '../lib/position'
 import { fmtDate, todayStr, toStr, daysFromToday } from '../lib/dates'
 import { addDays } from 'date-fns'
 import TaskRow from '../components/TaskRow'
-import SubtaskScheduleRow from '../components/SubtaskScheduleRow'
 import { Link } from 'react-router-dom'
 
 const NONE = 'none'
@@ -143,12 +142,6 @@ export default function TodayPage() {
     updateTask(taskId, { scheduled_date: todayStr(), today_section: sec === NONE ? null : sec, today_position: pos })
   }
 
-  // 날짜 배정된 서브태스크(가상) — 오늘분 / 연체분
-  const today = todayStr()
-  const schedSubs = useMemo(() => scheduledSubtasksOf(allTasks), [allTasks])
-  const todaySubs = useMemo(() => schedSubs.filter(s => s.scheduled_date === today && !s.done), [schedSubs, today])
-  const overdueSubs = useMemo(() => schedSubs.filter(s => s.scheduled_date < today && !s.done), [schedSubs, today])
-
   const activeTask = activeId ? allTasks.find(t => t.id === activeId) : null
   const doneToday = useMemo(() => todayTasks.filter(t => t.status === 'done'), [todayTasks])
   const doneCount = doneToday.length
@@ -187,27 +180,24 @@ export default function TodayPage() {
         <TodayEvents />
       </div>
 
-      {/* Overdue (태스크 + 날짜 지난 서브태스크) */}
-      {(overdue.length > 0 || overdueSubs.length > 0) && (
+      {/* Overdue */}
+      {overdue.length > 0 && (
         <section className="mb-2">
           <div className="mt-1 mb-1.5 flex items-baseline gap-2 px-1.5">
             <span className="text-[14px] font-bold tracking-tight">Overdue</span>
-            <span className="text-[12.5px] font-semibold text-zinc-400">{overdue.length + overdueSubs.length}</span>
-            {overdue.length > 0 && (
-              <button
-                className="ml-auto rounded px-1.5 py-0.5 text-[12px] font-semibold text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400"
-                onClick={() => overdue.forEach(t => updateTask(t.id, { scheduled_date: todayStr() }))}
-              >
-                모두 오늘로
-              </button>
-            )}
+            <span className="text-[12.5px] font-semibold text-zinc-400">{overdue.length}</span>
+            <button
+              className="ml-auto rounded px-1.5 py-0.5 text-[12px] font-semibold text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400"
+              onClick={() => overdue.forEach(t => updateTask(t.id, { scheduled_date: todayStr() }))}
+            >
+              모두 오늘로
+            </button>
           </div>
           {overdue.map(t => (
             <TaskRow key={t.id} task={t} onOpen={openDetail}
               trailing={<span className="shrink-0 text-[12px] font-semibold text-amber-600 dark:text-amber-400">d+{-daysFromToday(t.scheduled_date!)}</span>}
             />
           ))}
-          {overdueSubs.map(s => <SubtaskScheduleRow key={s.id} item={s} />)}
         </section>
       )}
 
@@ -254,13 +244,6 @@ export default function TodayPage() {
             )}
           </div>
         )}
-        {/* 날짜 배정된 서브태스크 (비정렬 — 섹션 DnD와 무관) */}
-        {todaySubs.length > 0 && (
-          <section className="mt-4">
-            <GroupLabel label="서브태스크" count={todaySubs.length} />
-            {todaySubs.map(s => <SubtaskScheduleRow key={s.id} item={s} />)}
-          </section>
-        )}
         {doneToday.length > 0 && (
           <section className="mt-5">
             <GroupLabel label="Done" count={doneCount} />
@@ -276,7 +259,7 @@ export default function TodayPage() {
         </DragOverlay>
       </DndContext>
 
-      {todayTasks.length === 0 && overdue.length === 0 && todaySubs.length === 0 && overdueSubs.length === 0 && (
+      {todayTasks.length === 0 && overdue.length === 0 && (
         <div className="mt-3 rounded-lg border border-dashed border-zinc-300 p-10 text-center text-[14px] text-zinc-400 dark:border-zinc-700">
           오늘 예정된 태스크가 없습니다
         </div>
