@@ -45,15 +45,6 @@ export default function TaskRow({
         onClick={() => onOpen(task.id)}
         onContextMenu={onContextMenu}
       >
-        {/* 중요 토글 — 중요면 항상 노란 별, 아니면 hover/선택 시 토글 가능 */}
-        <button
-          className={`shrink-0 ${task.important ? 'text-amber-500' : 'invisible text-zinc-300 hover:text-amber-500 group-hover:visible touch:visible dark:text-zinc-600'}`}
-          onClick={e => { e.stopPropagation(); updateTask(task.id, { important: !task.important }) }}
-          title={task.important ? '중요 해제' : '중요 표시'}
-        >
-          <Star size={14} className={task.important ? 'fill-current' : ''} />
-        </button>
-
         <button
           className={`shrink-0 ${done ? 'text-emerald-500' : 'text-zinc-300 hover:text-emerald-500 dark:text-zinc-600'}`}
           onClick={e => {
@@ -77,6 +68,14 @@ export default function TaskRow({
           {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
           <ScheduleChip task={task} selected={selected} />
           <ProjectControl task={task} selected={selected} />
+          {/* 중요 토글 — 중요면 항상 노란 별, 아니면 hover/선택 시 토글 가능 */}
+          <button
+            className={`shrink-0 ${task.important ? 'text-amber-500' : `text-zinc-300 hover:text-amber-500 group-hover:visible touch:visible dark:text-zinc-600 ${selected ? 'visible' : 'invisible'}`}`}
+            onClick={e => { e.stopPropagation(); updateTask(task.id, { important: !task.important }) }}
+            title={task.important ? '중요 해제' : '중요 표시'}
+          >
+            <Star size={14} className={task.important ? 'fill-current' : ''} />
+          </button>
           {trailing}
         </div>
       </div>
