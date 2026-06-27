@@ -13,7 +13,8 @@ import { useGcal } from '../store/gcalStore'
 import { toStr, todayStr, fmtDateShort } from '../lib/dates'
 import { between } from '../lib/position'
 import { useTaskContextMenu } from '../components/TaskContextMenu'
-import { DeadlineBadge } from '../components/TaskRow'
+import { countCk } from '../lib/group'
+import { DeadlineBadge, Subtasks } from '../components/TaskRow'
 import ProjectChip from '../components/ProjectChip'
 import type { Task } from '../types'
 import type { GcalEvent } from '../lib/gcal'
@@ -316,7 +317,10 @@ function SortableCard({ task, onOpen, overdue }: { task: Task; onOpen: (id: stri
 
 function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: boolean; selected?: boolean; overdue?: boolean }) {
   const toggleDone = useStore(s => s.toggleDone)
+  const updateTask = useStore(s => s.updateTask)
   const done = task.status === 'done'
+  const ckTotal = countCk(task.checklist)
+  const ckDone = countCk(task.checklist, true)
   return (
     <div
       className={`cursor-pointer rounded-md border bg-white p-2 shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-colors hover:border-blue-400 dark:bg-zinc-800/90 dark:hover:border-blue-600 ${
@@ -338,11 +342,15 @@ function CardBody({ task, overlay, selected, overdue }: { task: Task; overlay?: 
             {overdue && task.scheduled_date && (
               <span className="rounded-full bg-red-50 px-1.5 py-px text-[12px] font-semibold text-red-600 dark:bg-red-950 dark:text-red-400">지연 {fmtDateShort(task.scheduled_date)}</span>
             )}
+            {ckTotal > 0 && <span className="text-[13px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
             {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
             <ProjectChip projectId={task.project_id} workspaceId={task.workspace_id} />
           </div>
         </div>
       </div>
+      {task.checklist.length > 0 && (
+        <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} onChange={next => updateTask(task.id, { checklist: next })} />
+      )}
     </div>
   )
 }

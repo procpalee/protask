@@ -11,7 +11,8 @@ import { promptDialog, confirmDialog } from '../../store/dialogStore'
 import { paletteColor, type Project, type Task } from '../../types'
 import { between } from '../../lib/position'
 import { useTaskContextMenu } from '../TaskContextMenu'
-import { DeadlineBadge } from '../TaskRow'
+import { countCk } from '../../lib/group'
+import { DeadlineBadge, Subtasks } from '../TaskRow'
 import { fmtDateShort } from '../../lib/dates'
 
 const NONE = '__none'
@@ -191,7 +192,10 @@ function SortableCard({ task, onOpen }: { task: Task; onOpen: (id: string) => vo
 
 function CardBody({ task, overlay, selected }: { task: Task; overlay?: boolean; selected?: boolean }) {
   const toggleDone = useStore(s => s.toggleDone)
+  const updateTask = useStore(s => s.updateTask)
   const done = task.status === 'done'
+  const ckTotal = countCk(task.checklist)
+  const ckDone = countCk(task.checklist, true)
   return (
     <div className={`cursor-pointer rounded-md border bg-white p-2.5 shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-colors hover:border-blue-400 dark:bg-zinc-800/90 dark:hover:border-blue-600 ${overlay ? 'rotate-1 shadow-lg' : ''} ${done ? 'opacity-60' : ''} ${selected ? 'border-blue-400 ring-2 ring-blue-500/50 dark:border-blue-600' : 'border-zinc-200 dark:border-zinc-700'}`}>
       <div className="flex items-start gap-2">
@@ -202,11 +206,15 @@ function CardBody({ task, overlay, selected }: { task: Task; overlay?: boolean; 
         <div className="min-w-0 flex-1">
           <div className={`text-[13.5px] leading-snug ${done ? 'line-through' : ''}`}>{task.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5 empty:hidden">
+            {ckTotal > 0 && <span className="text-[12px] font-medium text-zinc-400">{ckDone}/{ckTotal}</span>}
             {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
             {task.scheduled_date && <span className="text-[12px] font-medium text-zinc-400">{fmtDateShort(task.scheduled_date)}</span>}
           </div>
         </div>
       </div>
+      {task.checklist.length > 0 && (
+        <Subtasks items={task.checklist} projectId={task.project_id} workspaceId={task.workspace_id} hideProjectTag onChange={next => updateTask(task.id, { checklist: next })} />
+      )}
     </div>
   )
 }

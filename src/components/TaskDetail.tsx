@@ -5,6 +5,7 @@ import { BUCKET_LABEL, BUCKET_ORDER, type Bucket, type Recurrence } from '../typ
 import { todayStr, toStr } from '../lib/dates'
 import { addDays } from 'date-fns'
 import { confirmDialog } from '../store/dialogStore'
+import Checklist from './Checklist'
 
 /** 태스크 상세 — 중앙 팝업(다른 태스크 클릭 시 교체) */
 export default function TaskDetail({ taskId, onClose }: { taskId: string; onClose: () => void }) {
@@ -18,6 +19,7 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
   // App에서 key={taskId}로 마운트되므로 prop에서 곧바로 초기화(태스크 전환 시 자동 리셋)
   const [title, setTitle] = useState(task?.title ?? '')
   const [notes, setNotes] = useState(task?.notes ?? '')
+  const [addSubSignal, setAddSubSignal] = useState(0) // 증가하면 Checklist가 새 서브태스크 입력을 연다
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -90,7 +92,8 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
             onChange={e => setTitle(e.target.value)}
             onBlur={saveTitle}
             onKeyDown={e => {
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+              if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); saveTitle(); setAddSubSignal(n => n + 1) }
+              else if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
             }}
             placeholder="태스크 이름"
           />
@@ -191,6 +194,10 @@ export default function TaskDetail({ taskId, onClose }: { taskId: string; onClos
             )}
           </div>
 
+          <div>
+            <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">서브태스크 <span className="font-normal text-zinc-300 dark:text-zinc-600">— 제목에서 Shift+Enter</span></span>
+            <Checklist items={task.checklist} onChange={next => updateTask(task.id, { checklist: next })} addSignal={addSubSignal} />
+          </div>
 
           <label className="block">
             <span className="mb-1 block text-[12.5px] font-semibold text-zinc-400">메모</span>

@@ -1,5 +1,5 @@
 import { type MouseEvent, type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Pencil, SquareCheckBig, Square, Star, Trash2 } from 'lucide-react'
+import { Pencil, SquareCheckBig, Square, Star, ListPlus, Trash2 } from 'lucide-react'
 import { useStore } from '../store/store'
 import type { Task } from '../types'
 
@@ -87,6 +87,7 @@ export function useTaskContextMenu(task: Task, onOpen: (id: string) => void) {
   const toggleDone = useStore(s => s.toggleDone)
   const updateTask = useStore(s => s.updateTask)
   const deleteTask = useStore(s => s.deleteTask)
+  const setAddSubFor = useStore(s => s.setAddSubFor)
   const done = task.status === 'done'
   const flash = (m: string) => window.dispatchEvent(new CustomEvent('pd:flash', { detail: m }))
 
@@ -95,6 +96,7 @@ export function useTaskContextMenu(task: Task, onOpen: (id: string) => void) {
       <MenuItem icon={Pencil} label="수정 (상세 열기)" onClose={close} onPick={() => onOpen(task.id)} />
       <MenuItem icon={done ? Square : SquareCheckBig} label={done ? '완료 취소' : '완료'} onClose={close} onPick={() => toggleDone(task.id)} />
       <MenuItem icon={Star} label={task.important ? '중요 해제' : '중요 표시'} onClose={close} onPick={() => updateTask(task.id, { important: !task.important })} />
+      <MenuItem icon={ListPlus} label="서브태스크 추가" onClose={close} onPick={() => setAddSubFor(task.id)} />
       <div className="my-1 h-px bg-zinc-100 dark:bg-zinc-800" />
       <MenuItem icon={Trash2} label="삭제" danger onClose={close} onPick={() => { deleteTask(task.id); flash(`삭제됨: ${task.title} — Ctrl+Z로 복원`) }} />
     </>

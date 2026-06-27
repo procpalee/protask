@@ -85,8 +85,6 @@ export interface ChecklistItem {
   id: string
   title: string
   done: boolean
-  /** 서브태스크 개별 실행일 (YYYY-MM-DD). 없으면 미지정 — 레거시 항목은 undefined */
-  scheduled_date?: string | null
   children: ChecklistItem[]
 }
 
