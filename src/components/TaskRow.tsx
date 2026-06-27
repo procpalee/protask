@@ -16,15 +16,14 @@ function useCollapsed(id: string) {
 }
 
 /** 서브태스크 접기/펼치기 토글 — 평소엔 숨기고 hover/선택 시 노출(접혀 있으면 항상 표시). 좌측 정렬 유지 위해 우측 배치. */
-function CollapseToggle({ collapsed, done, total, selected, onToggle }: { collapsed: boolean; done: number; total: number; selected?: boolean; onToggle: () => void }) {
+function CollapseToggle({ collapsed, selected, onToggle }: { collapsed: boolean; selected?: boolean; onToggle: () => void }) {
   return (
     <button
       onClick={e => { e.stopPropagation(); onToggle() }}
-      className={`flex shrink-0 items-center gap-0.5 rounded px-1 py-0.5 text-[12px] font-medium text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 group-hover:visible touch:visible dark:hover:bg-zinc-800 dark:hover:text-zinc-300 ${collapsed || selected ? 'visible' : 'invisible'}`}
+      className={`shrink-0 rounded p-0.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 group-hover:visible touch:visible dark:hover:bg-zinc-800 dark:hover:text-zinc-300 ${collapsed || selected ? 'visible' : 'invisible'}`}
       title={collapsed ? '서브태스크 펼치기' : '서브태스크 접기'}
     >
-      {collapsed ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
-      {done}/{total}
+      {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
     </button>
   )
 }
@@ -54,7 +53,6 @@ export default function TaskRow({
   }, [selected])
 
   const ckTotal = countCk(task.checklist)
-  const ckDone = countCk(task.checklist, true)
   const [collapsed, toggleCollapsed] = useCollapsed(task.id)
 
   return (
@@ -82,7 +80,7 @@ export default function TaskRow({
           {task.title}
         </span>
 
-        {ckTotal > 0 && <CollapseToggle collapsed={collapsed} done={ckDone} total={ckTotal} selected={selected} onToggle={toggleCollapsed} />}
+        {ckTotal > 0 && <CollapseToggle collapsed={collapsed} selected={selected} onToggle={toggleCollapsed} />}
 
         {/* 날짜·프로젝트 등 — 모바일에선 제목 아래 줄로 줄바꿈(들여쓰기) */}
         <div className="flex shrink-0 items-center gap-2 max-md:order-last max-md:basis-full max-md:pl-[46px]">
@@ -251,7 +249,7 @@ function SubtaskRow({ item, root, projectId, workspaceId, onChange, hideProjectT
         <span className={`min-w-0 flex-1 truncate text-[14.5px] ${item.done ? 'text-zinc-400 line-through dark:text-zinc-500' : ''}`}>
           {item.title}
         </span>
-        {hasChildren && <CollapseToggle collapsed={collapsed} done={countCk(item.children, true)} total={countCk(item.children)} selected={selected} onToggle={toggleCollapsed} />}
+        {hasChildren && <CollapseToggle collapsed={collapsed} selected={selected} onToggle={toggleCollapsed} />}
         {!hideProjectTag && (projectId || workspaceId) && (
           <span className="shrink-0"><ProjectChip projectId={projectId} workspaceId={workspaceId} /></span>
         )}
