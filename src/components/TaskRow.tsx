@@ -80,8 +80,6 @@ export default function TaskRow({
           {task.title}
         </span>
 
-        {ckTotal > 0 && <CollapseToggle collapsed={collapsed} selected={selected} onToggle={toggleCollapsed} />}
-
         {/* 날짜·프로젝트 등 — 모바일에선 제목 아래 줄로 줄바꿈(들여쓰기) */}
         <div className="flex shrink-0 items-center gap-2 max-md:order-last max-md:basis-full max-md:pl-[46px]">
           {task.deadline && !done && <DeadlineBadge deadline={task.deadline} />}
@@ -97,6 +95,9 @@ export default function TaskRow({
           </button>
           {trailing}
         </div>
+
+        {/* 서브태스크 접기/펼치기 — 항상 맨 오른쪽 */}
+        {ckTotal > 0 && <CollapseToggle collapsed={collapsed} selected={selected} onToggle={toggleCollapsed} />}
       </div>
 
       {task.checklist.length > 0 && !collapsed && (
@@ -249,10 +250,10 @@ function SubtaskRow({ item, root, projectId, workspaceId, onChange, hideProjectT
         <span className={`min-w-0 flex-1 truncate text-[14.5px] ${item.done ? 'text-zinc-400 line-through dark:text-zinc-500' : ''}`}>
           {item.title}
         </span>
-        {hasChildren && <CollapseToggle collapsed={collapsed} selected={selected} onToggle={toggleCollapsed} />}
         {!hideProjectTag && (projectId || workspaceId) && (
           <span className="shrink-0"><ProjectChip projectId={projectId} workspaceId={workspaceId} /></span>
         )}
+        {hasChildren && <CollapseToggle collapsed={collapsed} selected={selected} onToggle={toggleCollapsed} />}
       </div>
       {hasChildren && !collapsed && (
         <div className="ml-3 border-l-2 border-zinc-200 pl-2 dark:border-zinc-700">
